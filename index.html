@@ -80,12 +80,17 @@ select option{background:var(--surface2)}
 .sep{border:none;border-top:1px solid var(--border);margin:16px 0}
 .hint{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;font-family:'IBM Plex Mono',monospace}
 .hint strong{color:var(--text2)}
+.btn-pdf{background:transparent;color:var(--green);border:1px solid var(--green-border);padding:7px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em}.btn-pdf:hover{background:var(--green-bg)}
 .camp-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
 .camp-row:last-child{border-bottom:none}
 .marg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap;font-size:12px}
 .marg-item:last-child{border-bottom:none}
 .msg{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace}
 .err{font-size:12px;color:var(--red);font-family:'IBM Plex Mono',monospace}
+
+.btn-pdf{background:transparent;color:var(--green);border:1px solid var(--green-border);padding:7px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em}.btn-pdf:hover{background:var(--green-bg)}
+.window-selector{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap}
+.window-selector select{width:200px}
 </style>
 </head>
 <body>
@@ -159,7 +164,11 @@ select option{background:var(--surface2)}
 </div>
 
 <div id="tab-decision" style="display:none">
-  <div style="margin-bottom:16px"><select id="dec-camp" style="width:220px" onchange="renderDecision()"></select></div>
+  <div class="window-selector">
+    <div><label style="margin-bottom:4px">Campaign</label><select id="dec-camp" style="width:210px" onchange="populateDecWindow()"></select></div>
+    <div><label style="margin-bottom:4px">Ending Week</label><select id="dec-end" style="width:180px" onchange="renderDecision()"><option value="">Most recent 4 weeks</option></select></div>
+    <button class="btn-pdf" onclick="exportDecisionPDF()">Export PDF</button>
+  </div>
   <div id="dec-content"></div>
 </div>
 
@@ -181,6 +190,12 @@ select option{background:var(--surface2)}
 
 <div id="tab-settings" style="display:none">
   <div class="card">
+    <div class="card-title">Client Information</div>
+    <div class="g2" style="margin-bottom:16px;max-width:500px">
+      <div><label>Client Name</label><input type="text" id="s-client" placeholder="e.g. Abolox LLC" oninput="updateSettings()"></div>
+      <div><label>Prepared By</label><input type="text" id="s-preparer" placeholder="e.g. Ahmed — Modonix" oninput="updateSettings()"></div>
+    </div>
+    <hr class="sep">
     <div class="card-title">Adjustment Step Sizes</div>
     <div class="g3" style="margin-bottom:16px">
       <div><label>ROAS Step Size (×)</label><input type="number" id="s-roasstep" step="0.05" oninput="updateSettings()"></div>
@@ -205,7 +220,7 @@ select option{background:var(--surface2)}
 
 <script>
 const SK='roas_v5';
-let db=JSON.parse(localStorage.getItem(SK)||'null')||{settings:{roasStep:0.5,scalePct:10,cutPct:20,margThresh:4.25,margMinPct:5},campaigns:[{id:'c1',name:'Main Campaign',targetROAS:3.25,gm:0.235}],entries:[]};
+let db=JSON.parse(localStorage.getItem(SK)||'null')||{settings:{roasStep:0.5,scalePct:10,cutPct:20,margThresh:4.25,margMinPct:5,clientName:'',preparedBy:'Ahmed — Modonix'},campaigns:[{id:'c1',name:'Main Campaign',targetROAS:3.25,gm:0.235}],entries:[]};
 function save(){localStorage.setItem(SK,JSON.stringify(db))}
 function cfg(){return db.settings}
 function getCamp(id){return db.campaigns.find(c=>c.id===id)||db.campaigns[0]}
@@ -252,16 +267,666 @@ function getBudgetRoasAction(fd,tROAS,lastSpend){
 function decCls(d){if(['SCALE (FULL)','SCALE (LIMITED)','MICRO-SCALE'].includes(d))return 'g';if(['HOLD','INVESTIGATE'].includes(d))return 'y';return 'r'}
 function fmt$(n){return '$'+Math.round(n).toLocaleString()}
 function fmtR(n){return(+n).toFixed(2)+'×'}
+function populateDecEndSelector(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+function getDecWindow(campId, endDate){
+  const all=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!all.length) return all.slice(-4);
+  const idx=all.findIndex(e=>e.date===endDate);
+  if(idx<0) return all.slice(-4);
+  const start=Math.max(0,idx-3);
+  return all.slice(start,idx+1);
+}
+
+function populateDecWindow(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const sel=document.getElementById('dec-end');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur) sel.value=cur;
+  renderDecision();
+}
+
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const camp=getCamp(campId);
+  const endDate=document.getElementById('dec-end').value;
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const last=entries[entries.length-1];
+  const dateRange=`${entries[0].date} to ${last.date}`;
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+  // From/To
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('ROAS Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Google Ads Campaign Analysis — '+camp.name,ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('Gross Margin: '+(camp.gm*100).toFixed(1)+'%',ml+4,y+7);
+  doc.text('Profit Threshold: '+base.prt.toFixed(2)+'×',ml+50,y+7);
+  doc.text('Effective Target: '+base.et.toFixed(2)+'×',ml+100,y+7);
+  doc.text('This Week Target: '+fmtR(base.tROAS),ml+152,y+7);
+  y+=14;
+  // Decision banner
+  const decColor=finalDec.includes('SCALE')?[34,197,94]:finalDec==='INVESTIGATE'||finalDec==='HOLD'?[245,158,11]:[239,68,68];
+  const decBg=finalDec.includes('SCALE')?[240,255,244]:finalDec==='INVESTIGATE'||finalDec==='HOLD'?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,20,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+9);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+15);
+  y+=24;
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const mROASColor=mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11];
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status+(mz.override?' (OVERRIDE)':''),subColor:mROASColor},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144]},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68]},
+    {label:'LEVEL STATUS',val:base.blended.toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68]},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+    doc.roundedRect(cx,y,cardW,20,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub,cx+3,y+18);
+  });
+  y+=25;
+  // Conflict box
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,14,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+6);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(160,45,45);
+    doc.text('4W Blended says: '+baseDec+' · mROAS Override says: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+11);
+    y+=17;
+  }
+  // Drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bg=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bd=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bg);doc.setDrawColor(...bd);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bd);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0]||'',ml+75,y+4);
+      y+=12;
+    });
+  }
+  // Action rows
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'UP':acts.budgetDir==='down'?'DOWN':'HOLD';
+  const rDir=acts.roasDir==='up'?'UP':acts.roasDir==='down'?'DOWN':'HOLD';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[113,128,144];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[113,128,144];
+  const actionRows=[
+    ['Budget',acts.budgetAction,fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bDir,bCol],
+    ['Target ROAS',acts.roasAction,fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rDir,rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' ('+mz.status+')':'N/A',mz.label,'',mROASColor],
+  ];
+  actionRows.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+    doc.text(r[1],ml+35,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[4]);
+    doc.text(r[2],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TARGET ROAS','PPC ROAS','OVERALL ROAS','SPEND','PPC REV','MARG ROAS'];
+  const colW=[26,26,22,26,26,26,22];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);
+  let cx2=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx2+2,y+5);cx2+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const m=marg[ri];
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),fmt$(e.spend),fmt$(e.ppcRev||0),m!==null?fmtR(m):'—'];
+    cx2=ml;
+    row.forEach((v,i)=>{doc.text(String(v),cx2+2,y+5);cx2+=colW[i];});
+    y+=7;
+  });
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
 function populateSelects(){['w-camp','win-camp','dec-camp','hist-camp'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML=db.campaigns.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');if(cur&&db.campaigns.find(c=>c.id===cur))el.value=cur})}
-function showTab(t){['weekly','window','decision','history','settings'].forEach(x=>{document.getElementById('tab-'+x).style.display=x===t?'block':'none'});document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.toggle('active',['weekly','window','decision','history','settings'][i]===t)});populateSelects();if(t==='window')renderWindow();if(t==='decision')renderDecision();if(t==='history')renderHistory();if(t==='settings')renderSettings()}
+function showTab(t){['weekly','window','decision','history','settings'].forEach(x=>{document.getElementById('tab-'+x).style.display=x===t?'block':'none'});document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.toggle('active',['weekly','window','decision','history','settings'][i]===t)});
+function onDecCampChange(){
+  populateDecEnd();
+  renderDecision();
+}
+
+function populateDecEnd(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+// placeholder_pdf
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const endDate=document.getElementById('dec-end').value;
+  const camp=getCamp(campId);
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+
+  // Title block
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('4-Week Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
+  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
+  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
+  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
+  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
+  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
+  doc.text(fmtR(base.tROAS),ml+124,y+9);
+  y+=14;
+
+  // Decision banner
+  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
+  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+13);
+  y+=22;
+
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
+    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    const hasflag=c.flag!=='';
+    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
+    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
+    doc.setLineWidth(hasflag?0.6:0.3);
+    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  });
+  y+=27;
+
+  // Conflict notice
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
+    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
+    y+=16;
+  }
+
+  // Active drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0],ml+75,y+4);y+=12;
+    });
+  }
+
+  // Budget & ROAS actions
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
+  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
+  const recs=[
+    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
+    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  ];
+  recs.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
+    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
+  const colW=[24,20,20,20,20,22,22,22,16];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
+  let cx=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    const m=marg[ri];
+    const mzr=margZoneFromVal(m);
+    const z=getZone(e.ovrR,e.tROAS);
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
+    cx=ml;
+    row.forEach((v,i)=>{
+      let tc=[45,55,72];
+      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
+      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+      doc.setTextColor(...tc);
+      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+    });
+    y+=7;
+  });
+
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
+populateSelects();if(t==='window')renderWindow();if(t==='decision')renderDecision();if(t==='history')renderHistory();if(t==='settings')renderSettings()}
 function onCampChange(){const c=getCamp(document.getElementById('w-camp').value);if(c){document.getElementById('w-troas').value=c.targetROAS;document.getElementById('w-camp-info').innerHTML=`<div class="hint">Gross margin: <strong>${(c.gm*100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${campPRT(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${campEffTarget(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Default target ROAS: <strong>${c.targetROAS}×</strong></div>`}calcWeekly()}
 function toggleNewCamp(){const b=document.getElementById('new-camp-box');b.style.display=b.style.display==='none'?'block':'none'}
-function addCamp(){const name=document.getElementById('nc-name').value.trim(),roas=parseFloat(document.getElementById('nc-roas').value)||3.25,gm=parseFloat(document.getElementById('nc-gm').value)/100||0.235;if(!name){alert('Campaign name required.');return}db.campaigns.push({id:'c'+Date.now(),name,targetROAS:roas,gm});save();populateSelects();toggleNewCamp();document.getElementById('nc-name').value='';document.getElementById('nc-roas').value='';document.getElementById('nc-gm').value=''}
+function addCamp(){const name=document.getElementById('nc-name').value.trim(),roas=parseFloat(document.getElementById('nc-roas').value)||3.25,gm=parseFloat(document.getElementById('nc-gm').value)/100||0.235;if(!name){alert('Campaign name required.');return}db.campaigns.push({id:'c'+Date.now(),name,targetROAS:roas,gm});save();
+function onDecCampChange(){
+  populateDecEnd();
+  renderDecision();
+}
+
+function populateDecEnd(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+// placeholder_pdf
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const endDate=document.getElementById('dec-end').value;
+  const camp=getCamp(campId);
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+
+  // Title block
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('4-Week Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
+  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
+  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
+  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
+  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
+  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
+  doc.text(fmtR(base.tROAS),ml+124,y+9);
+  y+=14;
+
+  // Decision banner
+  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
+  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+13);
+  y+=22;
+
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
+    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    const hasflag=c.flag!=='';
+    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
+    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
+    doc.setLineWidth(hasflag?0.6:0.3);
+    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  });
+  y+=27;
+
+  // Conflict notice
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
+    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
+    y+=16;
+  }
+
+  // Active drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0],ml+75,y+4);y+=12;
+    });
+  }
+
+  // Budget & ROAS actions
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
+  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
+  const recs=[
+    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
+    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  ];
+  recs.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
+    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
+  const colW=[24,20,20,20,20,22,22,22,16];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
+  let cx=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    const m=marg[ri];
+    const mzr=margZoneFromVal(m);
+    const z=getZone(e.ovrR,e.tROAS);
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
+    cx=ml;
+    row.forEach((v,i)=>{
+      let tc=[45,55,72];
+      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
+      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+      doc.setTextColor(...tc);
+      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+    });
+    y+=7;
+  });
+
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
+populateSelects();toggleNewCamp();document.getElementById('nc-name').value='';document.getElementById('nc-roas').value='';document.getElementById('nc-gm').value=''}
 function calcWeekly(){const tROAS=parseFloat(document.getElementById('w-troas').value),ppcR=parseFloat(document.getElementById('w-ppcr').value),ovrR=parseFloat(document.getElementById('w-ovr').value);if(!ovrR||!tROAS){document.getElementById('week-zone-row').style.display='none';return}const z=getZone(ovrR,tROAS);document.getElementById('wz-zone').innerHTML=`<span class="badge ${z.cls}">${z.zone}</span>`;document.getElementById('wz-rank').textContent=(ovrR/tROAS).toFixed(2)+'×';document.getElementById('wz-action').textContent=z.action;document.getElementById('wz-ppc').innerHTML=ppcR?`<span class="badge ${ppcR>=tROAS?'bg':'br'}">${ppcR>=tROAS?'Above':'Below'} Target</span>`:'—';document.getElementById('week-zone-row').style.display='block'}
 function saveWeek(){const campId=document.getElementById('w-camp').value,date=document.getElementById('w-date').value,tROAS=parseFloat(document.getElementById('w-troas').value)||getCamp(campId).targetROAS,ppcR=parseFloat(document.getElementById('w-ppcr').value)||0,ovrR=parseFloat(document.getElementById('w-ovr').value)||0,spend=parseFloat(document.getElementById('w-spend').value)||0,ppcRev=parseFloat(document.getElementById('w-ppcrev').value)||0,totRev=parseFloat(document.getElementById('w-totrev').value)||0,msg=document.getElementById('w-msg');if(!date||!spend){msg.className='err';msg.textContent='Date and spend required.';return}db.entries.push({id:'e'+Date.now(),campId,date,tROAS,ppcR,ovrR,spend,ppcRev,totRev});db.entries.sort((a,b)=>a.date.localeCompare(b.date));save();msg.className='msg';msg.textContent='Saved.';setTimeout(()=>msg.textContent='',2500);['w-ppcr','w-ovr','w-spend','w-ppcrev','w-totrev'].forEach(id=>document.getElementById(id).value='')}
 function renderWindow(){const campId=document.getElementById('win-camp').value,entries=db.entries.filter(e=>e.campId===campId).slice(-4);if(!entries.length){document.getElementById('win-content').innerHTML='<p style="color:var(--text3);font-size:13px">No data yet. Add entries on the Weekly Entry tab.</p>';return}const marg=getMargROAS(entries);let cumS=0,cumP=0,cumT=0;const rows=entries.map((e,i)=>{cumS+=e.spend;cumP+=e.ppcRev;cumT+=e.totRev;const pR=cumS>0?cumP/cumS:0,tR=cumS>0?cumT/cumS:0,m=marg[i],mz=margZoneFromVal(m);return`<tr><td>${i+1}W</td><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmt$(e.spend)}</td><td>${fmt$(cumS)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(cumP)}</td><td>${fmt$(e.totRev)}</td><td>${fmt$(cumT)}</td><td>${fmtR(pR)}</td><td>${fmtR(tR)}</td><td>${m!==null?fmtR(m):'—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><span class="badge ${mz.cls}">${mz.label}</span></td></tr>`}).join('');document.getElementById('win-content').innerHTML=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Win</th><th>Date</th><th>Tgt ROAS</th><th>Wk Spend</th><th>Cum Spend</th><th>Wk PPC Rev</th><th>Cum PPC Rev</th><th>Wk Tot Rev</th><th>Cum Tot Rev</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Marg ROAS</th><th>mROAS Status</th><th>mROAS Action</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 function renderDecision(){
-  const campId=document.getElementById('dec-camp').value,camp=getCamp(campId),entries=db.entries.filter(e=>e.campId===campId).slice(-4);
+  const campId=document.getElementById('dec-camp').value,camp=getCamp(campId),endDate=document.getElementById('dec-end')?document.getElementById('dec-end').value:'',entries=getDecWindow(campId,endDate);
   if(entries.length<2){document.getElementById('dec-content').innerHTML='<div class="card"><p style="color:var(--text3);font-size:13px">Need at least 2 weeks of data.</p></div>';return}
   const base=calcBaseDecision(entries,camp),marg=getMargROAS(entries),lastMarg=marg[marg.length-1],mz=margZoneFromVal(lastMarg),drivers=getSignalDrivers(base,mz),{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz),acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend),cl=decCls(finalDec);
   const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→',rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→',bCol=acts.budgetDir==='up'?'var(--green)':acts.budgetDir==='down'?'var(--red)':'var(--text3)',rCol=acts.roasDir==='up'?'var(--red)':acts.roasDir==='down'?'var(--green)':'var(--text3)';
@@ -300,12 +965,676 @@ function renderDecision(){
 function renderHistory(){const campId=document.getElementById('hist-camp').value,period=document.getElementById('hist-period').value;let entries=db.entries.filter(e=>e.campId===campId);const now=new Date();if(period==='4w'){const s=new Date(now);s.setDate(s.getDate()-28);entries=entries.filter(e=>new Date(e.date)>=s)}if(period==='month'){const s=new Date(now.getFullYear(),now.getMonth(),1);entries=entries.filter(e=>new Date(e.date)>=s)}if(period==='quarter'){const q=Math.floor(now.getMonth()/3);const s=new Date(now.getFullYear(),q*3,1);entries=entries.filter(e=>new Date(e.date)>=s)}if(!entries.length){document.getElementById('hist-content').innerHTML='<p style="color:var(--text3);font-size:13px">No entries for this period.</p>';return}const marg=getMargROAS(entries);const rows=entries.slice().reverse().map((e,ri)=>{const i=entries.length-1-ri,z=getZone(e.ovrR,e.tROAS),m=marg[i],mz=margZoneFromVal(m);return`<tr><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmtR(e.ppcR)}</td><td>${fmtR(e.ovrR)}</td><td><span class="badge ${z.cls}">${z.zone}</span></td><td>${fmt$(e.spend)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(e.totRev)}</td><td>${m!==null?fmtR(m):'—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><button class="btn btn-del" onclick="delEntry('${e.id}')">Del</button></td></tr>`}).join('');document.getElementById('hist-content').innerHTML=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Tgt ROAS</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Zone</th><th>Spend</th><th>PPC Rev</th><th>Total Rev</th><th>Marg ROAS</th><th>mROAS</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`}
 function delEntry(id){db.entries=db.entries.filter(e=>e.id!==id);save();renderHistory()}
 function exportCSV(){const campId=document.getElementById('hist-camp').value,camp=getCamp(campId),entries=db.entries.filter(e=>e.campId===campId),marg=getMargROAS(entries),hdr='Date,Target ROAS,PPC ROAS,Overall ROAS,Zone,Spend,PPC Revenue,Total Revenue,Marginal ROAS,mROAS Status',rows=entries.map((e,i)=>{const z=getZone(e.ovrR,e.tROAS),m=marg[i],mz=margZoneFromVal(m);return`${e.date},${e.tROAS},${e.ppcR},${e.ovrR},${z.zone},${e.spend},${e.ppcRev},${e.totRev},${m!==null?m.toFixed(2):''},${mz.status}`});const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([hdr,...rows].join('\n'));a.download=camp.name.replace(/\s+/g,'_')+'_roas.csv';a.click()}
-function renderSettings(){document.getElementById('s-roasstep').value=cfg().roasStep;document.getElementById('s-scale-pct').value=cfg().scalePct;document.getElementById('s-cut-pct').value=cfg().cutPct;document.getElementById('s-marg-thresh').value=cfg().margThresh;document.getElementById('s-marg-min-pct').value=cfg().margMinPct;const th=cfg().margThresh;document.getElementById('marg-zones').innerHTML=`<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;document.getElementById('camp-list').innerHTML=db.campaigns.map(c=>`<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">${c.name}</div><div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Default target: ${c.targetROAS}× &nbsp;·&nbsp; Gross margin: ${(c.gm*100).toFixed(1)}% &nbsp;·&nbsp; Profit threshold: ${campPRT(c).toFixed(2)}× &nbsp;·&nbsp; Effective target: ${campEffTarget(c).toFixed(2)}×</div></div><button class="btn btn-edit" onclick="editCamp('${c.id}')">Edit</button>${db.campaigns.length>1?`<button class="btn btn-del" onclick="delCamp('${c.id}')">Remove</button>`:'<span style="font-size:11px;color:var(--text3)">Last</span>'}</div><div id="edit-${c.id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px"><div><label>Name</label><input id="en-${c.id}" value="${c.name}"></div><div><label>Default Target ROAS</label><input id="er-${c.id}" type="number" step="0.01" value="${c.targetROAS}"></div><div><label>Gross Margin %</label><input id="eg-${c.id}" type="number" step="0.1" value="${(c.gm*100).toFixed(1)}"></div></div><div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit('${c.id}')">Save</button><button class="btn btn-sec" onclick="editCamp('${c.id}')">Cancel</button></div></div>`).join('')}
+function renderSettings(){
+  document.getElementById('s-client').value=cfg().clientName||'';
+  document.getElementById('s-preparer').value=cfg().preparedBy||'Ahmed — Modonix';document.getElementById('s-roasstep').value=cfg().roasStep;document.getElementById('s-scale-pct').value=cfg().scalePct;document.getElementById('s-cut-pct').value=cfg().cutPct;document.getElementById('s-marg-thresh').value=cfg().margThresh;document.getElementById('s-marg-min-pct').value=cfg().margMinPct;const th=cfg().margThresh;document.getElementById('marg-zones').innerHTML=`<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;document.getElementById('camp-list').innerHTML=db.campaigns.map(c=>`<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">${c.name}</div><div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Default target: ${c.targetROAS}× &nbsp;·&nbsp; Gross margin: ${(c.gm*100).toFixed(1)}% &nbsp;·&nbsp; Profit threshold: ${campPRT(c).toFixed(2)}× &nbsp;·&nbsp; Effective target: ${campEffTarget(c).toFixed(2)}×</div></div><button class="btn btn-edit" onclick="editCamp('${c.id}')">Edit</button>${db.campaigns.length>1?`<button class="btn btn-del" onclick="delCamp('${c.id}')">Remove</button>`:'<span style="font-size:11px;color:var(--text3)">Last</span>'}</div><div id="edit-${c.id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px"><div><label>Name</label><input id="en-${c.id}" value="${c.name}"></div><div><label>Default Target ROAS</label><input id="er-${c.id}" type="number" step="0.01" value="${c.targetROAS}"></div><div><label>Gross Margin %</label><input id="eg-${c.id}" type="number" step="0.1" value="${(c.gm*100).toFixed(1)}"></div></div><div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit('${c.id}')">Save</button><button class="btn btn-sec" onclick="editCamp('${c.id}')">Cancel</button></div></div>`).join('')}
 function editCamp(id){const b=document.getElementById('edit-'+id);b.style.display=b.style.display==='none'?'block':'none'}
-function saveCampEdit(id){const c=db.campaigns.find(x=>x.id===id);if(!c)return;c.name=document.getElementById('en-'+id).value.trim()||c.name;c.targetROAS=parseFloat(document.getElementById('er-'+id).value)||c.targetROAS;c.gm=parseFloat(document.getElementById('eg-'+id).value)/100||c.gm;save();populateSelects();renderSettings();onCampChange()}
-function delCamp(id){if(db.campaigns.length<=1){alert('Cannot remove the last campaign.');return}if(!confirm('Remove this campaign and all its entries?'))return;db.campaigns=db.campaigns.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.campId!==id);save();populateSelects();renderSettings()}
-function updateSettings(){cfg().roasStep=parseFloat(document.getElementById('s-roasstep').value)||0.5;cfg().scalePct=parseFloat(document.getElementById('s-scale-pct').value)||10;cfg().cutPct=parseFloat(document.getElementById('s-cut-pct').value)||20;cfg().margThresh=parseFloat(document.getElementById('s-marg-thresh').value)||4.25;cfg().margMinPct=parseFloat(document.getElementById('s-marg-min-pct').value)||5;save();renderSettings()}
+function saveCampEdit(id){const c=db.campaigns.find(x=>x.id===id);if(!c)return;c.name=document.getElementById('en-'+id).value.trim()||c.name;c.targetROAS=parseFloat(document.getElementById('er-'+id).value)||c.targetROAS;c.gm=parseFloat(document.getElementById('eg-'+id).value)/100||c.gm;save();
+function onDecCampChange(){
+  populateDecEnd();
+  renderDecision();
+}
+
+function populateDecEnd(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+// placeholder_pdf
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const endDate=document.getElementById('dec-end').value;
+  const camp=getCamp(campId);
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+
+  // Title block
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('4-Week Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
+  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
+  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
+  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
+  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
+  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
+  doc.text(fmtR(base.tROAS),ml+124,y+9);
+  y+=14;
+
+  // Decision banner
+  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
+  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+13);
+  y+=22;
+
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
+    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    const hasflag=c.flag!=='';
+    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
+    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
+    doc.setLineWidth(hasflag?0.6:0.3);
+    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  });
+  y+=27;
+
+  // Conflict notice
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
+    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
+    y+=16;
+  }
+
+  // Active drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0],ml+75,y+4);y+=12;
+    });
+  }
+
+  // Budget & ROAS actions
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
+  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
+  const recs=[
+    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
+    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  ];
+  recs.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
+    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
+  const colW=[24,20,20,20,20,22,22,22,16];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
+  let cx=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    const m=marg[ri];
+    const mzr=margZoneFromVal(m);
+    const z=getZone(e.ovrR,e.tROAS);
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
+    cx=ml;
+    row.forEach((v,i)=>{
+      let tc=[45,55,72];
+      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
+      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+      doc.setTextColor(...tc);
+      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+    });
+    y+=7;
+  });
+
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
+populateSelects();renderSettings();onCampChange()}
+function delCamp(id){if(db.campaigns.length<=1){alert('Cannot remove the last campaign.');return}if(!confirm('Remove this campaign and all its entries?'))return;db.campaigns=db.campaigns.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.campId!==id);save();
+function onDecCampChange(){
+  populateDecEnd();
+  renderDecision();
+}
+
+function populateDecEnd(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+// placeholder_pdf
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const endDate=document.getElementById('dec-end').value;
+  const camp=getCamp(campId);
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+
+  // Title block
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('4-Week Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
+  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
+  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
+  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
+  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
+  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
+  doc.text(fmtR(base.tROAS),ml+124,y+9);
+  y+=14;
+
+  // Decision banner
+  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
+  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+13);
+  y+=22;
+
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
+    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    const hasflag=c.flag!=='';
+    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
+    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
+    doc.setLineWidth(hasflag?0.6:0.3);
+    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  });
+  y+=27;
+
+  // Conflict notice
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
+    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
+    y+=16;
+  }
+
+  // Active drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0],ml+75,y+4);y+=12;
+    });
+  }
+
+  // Budget & ROAS actions
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
+  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
+  const recs=[
+    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
+    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  ];
+  recs.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
+    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
+  const colW=[24,20,20,20,20,22,22,22,16];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
+  let cx=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    const m=marg[ri];
+    const mzr=margZoneFromVal(m);
+    const z=getZone(e.ovrR,e.tROAS);
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
+    cx=ml;
+    row.forEach((v,i)=>{
+      let tc=[45,55,72];
+      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
+      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+      doc.setTextColor(...tc);
+      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+    });
+    y+=7;
+  });
+
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
+populateSelects();renderSettings()}
+function updateSettings(){
+  cfg().clientName=document.getElementById('s-client').value.trim();
+  cfg().preparedBy=document.getElementById('s-preparer').value.trim();cfg().roasStep=parseFloat(document.getElementById('s-roasstep').value)||0.5;cfg().scalePct=parseFloat(document.getElementById('s-scale-pct').value)||10;cfg().cutPct=parseFloat(document.getElementById('s-cut-pct').value)||20;cfg().margThresh=parseFloat(document.getElementById('s-marg-thresh').value)||4.25;cfg().margMinPct=parseFloat(document.getElementById('s-marg-min-pct').value)||5;save();renderSettings()}
+
+function onDecCampChange(){
+  populateDecEnd();
+  renderDecision();
+}
+
+function populateDecEnd(){
+  const campId=document.getElementById('dec-camp').value;
+  const entries=db.entries.filter(e=>e.campId===campId);
+  const el=document.getElementById('dec-end');
+  if(!el) return;
+  const cur=el.value;
+  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
+    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
+  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+}
+
+function getDecWindow(campId,endDate){
+  const entries=db.entries.filter(e=>e.campId===campId);
+  if(!endDate||!entries.length) return entries.slice(-4);
+  const idx=entries.findIndex(e=>e.date===endDate);
+  if(idx<0) return entries.slice(-4);
+  const start=Math.max(0,idx-3);
+  return entries.slice(start,idx+1);
+}
+
+// placeholder_pdf
+function exportDecisionPDF(){
+  const campId=document.getElementById('dec-camp').value;
+  const endDate=document.getElementById('dec-end').value;
+  const camp=getCamp(campId);
+  const entries=getDecWindow(campId,endDate);
+  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
+  const base=calcBaseDecision(entries,camp);
+  const marg=getMargROAS(entries);
+  const lastMarg=marg[marg.length-1];
+  const mz=margZoneFromVal(lastMarg);
+  const drivers=getSignalDrivers(base,mz);
+  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
+  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
+  const client=cfg().clientName||'Client';
+  const preparer=cfg().preparedBy||'Ahmed — Modonix';
+  const today=new Date().toISOString().slice(0,10);
+  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
+  let y=0;
+
+  // Header
+  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
+  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
+  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
+  y=32;
+
+  // Title block
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
+  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
+  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
+  doc.text('4-Week Decision Report',ml,y);y+=7;
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
+  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+
+  // Campaign info bar
+  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
+  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
+  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
+  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
+  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
+  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
+  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
+  doc.text(fmtR(base.tROAS),ml+124,y+9);
+  y+=14;
+
+  // Decision banner
+  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
+  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
+  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
+  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
+  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
+  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
+  doc.text(ratLines,ml+5,y+13);
+  y+=22;
+
+  // Signal cards
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
+  const cardW=(usableW-9)/4;
+  const cards=[
+    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
+    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
+    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
+    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  ];
+  cards.forEach((c,i)=>{
+    const cx=ml+i*(cardW+3);
+    const hasflag=c.flag!=='';
+    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
+    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
+    doc.setLineWidth(hasflag?0.6:0.3);
+    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+    doc.text(c.label,cx+3,y+5);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
+    doc.text(String(c.val),cx+3,y+12);
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
+    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  });
+  y+=27;
+
+  // Conflict notice
+  if(hasConflict){
+    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
+    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
+    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
+    y+=16;
+  }
+
+  // Active drivers
+  if(drivers.length){
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
+    drivers.forEach(dr=>{
+      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
+      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
+      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
+      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
+      doc.text(dr.value,ml+38,y+4);
+      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+      const rl=doc.splitTextToSize(dr.reason,usableW-85);
+      doc.text(rl[0],ml+75,y+4);y+=12;
+    });
+  }
+
+  // Budget & ROAS actions
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('RECOMMENDATIONS',ml,y);y+=5;
+  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
+  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
+  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
+  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
+  const recs=[
+    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
+    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
+    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  ];
+  recs.forEach((r,i)=>{
+    const bg=i%2===0?[255,255,255]:[248,249,250];
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,8,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
+    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
+    y+=8;
+  });
+  y+=6;
+
+  // 4-week trend table
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
+  doc.text('4-WEEK TREND',ml,y);y+=5;
+  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
+  const colW=[24,20,20,20,20,22,22,22,16];
+  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
+  let cx=ml;
+  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
+  y+=7;
+  entries.forEach((e,ri)=>{
+    const bg=ri%2===0?[255,255,255]:[248,249,250];
+    const m=marg[ri];
+    const mzr=margZoneFromVal(m);
+    const z=getZone(e.ovrR,e.tROAS);
+    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
+    doc.rect(ml,y,usableW,7,'FD');
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
+    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
+    cx=ml;
+    row.forEach((v,i)=>{
+      let tc=[45,55,72];
+      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
+      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+      doc.setTextColor(...tc);
+      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+    });
+    y+=7;
+  });
+
+  // Footer
+  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
+  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
+  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
+  doc.text(today,W-mr,H-7,{align:'right'});
+
+  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+}
+
 populateSelects();document.getElementById('w-date').value=new Date().toISOString().slice(0,10);onCampChange();renderSettings();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
