@@ -120,7 +120,7 @@ select option{background:var(--surface2)}
   <div class="header-right">
     <select id="client-switcher" onchange="switchClient(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 10px;border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:140px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer"></select>
     <button class="btn-header" onclick="quickAddClient()" title="Add a new client" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
-    <span class="header-tag">v7.1 · Multi-Client</span>
+    <span class="header-tag">v8 · AI Auditor</span>
     <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON — do this weekly">⬇ Export Backup</button>
     <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>
     <input type="file" id="backup-import" style="display:none" accept=".json" onchange="importBackup(event)">
@@ -141,6 +141,7 @@ select option{background:var(--surface2)}
   <button class="tab" onclick="showTab('window')">4-Week Window</button>
   <button class="tab" onclick="showTab('decision')">Decision Layer</button>
   <button class="tab" onclick="showTab('history')">History</button>
+  <button class="tab" onclick="showTab('audit')">AI Audit</button>
   <button class="tab" onclick="showTab('settings')">Settings</button>
 </div>
 
@@ -225,7 +226,121 @@ select option{background:var(--surface2)}
   <div class="card"><div id="hist-content"></div></div>
 </div>
 
+<div id="tab-audit" style="display:none">
+  <div class="card">
+    <div class="card-title">Audit Setup</div>
+    <p style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:14px;font-family:'IBM Plex Mono',monospace">Senior auditor reads your data slice, sees what the rules engine missed, returns operator-grade analysis. Configure API key in Settings.</p>
+
+    <div class="g3" style="margin-bottom:14px">
+      <div>
+        <label>Client</label>
+        <select id="aud-client" onchange="onAuditClientChange()"></select>
+      </div>
+      <div>
+        <label>Scope</label>
+        <select id="aud-scope" onchange="onAuditScopeChange()">
+          <option value="single">Single Campaign</option>
+          <option value="all">All Campaigns (cross-campaign view)</option>
+        </select>
+      </div>
+      <div id="aud-campaign-wrap">
+        <label>Campaign</label>
+        <select id="aud-campaign"></select>
+      </div>
+    </div>
+
+    <div class="g3" style="margin-bottom:14px">
+      <div>
+        <label>Primary Period</label>
+        <select id="aud-period" onchange="onAuditPeriodChange()">
+          <option value="4w">Last 4 weeks</option>
+          <option value="8w">Last 8 weeks</option>
+          <option value="12w">Last 12 weeks</option>
+          <option value="custom">Custom date range</option>
+        </select>
+      </div>
+      <div id="aud-custom-start-wrap" style="display:none">
+        <label>Start Date</label>
+        <input type="date" id="aud-custom-start">
+      </div>
+      <div id="aud-custom-end-wrap" style="display:none">
+        <label>End Date</label>
+        <input type="date" id="aud-custom-end">
+      </div>
+    </div>
+
+    <div class="g3" style="margin-bottom:14px">
+      <div>
+        <label>Compare To</label>
+        <select id="aud-compare" onchange="onAuditCompareChange()">
+          <option value="none">No comparison</option>
+          <option value="prev">Previous equivalent period (auto)</option>
+          <option value="custom">Custom comparison range</option>
+        </select>
+      </div>
+      <div id="aud-comp-start-wrap" style="display:none">
+        <label>Compare Start</label>
+        <input type="date" id="aud-comp-start">
+      </div>
+      <div id="aud-comp-end-wrap" style="display:none">
+        <label>Compare End</label>
+        <input type="date" id="aud-comp-end">
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>Specific Question (optional)</label>
+      <input type="text" id="aud-question" placeholder="e.g. Why did week 3 fall off? Or: Is this seasonal?">
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <button class="btn btn-pri" id="aud-run-btn" onclick="runAudit()">▶ Run Audit</button>
+      <span id="aud-cost-preview" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
+      <span id="aud-status" style="font-size:12px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
+    </div>
+  </div>
+
+  <div class="card" id="aud-output-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">Audit Output</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-sec" onclick="copyAuditOutput()" style="font-size:11px;padding:6px 12px">📋 Copy</button>
+        <button class="btn btn-sec" onclick="saveAudit()" id="aud-save-btn" style="font-size:11px;padding:6px 12px">💾 Save to History</button>
+        <button class="btn-pdf" onclick="exportAuditPDF()" style="font-size:11px;padding:6px 12px">⬇ Export PDF</button>
+      </div>
+    </div>
+    <div id="aud-output" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:'IBM Plex Sans',sans-serif;min-height:200px"></div>
+    <div id="aud-usage-info" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:10px"></div>
+  </div>
+
+  <div class="card" id="aud-history-card">
+    <div class="card-title">Past Audits (this client)</div>
+    <div id="aud-history-list"></div>
+  </div>
+</div>
+
 <div id="tab-settings" style="display:none">
+  <div class="card">
+    <div class="card-title">AI Auditor Settings</div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+      The AI Audit tab uses your Anthropic API key to generate expert auditor analysis. Key is stored only in this browser. Get a key at <span class="mono">console.anthropic.com</span>.
+    </p>
+    <div class="g2" style="margin-bottom:12px;max-width:600px">
+      <div>
+        <label>Anthropic API Key</label>
+        <input type="password" id="s-api-key" placeholder="sk-ant-..." oninput="saveApiKey()">
+      </div>
+      <div>
+        <label>Model</label>
+        <select id="s-model" onchange="saveModel()">
+          <option value="claude-sonnet-4-5-20250929">Sonnet 4.5 (faster, cheaper)</option>
+          <option value="claude-opus-4-5">Opus 4.5 (deeper, pricier)</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace" id="ai-spend-info"></p>
+  </div>
+
   <div class="card">
     <div class="card-title">Backup &amp; Restore</div>
     <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
@@ -320,6 +435,7 @@ select option{background:var(--surface2)}
 const SK = 'roas_v7';
 const SK_LEGACY = 'roas_v5';  // v6 and earlier
 const META_KEY = 'roas_v6_meta';  // tracks last backup date, banner dismissal
+const AI_KEY = 'roas_v8_ai';  // stores API key + model (separate from data so backups can exclude it)
 
 const DEFAULT_SETTINGS = { roasStep: 0.5, scalePct: 10, cutPct: 20, margThresh: 4.25, margMinPct: 5 };
 const DEFAULT_CLIENT = () => ({
@@ -327,7 +443,8 @@ const DEFAULT_CLIENT = () => ({
   name: 'New Client',
   settings: { ...DEFAULT_SETTINGS },
   campaigns: [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
-  entries: []
+  entries: [],
+  audits: []  // v8: AI audit history
 });
 const DEFAULT_DB = () => {
   const c = DEFAULT_CLIENT();
@@ -375,6 +492,8 @@ try {
   if (!db.clients || !db.clients.length) db = DEFAULT_DB();
   if (!db.activeClientId || !db.clients.find(c => c.id === db.activeClientId)) db.activeClientId = db.clients[0].id;
   if (!db.preparedBy) db.preparedBy = 'Ahmed — Modonix';
+  // v8: backfill audits field on existing clients
+  db.clients.forEach(c => { if (!c.audits) c.audits = []; });
 } catch (e) {
   db = DEFAULT_DB();
 }
@@ -940,17 +1059,19 @@ function populateSelects() {
 }
 
 function showTab(t) {
-  ['weekly', 'window', 'decision', 'history', 'settings'].forEach(x => {
-    document.getElementById('tab-' + x).style.display = x === t ? 'block' : 'none';
+  ['weekly', 'window', 'decision', 'history', 'audit', 'settings'].forEach(x => {
+    const el = document.getElementById('tab-' + x);
+    if (el) el.style.display = x === t ? 'block' : 'none';
   });
   document.querySelectorAll('.tab').forEach((b, i) => {
-    b.classList.toggle('active', ['weekly', 'window', 'decision', 'history', 'settings'][i] === t);
+    b.classList.toggle('active', ['weekly', 'window', 'decision', 'history', 'audit', 'settings'][i] === t);
   });
   populateSelects();
   if (t === 'window') renderWindow();
   if (t === 'decision') { populateDecWindow(); }
   if (t === 'history') renderHistory();
-  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); }
+  if (t === 'audit') { populateAuditClientSwitcher(); updateCostPreview(); }
+  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); }
 }
 
 function onCampChange() {
@@ -1416,8 +1537,524 @@ function exportDecisionPDF() {
 }
 
 // ============================================================================
-// INIT
+// AI AUDITOR (v8)
 // ============================================================================
+let aiSettings = { apiKey: '', model: 'claude-sonnet-4-5-20250929' };
+try {
+  const raw = localStorage.getItem(AI_KEY);
+  if (raw) aiSettings = { ...aiSettings, ...JSON.parse(raw) };
+} catch (e) {}
+
+function saveAiSettings() { localStorage.setItem(AI_KEY, JSON.stringify(aiSettings)); }
+function saveApiKey() { aiSettings.apiKey = document.getElementById('s-api-key').value.trim(); saveAiSettings(); }
+function saveModel() { aiSettings.model = document.getElementById('s-model').value; saveAiSettings(); }
+function loadAiSettingsToUi() {
+  const k = document.getElementById('s-api-key');
+  const m = document.getElementById('s-model');
+  if (k) k.value = aiSettings.apiKey || '';
+  if (m) m.value = aiSettings.model || 'claude-sonnet-4-5-20250929';
+}
+
+let lastAuditResult = null;  // holds the most recent run for save/copy/PDF
+
+// --- UI population ---
+function populateAuditClientSwitcher() {
+  const sel = document.getElementById('aud-client');
+  if (!sel) return;
+  const cur = sel.value || db.activeClientId;
+  sel.innerHTML = db.clients.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  sel.value = cur;
+  populateAuditCampaignSwitcher();
+  renderAuditHistoryList();
+  updateCostPreview();
+}
+
+function populateAuditCampaignSwitcher() {
+  const clientId = document.getElementById('aud-client').value;
+  const client = db.clients.find(c => c.id === clientId) || activeClient();
+  const sel = document.getElementById('aud-campaign');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = client.campaigns.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  if (cur && client.campaigns.find(c => c.id === cur)) sel.value = cur;
+}
+
+function onAuditClientChange() {
+  populateAuditCampaignSwitcher();
+  renderAuditHistoryList();
+  updateCostPreview();
+}
+
+function onAuditScopeChange() {
+  const scope = document.getElementById('aud-scope').value;
+  document.getElementById('aud-campaign-wrap').style.display = scope === 'all' ? 'none' : 'block';
+  updateCostPreview();
+}
+
+function onAuditPeriodChange() {
+  const period = document.getElementById('aud-period').value;
+  const isCustom = period === 'custom';
+  document.getElementById('aud-custom-start-wrap').style.display = isCustom ? 'block' : 'none';
+  document.getElementById('aud-custom-end-wrap').style.display = isCustom ? 'block' : 'none';
+  updateCostPreview();
+}
+
+function onAuditCompareChange() {
+  const cmp = document.getElementById('aud-compare').value;
+  const isCustom = cmp === 'custom';
+  document.getElementById('aud-comp-start-wrap').style.display = isCustom ? 'block' : 'none';
+  document.getElementById('aud-comp-end-wrap').style.display = isCustom ? 'block' : 'none';
+  updateCostPreview();
+}
+
+// --- Period selection ---
+function getAuditEntries(client, scope, campaignId, period, customStart, customEnd) {
+  // Get all entries for the chosen scope
+  let pool = client.entries.slice();
+  if (scope === 'single' && campaignId) {
+    pool = pool.filter(e => e.campId === campaignId);
+  }
+  pool.sort((a, b) => a.date.localeCompare(b.date));
+  if (!pool.length) return { entries: [], rangeLabel: 'no data' };
+
+  if (period === 'custom') {
+    if (!customStart || !customEnd) return { entries: [], rangeLabel: 'custom range incomplete' };
+    const filtered = pool.filter(e => e.date >= customStart && e.date <= customEnd);
+    return { entries: filtered, rangeLabel: customStart + ' to ' + customEnd };
+  }
+
+  const wks = period === '4w' ? 4 : period === '8w' ? 8 : period === '12w' ? 12 : 4;
+  const recent = pool.slice(-wks);
+  const label = recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no entries';
+  return { entries: recent, rangeLabel: label };
+}
+
+function getComparisonEntries(client, scope, campaignId, primaryEntries, compareMode, customStart, customEnd) {
+  if (compareMode === 'none' || !primaryEntries.length) return { entries: [], rangeLabel: '' };
+  let pool = client.entries.slice();
+  if (scope === 'single' && campaignId) pool = pool.filter(e => e.campId === campaignId);
+  pool.sort((a, b) => a.date.localeCompare(b.date));
+
+  if (compareMode === 'custom') {
+    if (!customStart || !customEnd) return { entries: [], rangeLabel: 'custom range incomplete' };
+    const filtered = pool.filter(e => e.date >= customStart && e.date <= customEnd);
+    return { entries: filtered, rangeLabel: customStart + ' to ' + customEnd };
+  }
+  // 'prev' — same length as primary, immediately before primary's start date
+  const primaryStart = primaryEntries[0].date;
+  const before = pool.filter(e => e.date < primaryStart);
+  const recent = before.slice(-primaryEntries.length);
+  const label = recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no prior data';
+  return { entries: recent, rangeLabel: label };
+}
+
+// --- Cost estimation ---
+function updateCostPreview() {
+  const el = document.getElementById('aud-cost-preview');
+  if (!el) return;
+  const isOpus = aiSettings.model.includes('opus');
+  // Rough estimate: 4-week single-campaign audit ≈ 3500 input + 1500 output
+  // Multi-campaign or 12-week roughly doubles
+  const scope = document.getElementById('aud-scope').value;
+  const period = document.getElementById('aud-period').value;
+  const compare = document.getElementById('aud-compare').value;
+  let mult = 1;
+  if (scope === 'all') mult *= 2;
+  if (period === '8w') mult *= 1.5;
+  if (period === '12w') mult *= 2;
+  if (compare !== 'none') mult *= 1.4;
+  const inTok = 3500 * mult;
+  const outTok = 1500;
+  // Sonnet 4.5: $3/M input, $15/M output. Opus 4.5: $15/M input, $75/M output (rough)
+  const cost = isOpus
+    ? (inTok * 15 / 1e6 + outTok * 75 / 1e6)
+    : (inTok * 3 / 1e6 + outTok * 15 / 1e6);
+  el.textContent = `~$${cost.toFixed(3)} estimated · ${isOpus ? 'Opus' : 'Sonnet'}`;
+}
+
+// --- Build prompt ---
+function buildAuditPrompt({ client, campaigns, primaryEntries, primaryRange, compareEntries, compareRange, question, scope }) {
+  const scopeLabel = scope === 'all' ? `All ${campaigns.length} campaigns` : campaigns[0].name;
+  const gm = scope === 'all' ? '(varies by campaign — see below)' : (campaigns[0].gm * 100).toFixed(1) + '%';
+  const prt = scope === 'all' ? '(varies)' : campPRT(campaigns[0]).toFixed(2) + '×';
+  const et = scope === 'all' ? '(varies)' : campEffTarget(campaigns[0]).toFixed(2) + '×';
+
+  const formatEntry = (e, marg) => {
+    const camp = client.campaigns.find(c => c.id === e.campId);
+    const campName = camp ? camp.name : 'Unknown';
+    const campStr = scope === 'all' ? ` [${campName}]` : '';
+    return `${e.date}${campStr} | tgtROAS=${e.tROAS}× | spend=$${e.spend.toFixed(2)} | totRev=$${e.totRev.toFixed(2)} | overallROAS=${e.ovrR}× | mROAS=${marg !== null ? marg.toFixed(2) + '×' : 'n/a'}`;
+  };
+
+  const primaryMarg = getMargROAS(primaryEntries);
+  const primaryRows = primaryEntries.map((e, i) => '  ' + formatEntry(e, primaryMarg[i])).join('\n');
+
+  // Run rules engine on the primary period for the AI's reference
+  let rulesVerdict = 'N/A (need 2+ weeks)';
+  if (primaryEntries.length >= 2 && scope !== 'all') {
+    const base = calcBaseDecision(primaryEntries, campaigns[0]);
+    const lastM = primaryMarg[primaryMarg.length - 1];
+    const mz = margZoneFromVal(lastM);
+    const { finalDec, hasConflict } = getFinalDecision(base, mz);
+    rulesVerdict = `${finalDec}${hasConflict ? ' (mROAS Override)' : ''} | Level=${base.levelSt} | Trend=${base.trendSt} (${base.trend}%) | Stability=${base.stability} | Blended=${base.blended.toFixed(2)}× | mROAS=${lastM !== null ? lastM.toFixed(2) + '× (' + mz.status + ')' : 'n/a'}`;
+  } else if (scope === 'all') {
+    rulesVerdict = '(multi-campaign — calculate per campaign as needed; rules engine runs per-campaign in this tool)';
+  }
+
+  const campCtx = scope === 'all'
+    ? client.campaigns.map(c => `  - ${c.name}: gm=${(c.gm * 100).toFixed(1)}%, defaultTgtROAS=${c.targetROAS}×, prt=${campPRT(c).toFixed(2)}×, effTarget=${campEffTarget(c).toFixed(2)}×`).join('\n')
+    : `  ${campaigns[0].name}: gm=${gm}, prt=${prt}, effTarget=${et}, defaultTgtROAS=${campaigns[0].targetROAS}×`;
+
+  let comparisonBlock = '';
+  if (compareEntries && compareEntries.length) {
+    const compMarg = getMargROAS(compareEntries);
+    const compRows = compareEntries.map((e, i) => '  ' + formatEntry(e, compMarg[i])).join('\n');
+    comparisonBlock = `\n== COMPARISON PERIOD (${compareRange}) ==\n${compRows}\n`;
+  }
+
+  const questionBlock = question.trim() ? `\n== OPERATOR'S SPECIFIC QUESTION ==\n${question.trim()}\n\nAnswer this directly and concretely first, then continue with the structure below.\n` : '';
+
+  return `You are a senior digital marketing auditor reviewing a Google Ads campaign for an e-commerce operator. Your job: read the data, see what the rules engine missed, tell the operator what's actually going on and what to investigate before they act. Operator-to-operator voice. Specific. No marketing speak.
+
+== METHODOLOGY (the operator's framework) ==
+- Profit Threshold (PRT) = 1 / gross margin. Below this, ads lose money on contribution basis.
+- Effective Target = max(operator's target ROAS, PRT)
+- Marginal ROAS (mROAS) = (Δrevenue / Δspend) week-over-week.
+  Optimal >${cfg().margThresh}×, Diminishing 2.5–${cfg().margThresh}×, Dangerous 1.0–2.5× (REDUCE override), Toxic <1.0× (CUT override)
+- 4-week rules: Level (vs effTarget) × Trend (W4 vs W1) × Stability (std dev / mean) → SCALE/HOLD/CUT/INVESTIGATE/REDUCE
+- mROAS overrides the 4-week verdict when in Dangerous or Toxic zone
+
+== CLIENT ==
+${client.name}
+
+== SCOPE ==
+${scopeLabel}
+
+== CAMPAIGN CONTEXT ==
+${campCtx}
+
+== PRIMARY PERIOD (${primaryRange}) ==
+${primaryRows}
+
+== RULES ENGINE VERDICT ==
+${rulesVerdict}
+${comparisonBlock}${questionBlock}
+== YOUR JOB — write the audit in this structure ==
+
+1. THE PATTERN (2-3 sentences max)
+What's actually happening across the period that a single-week or single-window view misses. Trajectory, not snapshot.
+
+2. WHAT THE RULES MISSED OR UNDER-WEIGHTED
+The rules concluded ${rulesVerdict.split('|')[0].trim()}. That's mechanical. What does the data show that the rules don't surface?
+- Trend acceleration vs flat
+- Persistence (3 borderline weeks ≠ 1 bad week)
+- Magnitude reasoning (not just "REDUCE" — by how much)
+- Cross-week or cross-campaign patterns
+${compareEntries && compareEntries.length ? '- HOW DOES THE PRIMARY PERIOD COMPARE TO THE COMPARISON PERIOD? This is critical context.' : ''}
+
+3. INVESTIGATION CHECKLIST (3-5 specific items)
+What to check BEFORE acting. Concrete only:
+- Specific Google Ads reports (Insights tab, Search Categories, Asset Group Performance, Placement breakdown)
+- Specific time windows ("look at week 3 specifically because...")
+- Specific external sources (Merchant Center change history, competitor pricing on Grainger/Amazon, supplier stock-outs)
+Each check should have a one-line WHY.
+
+4. ACTION RECOMMENDATION
+Either confirm the rules verdict with new context, OR argue for a different action. Be specific about MAGNITUDE (15% reduce vs 50% reduce). If holding, say what pre-conditions would change your mind.
+
+5. WHAT TO WATCH NEXT WEEK
+ONE concrete signal to monitor. Specific.
+
+== HARD RULES ==
+- Reference real data points and weeks. No invented numbers.
+- If you can't tell something from this data, SAY SO and direct the operator where to find it.
+- 400-600 words total. Tight. Scannable. No padding.
+- No "ROAS optimization", "leverage synergies", or other marketing words. Talk like an operator briefing another operator.`;
+}
+
+// --- Run audit ---
+async function runAudit() {
+  if (!aiSettings.apiKey) {
+    toast('No API key set — open Settings and add your Anthropic key', 'error');
+    return;
+  }
+  const clientId = document.getElementById('aud-client').value;
+  const client = db.clients.find(c => c.id === clientId);
+  if (!client) { toast('Pick a client', 'error'); return; }
+
+  const scope = document.getElementById('aud-scope').value;
+  const campaignId = document.getElementById('aud-campaign').value;
+  const period = document.getElementById('aud-period').value;
+  const customStart = document.getElementById('aud-custom-start').value;
+  const customEnd = document.getElementById('aud-custom-end').value;
+  const compareMode = document.getElementById('aud-compare').value;
+  const compStart = document.getElementById('aud-comp-start').value;
+  const compEnd = document.getElementById('aud-comp-end').value;
+  const question = document.getElementById('aud-question').value || '';
+
+  const { entries: primaryEntries, rangeLabel: primaryRange } = getAuditEntries(client, scope, campaignId, period, customStart, customEnd);
+  if (primaryEntries.length < 2) {
+    toast('Need at least 2 weeks of data in the primary period', 'error');
+    return;
+  }
+  const { entries: compareEntries, rangeLabel: compareRange } = getComparisonEntries(client, scope, campaignId, primaryEntries, compareMode, compStart, compEnd);
+
+  const campaigns = scope === 'all'
+    ? client.campaigns
+    : [client.campaigns.find(c => c.id === campaignId) || client.campaigns[0]];
+
+  const prompt = buildAuditPrompt({ client, campaigns, primaryEntries, primaryRange, compareEntries, compareRange, question, scope });
+
+  const btn = document.getElementById('aud-run-btn');
+  const status = document.getElementById('aud-status');
+  btn.disabled = true; btn.textContent = '⏳ Running...';
+  status.textContent = 'Sending to Claude...';
+  document.getElementById('aud-output-card').style.display = 'block';
+  document.getElementById('aud-output').textContent = 'Running audit...';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': aiSettings.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: aiSettings.model,
+        max_tokens: 2500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`API error ${resp.status}: ${errText.slice(0, 300)}`);
+    }
+
+    const data = await resp.json();
+    const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n');
+    const usage = data.usage || {};
+
+    // Compute actual cost
+    const isOpus = aiSettings.model.includes('opus');
+    const cost = isOpus
+      ? (usage.input_tokens || 0) * 15 / 1e6 + (usage.output_tokens || 0) * 75 / 1e6
+      : (usage.input_tokens || 0) * 3 / 1e6 + (usage.output_tokens || 0) * 15 / 1e6;
+
+    document.getElementById('aud-output').textContent = text;
+    document.getElementById('aud-usage-info').textContent =
+      `Tokens: ${usage.input_tokens || 0} in / ${usage.output_tokens || 0} out · Actual cost: $${cost.toFixed(4)} · Model: ${aiSettings.model}`;
+
+    lastAuditResult = {
+      id: 'aud_' + Date.now(),
+      timestamp: new Date().toISOString(),
+      clientId,
+      clientName: client.name,
+      scope: {
+        type: scope,
+        campaignId: scope === 'single' ? campaignId : null,
+        campaignName: scope === 'single' ? (campaigns[0] ? campaigns[0].name : '') : 'All Campaigns',
+        primaryRange,
+        compareRange: compareRange || null,
+        question
+      },
+      response: text,
+      usage: {
+        input_tokens: usage.input_tokens || 0,
+        output_tokens: usage.output_tokens || 0,
+        cost,
+        model: aiSettings.model
+      }
+    };
+    status.textContent = 'Done — review output below';
+    toast('Audit complete', 'success');
+    updateAiSpendInfo();
+  } catch (err) {
+    document.getElementById('aud-output').textContent = 'Error: ' + err.message + '\n\nCheck your API key, model availability, and account credits.';
+    status.textContent = '';
+    toast('Audit failed — see output', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '▶ Run Audit';
+  }
+}
+
+// --- Save / copy / history ---
+function saveAudit() {
+  if (!lastAuditResult) { toast('No audit to save', 'error'); return; }
+  const client = db.clients.find(c => c.id === lastAuditResult.clientId);
+  if (!client) { toast('Client not found', 'error'); return; }
+  if (!client.audits) client.audits = [];
+  // Avoid duplicate save
+  if (client.audits.find(a => a.id === lastAuditResult.id)) {
+    toast('Already saved', 'error');
+    return;
+  }
+  client.audits.unshift(JSON.parse(JSON.stringify(lastAuditResult)));
+  save();
+  renderAuditHistoryList();
+  toast('Audit saved to history', 'success');
+}
+
+function copyAuditOutput() {
+  const text = document.getElementById('aud-output').textContent;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(
+    () => toast('Copied to clipboard', 'success'),
+    () => toast('Copy failed — select and copy manually', 'error')
+  );
+}
+
+function renderAuditHistoryList() {
+  const clientId = document.getElementById('aud-client') ? document.getElementById('aud-client').value : null;
+  const client = clientId ? db.clients.find(c => c.id === clientId) : activeClient();
+  const list = document.getElementById('aud-history-list');
+  if (!list) return;
+  const audits = (client && client.audits) ? client.audits : [];
+  if (!audits.length) {
+    list.innerHTML = '<p style="color:var(--text3);font-size:12px;font-family:\'IBM Plex Mono\',monospace">No saved audits for this client yet.</p>';
+    return;
+  }
+  list.innerHTML = audits.map(a => {
+    const d = new Date(a.timestamp).toLocaleString();
+    const q = a.scope.question ? ' · "' + escapeHtml(a.scope.question.slice(0, 60)) + (a.scope.question.length > 60 ? '..."' : '"') : '';
+    return `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;color:var(--text);font-family:'IBM Plex Mono',monospace">${escapeHtml(a.scope.campaignName)} · ${escapeHtml(a.scope.primaryRange)}${q}</div>
+          <div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:3px">${d} · $${a.usage.cost.toFixed(4)}</div>
+        </div>
+        <button class="btn btn-edit" onclick="loadAudit('${a.id}')">View</button>
+        <button class="btn btn-del" onclick="deleteAudit('${a.id}')">Del</button>
+      </div>`;
+  }).join('');
+}
+
+function loadAudit(auditId) {
+  const client = db.clients.find(c => c.id === document.getElementById('aud-client').value);
+  if (!client || !client.audits) return;
+  const a = client.audits.find(x => x.id === auditId);
+  if (!a) return;
+  lastAuditResult = JSON.parse(JSON.stringify(a));
+  document.getElementById('aud-output-card').style.display = 'block';
+  document.getElementById('aud-output').textContent = a.response;
+  document.getElementById('aud-usage-info').textContent =
+    `Tokens: ${a.usage.input_tokens} in / ${a.usage.output_tokens} out · Cost: $${a.usage.cost.toFixed(4)} · Model: ${a.usage.model} · Saved: ${new Date(a.timestamp).toLocaleString()}`;
+  document.getElementById('aud-status').textContent = 'Loaded saved audit';
+  document.getElementById('aud-output-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteAudit(auditId) {
+  const client = db.clients.find(c => c.id === document.getElementById('aud-client').value);
+  if (!client || !client.audits) return;
+  const a = client.audits.find(x => x.id === auditId);
+  if (!a) return;
+  customConfirm(
+    `Delete this saved audit? (${a.scope.primaryRange})`,
+    () => {
+      client.audits = client.audits.filter(x => x.id !== auditId);
+      save();
+      renderAuditHistoryList();
+      toast('Audit deleted', 'success');
+    },
+    { title: 'Delete Saved Audit', yesLabel: 'Delete' }
+  );
+}
+
+function updateAiSpendInfo() {
+  const el = document.getElementById('ai-spend-info');
+  if (!el) return;
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  let total = 0, count = 0;
+  db.clients.forEach(c => {
+    (c.audits || []).forEach(a => {
+      if (new Date(a.timestamp).getTime() > cutoff) { total += a.usage.cost || 0; count++; }
+    });
+  });
+  el.textContent = count ? `Last 30 days: ${count} audit${count === 1 ? '' : 's'} · $${total.toFixed(4)} total spend (saved audits only)` : 'No saved audits in the last 30 days.';
+}
+
+// --- PDF export ---
+function exportAuditPDF() {
+  if (!lastAuditResult) { toast('No audit to export', 'error'); return; }
+  if (!window.jspdf) { toast('PDF library still loading — try again', 'error'); return; }
+  const a = lastAuditResult;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const W = 215.9, H = 279.4, ml = 15, mr = 15, usableW = W - ml - mr;
+  let y = 0;
+  const preparer = db.preparedBy || 'Ahmed — Modonix';
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Header bar
+  doc.setFillColor(13, 15, 17); doc.rect(0, 0, W, 22, 'F');
+  doc.setFillColor(99, 102, 241); doc.rect(0, 22, W, 1, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+  doc.text('MODONIX  ·  ' + a.clientName.toUpperCase(), ml, 14);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(139, 143, 154);
+  doc.text('AI AUDITOR  ·  EXPERT REVIEW', W - mr, 14, { align: 'right' });
+  y = 32;
+
+  // Title block
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('PREPARED BY', ml, y); doc.text('PREPARED FOR', W / 2 + 2, y); y += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(13, 15, 17);
+  doc.text(preparer, ml, y); doc.text(a.clientName, W / 2 + 2, y); y += 5;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.text('E-Commerce & Digital Commerce Consulting', ml, y); doc.text(today, W / 2 + 2, y); y += 8;
+  doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 6;
+
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('Scope: ' + a.scope.campaignName + '  ·  Period: ' + a.scope.primaryRange, ml, y); y += 5;
+  if (a.scope.compareRange) { doc.text('Comparison: ' + a.scope.compareRange, ml, y); y += 5; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(13, 15, 17);
+  doc.text('Expert Auditor Review', ml, y); y += 7;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('AI-generated analysis · Model: ' + a.usage.model, ml, y); y += 10;
+  doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 8;
+
+  if (a.scope.question) {
+    doc.setFillColor(245, 247, 250); doc.setDrawColor(99, 102, 241); doc.setLineWidth(0.4);
+    doc.roundedRect(ml, y, usableW, 12, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(99, 102, 241);
+    doc.text('OPERATOR QUESTION', ml + 4, y + 5);
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(8); doc.setTextColor(45, 55, 72);
+    const qLines = doc.splitTextToSize(a.scope.question, usableW - 8);
+    doc.text(qLines[0] || '', ml + 4, y + 10);
+    y += 16;
+  }
+
+  // Body
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(13, 15, 17);
+  const lines = doc.splitTextToSize(a.response, usableW);
+  const lineH = 4.5;
+  lines.forEach(line => {
+    if (y > H - 25) { doc.addPage(); y = 20; }
+    // Bold lines that look like section headers (start with number+period or all-caps short line)
+    if (/^\d+\.\s+[A-Z]/.test(line) || (line.length < 60 && line === line.toUpperCase() && /[A-Z]/.test(line))) {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(99, 102, 241);
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(45, 55, 72);
+    }
+    doc.text(line, ml, y); y += lineH;
+  });
+
+  // Footer on last page
+  doc.setFillColor(240, 242, 245); doc.rect(0, H - 15, W, 15, 'F');
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
+  doc.text('Confidential — Prepared by ' + preparer + ' for ' + a.clientName, ml, H - 7);
+  doc.text('AI Auditor Review · Modonix', W / 2, H - 7, { align: 'center' });
+  doc.text(today, W - mr, H - 7, { align: 'right' });
+
+  const safeName = a.clientName.replace(/[^a-z0-9]+/gi, '_');
+  doc.save('AI_Audit_' + safeName + '_' + today + '.pdf');
+  toast('Audit PDF exported', 'success');
+}
+
+
 populateClientSwitcher();
 populateSelects();
 document.getElementById('w-date').value = new Date().toISOString().slice(0, 10);
