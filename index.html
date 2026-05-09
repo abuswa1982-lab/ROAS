@@ -11,10 +11,22 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5}
 body{min-height:100vh;padding:0 0 60px}
-.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100}
+.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;flex-wrap:wrap;gap:12px}
 .header-logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--text2);letter-spacing:.1em;text-transform:uppercase}
 .header-logo span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .header-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);border:1px solid var(--border);padding:3px 8px;border-radius:4px}
+.btn-header{padding:6px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.btn-header.export{background:transparent;color:var(--green);border:1px solid var(--green-border)}
+.btn-header.export:hover{background:var(--green-bg)}
+.btn-header.import{background:transparent;color:var(--blue);border:1px solid var(--blue-border)}
+.btn-header.import:hover{background:var(--blue-bg)}
+.backup-banner{background:var(--amber-bg);border-bottom:1px solid var(--amber-border);padding:10px 24px;font-size:12px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace}
+.backup-banner.hidden{display:none}
+.backup-banner-text{flex:1;min-width:200px}
+.backup-banner button{background:var(--amber);color:#0e0f11;border:none;padding:5px 12px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.backup-banner button:hover{background:#fbbf24}
+.backup-banner .dismiss{background:transparent;color:var(--amber);border:1px solid var(--amber-border)}
 .container{max-width:1100px;margin:0 auto;padding:24px 24px 0}
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto}
 .tab{padding:10px 18px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;transition:color .15s}
@@ -87,17 +99,42 @@ select option{background:var(--surface2)}
 .marg-item:last-child{border-bottom:none}
 .msg{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace}
 .err{font-size:12px;color:var(--red);font-family:'IBM Plex Mono',monospace}
-
-.btn-pdf{background:transparent;color:var(--green);border:1px solid var(--green-border);padding:7px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em}.btn-pdf:hover{background:var(--green-bg)}
 .window-selector{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap}
 .window-selector select{width:200px}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;min-width:380px;max-width:90vw}
+.modal h2{font-size:14px;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em}
+.modal p{color:var(--text);font-size:13px;line-height:1.6;margin-bottom:14px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:12px 18px;border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Mono',monospace;box-shadow:0 4px 20px rgba(0,0,0,0.5);opacity:0;transform:translateY(20px);transition:all .25s;z-index:2000;max-width:400px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{border-left-color:var(--red);color:var(--red)}
+.toast.success{border-left-color:var(--green);color:var(--green)}
 </style>
 </head>
 <body>
+
 <div class="header">
   <div class="header-logo"><span>ROAS</span> Control</div>
-  <div class="header-tag">Google Ads Analysis</div>
+  <div class="header-right">
+    <select id="client-switcher" onchange="switchClient(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 10px;border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:140px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer"></select>
+    <button class="btn-header" onclick="quickAddClient()" title="Add a new client" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
+    <span class="header-tag">v7.1 · Multi-Client</span>
+    <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON — do this weekly">⬇ Export Backup</button>
+    <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>
+    <input type="file" id="backup-import" style="display:none" accept=".json" onchange="importBackup(event)">
+  </div>
 </div>
+
+<div id="backup-banner" class="backup-banner hidden">
+  <div class="backup-banner-text">
+    <strong id="banner-text"></strong>
+  </div>
+  <button onclick="exportBackup()">⬇ Backup Now</button>
+  <button class="dismiss" onclick="dismissBanner()">Remind Tomorrow</button>
+</div>
+
 <div class="container">
 <div class="tabs">
   <button class="tab active" onclick="showTab('weekly')">Weekly Entry</button>
@@ -190,763 +227,852 @@ select option{background:var(--surface2)}
 
 <div id="tab-settings" style="display:none">
   <div class="card">
-    <div class="card-title">Client Information</div>
-    <div class="g2" style="margin-bottom:16px;max-width:500px">
-      <div><label>Client Name</label><input type="text" id="s-client" placeholder="e.g. Abolox LLC" oninput="updateSettings()"></div>
-      <div><label>Prepared By</label><input type="text" id="s-preparer" placeholder="e.g. Ahmed — Modonix" oninput="updateSettings()"></div>
+    <div class="card-title">Backup &amp; Restore</div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+      <strong style="color:var(--amber)">Important:</strong> Your data lives only in this browser. If you clear browser data, switch computers, or your browser corrupts storage — it's gone unless you've exported a backup.
+      <br><br>
+      <strong style="color:var(--text)">Habit:</strong> Click "Export Backup" every Monday after entering the week's data. Save the JSON file to a cloud folder (Drive, Dropbox).
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn-header export" onclick="exportBackup()">⬇ Export Backup (All Clients)</button>
+      <button class="btn-header import" onclick="document.getElementById('backup-import-2').click()">⬆ Import Backup (JSON)</button>
+      <input type="file" id="backup-import-2" style="display:none" accept=".json" onchange="importBackup(event)">
+      <button class="btn btn-sec" onclick="exportActiveClientOnly()" style="font-size:11px;padding:6px 12px">Export Active Client Only</button>
+    </div>
+    <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:'IBM Plex Mono',monospace" id="last-backup-info"></p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Active Client</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <span style="font-size:18px;font-weight:600;color:var(--text);font-family:'IBM Plex Mono',monospace" id="active-client-name"></span>
+      <button class="btn btn-edit" onclick="renameActiveClient()">Rename</button>
+      <button class="btn btn-del" onclick="deleteActiveClient()">Delete This Client</button>
+      <span style="margin-left:auto;color:var(--text3);font-size:11px;font-family:'IBM Plex Mono',monospace" id="client-count-info"></span>
     </div>
     <hr class="sep">
-    <div class="card-title">Adjustment Step Sizes</div>
+    <div class="card-title">Operator Information (global, all clients)</div>
+    <div style="max-width:500px;margin-bottom:8px">
+      <label>Prepared By</label>
+      <input type="text" id="s-preparer" placeholder="e.g. Ahmed — Modonix" oninput="updatePreparedBy()">
+      <p style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'IBM Plex Mono',monospace">Used on all PDF reports for all clients.</p>
+    </div>
+    <hr class="sep">
+    <div class="card-title">Adjustment Step Sizes (this client only)</div>
     <div class="g3" style="margin-bottom:16px">
       <div><label>ROAS Step Size (×)</label><input type="number" id="s-roasstep" step="0.05" oninput="updateSettings()"></div>
       <div><label>Scale Spend Increase %</label><input type="number" id="s-scale-pct" step="1" oninput="updateSettings()"></div>
       <div><label>Cut Spend Decrease %</label><input type="number" id="s-cut-pct" step="1" oninput="updateSettings()"></div>
     </div>
     <hr class="sep">
-    <div class="card-title">Marginal ROAS</div>
+    <div class="card-title">Marginal ROAS (this client only)</div>
     <div class="g2" style="max-width:420px;margin-bottom:16px">
       <div><label>Optimal Threshold (×)</label><input type="number" id="s-marg-thresh" step="0.05" oninput="updateSettings()"></div>
       <div><label>Min Spend Change % to Calculate</label><input type="number" id="s-marg-min-pct" step="1" oninput="updateSettings()"></div>
     </div>
     <div id="marg-zones"></div>
     <hr class="sep">
-    <div class="card-title">Campaigns</div>
+    <div class="card-title">Campaigns (this client only)</div>
     <div id="camp-list"></div>
     <hr class="sep">
-    <button class="btn btn-del" onclick="if(confirm('Delete ALL data? This cannot be undone.')){localStorage.removeItem('roas_v5');location.reload()}">Clear All Data</button>
+    <div class="card-title" style="color:var(--red)">Danger Zone</div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Permanent deletion of <strong style="color:var(--red)">ALL clients'</strong> data — campaigns, entries, settings, everything. Cannot be undone unless you have a backup file.</p>
+    <button class="btn btn-del" onclick="clearAllData()">Clear ALL Data (All Clients)</button>
   </div>
 </div>
 </div>
 
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal">
+    <h2 id="confirm-title">Confirm</h2>
+    <p id="confirm-message"></p>
+    <div id="confirm-typecheck-wrap" style="display:none">
+      <label style="margin-bottom:6px">Type <strong style="color:var(--red);font-family:'IBM Plex Mono',monospace">DELETE</strong> to confirm:</label>
+      <input type="text" id="confirm-typecheck" placeholder="DELETE">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sec" id="confirm-no">Cancel</button>
+      <button class="btn btn-del" id="confirm-yes" style="padding:8px 16px">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROMPT MODAL (replaces native prompt() which is blocked in sandboxed iframes) -->
+<div class="modal-overlay" id="prompt-modal">
+  <div class="modal">
+    <h2 id="prompt-title">Input</h2>
+    <p id="prompt-message" style="margin-bottom:6px"></p>
+    <input type="text" id="prompt-input" style="width:100%;margin-bottom:4px">
+    <div class="modal-actions">
+      <button class="btn btn-sec" id="prompt-cancel">Cancel</button>
+      <button class="btn btn-pri" id="prompt-ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-const SK='roas_v5';
-let db=JSON.parse(localStorage.getItem(SK)||'null')||{settings:{roasStep:0.5,scalePct:10,cutPct:20,margThresh:4.25,margMinPct:5,clientName:'',preparedBy:'Ahmed — Modonix'},campaigns:[{id:'c1',name:'Main Campaign',targetROAS:3.25,gm:0.235}],entries:[]};
-function save(){localStorage.setItem(SK,JSON.stringify(db))}
-function cfg(){return db.settings}
-function getCamp(id){return db.campaigns.find(c=>c.id===id)||db.campaigns[0]}
-function campPRT(c){return c.gm>0?1/c.gm:0}
-function campEffTarget(c){return Math.max(c.targetROAS,campPRT(c))}
-function getZone(o,t){if(o>=t*1.2)return{zone:'GREEN',action:'Scale +'+cfg().scalePct+'%',cls:'bg'};if(o>=t*0.9)return{zone:'YELLOW',action:'Hold spend, optimize',cls:'by'};return{zone:'RED',action:'Freeze + cut worst 20%',cls:'br'}}
-function getMargROAS(entries){return entries.map((e,i)=>{if(i===0)return null;const dS=e.spend-entries[i-1].spend,dR=e.totRev-entries[i-1].totRev,pct=Math.abs(dS)/entries[i-1].spend*100;if(pct<cfg().margMinPct)return null;return dS!==0?dR/dS:null})}
-function margZoneFromVal(m){const th=cfg().margThresh;if(m===null)return{label:'Insufficient spend change',cls:'bb',status:'N/A',override:null};if(m>th)return{label:'Scale +'+cfg().scalePct+'%',cls:'bg',status:'Optimal',override:null};if(m>=2.5)return{label:'HOLD',cls:'by',status:'Diminishing',override:null};if(m>=1.0)return{label:'REDUCE',cls:'by',status:'Dangerous',override:'REDUCE'};return{label:'CUT -'+cfg().cutPct+'%',cls:'br',status:'Toxic',override:'CUT'}}
-function calcBaseDecision(e4w,camp){
-  const last=e4w[e4w.length-1],tROAS=last.tROAS||camp.targetROAS,prt=campPRT(camp),et=campEffTarget(camp);
-  const ra=e4w.map(e=>e.spend>0?e.totRev/e.spend:0),n=ra.length,w1=ra[0],wN=ra[n-1];
-  const blended=e4w.reduce((a,e)=>a+e.totRev,0)/e4w.reduce((a,e)=>a+e.spend,0);
-  const trend=w1>0?(wN-w1)/w1:0,mean=ra.reduce((a,b)=>a+b,0)/n,std=Math.sqrt(ra.reduce((a,b)=>a+Math.pow(b-mean,2),0)/n);
-  const stability=std<=0.15*mean?'STABLE':std<=0.3*mean?'VOLATILE':'UNSTABLE';
-  const trendSt=trend>=0.1?'IMPROVING':trend<=-0.1?'DECLINING':'FLAT';
-  const levelSt=blended>=et*1.1?'STRONG':blended>=et?'ACCEPTABLE':blended>=et*0.9?'WEAK':'FAIL';
-  let dec='HOLD';
-  if(blended<prt||levelSt==='FAIL')dec='CUT';
-  else if(levelSt==='WEAK')dec='REDUCE';
-  else if(levelSt==='ACCEPTABLE')dec=trendSt==='DECLINING'?'REDUCE':'HOLD';
-  else if(levelSt==='STRONG'){if(trendSt==='IMPROVING')dec=stability==='STABLE'?'SCALE (FULL)':stability==='VOLATILE'?'SCALE (LIMITED)':'MICRO-SCALE';else if(trendSt==='DECLINING')dec=stability==='STABLE'?'INVESTIGATE':'HOLD';else dec='HOLD';}
-  return{dec,levelSt,trendSt,stability,blended,trend:(trend*100).toFixed(1),std:std.toFixed(3),et,prt,tROAS}
-}
-function getSignalDrivers(base,mz){
-  const d=[];
-  if(mz.override)d.push({signal:'Marginal ROAS',value:mz.status,severity:'override',reason:'mROAS is '+mz.status+'. Extra spend is destroying value. Overrides blended signal.'});
-  if(base.trendSt==='DECLINING')d.push({signal:'Trend',value:'Declining '+base.trend+'%',severity:'warning',reason:'Performance getting worse week over week vs Week 1.'});
-  if(base.stability==='VOLATILE')d.push({signal:'Stability',value:'Volatile',severity:'warning',reason:'High week-to-week variance — signal noisy, scaling risky.'});
-  if(base.stability==='UNSTABLE')d.push({signal:'Stability',value:'Unstable',severity:'override',reason:'Extreme variance. No scaling until signal stabilizes.'});
-  if(base.levelSt==='WEAK'||base.levelSt==='FAIL')d.push({signal:'Level',value:base.levelSt,severity:'override',reason:'4W blended ROAS below effective target. Margin at risk.'});
-  return d
-}
-function getFinalDecision(base,mz){const mo=mz.override,hasConflict=mo&&!['CUT','REDUCE'].includes(base.dec);let finalDec=base.dec;if(mo==='CUT')finalDec='CUT';else if(mo==='REDUCE'&&base.dec!=='CUT')finalDec='REDUCE';return{finalDec,hasConflict,baseDec:base.dec,mOverride:mo}}
-const RAT={'SCALE (FULL)':'Level STRONG, trend IMPROVING, stability STABLE. Scale aggressively.','SCALE (LIMITED)':'Level STRONG, trend IMPROVING, but VOLATILE. Scale with a cap.','MICRO-SCALE':'Level STRONG, trend IMPROVING, but UNSTABLE. Small test increases only.','INVESTIGATE':'Level STRONG but trend DECLINING. Find the driver before touching spend.','HOLD':'Performance meets requirements but no signal to increase risk. Maintain and optimize.','REDUCE':'ROAS near/below effective target or marginal spend destroying value. Reduce exposure.','CUT':'4W ROAS below profitability gate OR marginal ROAS is toxic. Stop the bleeding immediately.'};
-function getBudgetRoasAction(fd,tROAS,lastSpend){
-  const step=cfg().roasStep,sp=cfg().scalePct/100,cp=cfg().cutPct/100;
-  let ba='',bTo=lastSpend,bDir='hold',ra='',rTo=tROAS,rDir='hold';
-  if(['SCALE (FULL)','SCALE (LIMITED)','MICRO-SCALE'].includes(fd)){bTo=lastSpend*(1+sp);bDir='up';ba='Increase spend by '+cfg().scalePct+'%';ra='Hold target ROAS at '+tROAS.toFixed(2)+'×';}
-  else if(fd==='INVESTIGATE'||fd==='HOLD'){ba=fd==='INVESTIGATE'?'Hold spend — identify driver first':'Maintain current spend';ra='Hold target ROAS at '+tROAS.toFixed(2)+'×';}
-  else if(fd==='REDUCE'){bTo=lastSpend*(1-cp/2);bDir='down';rTo=tROAS+step;rDir='up';ba='Reduce spend by '+(cfg().cutPct/2).toFixed(0)+'%';ra='Raise target ROAS by '+step+'×';}
-  else if(fd==='CUT'){bTo=lastSpend*(1-cp);bDir='down';rTo=tROAS+step;rDir='up';ba='Cut spend by '+cfg().cutPct+'%';ra='Raise target ROAS by '+step+'×';}
-  return{budgetAction:ba,budgetFrom:lastSpend,budgetTo:bTo,budgetDir:bDir,roasAction:ra,roasFrom:tROAS,roasTo:rTo,roasDir:rDir}
-}
-function decCls(d){if(['SCALE (FULL)','SCALE (LIMITED)','MICRO-SCALE'].includes(d))return 'g';if(['HOLD','INVESTIGATE'].includes(d))return 'y';return 'r'}
-function fmt$(n){return '$'+Math.round(n).toLocaleString()}
-function fmtR(n){return(+n).toFixed(2)+'×'}
-function populateDecEndSelector(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+// ============================================================================
+// STORAGE — v7 multi-client schema, auto-migrates from v6 (roas_v5 key)
+// ============================================================================
+const SK = 'roas_v7';
+const SK_LEGACY = 'roas_v5';  // v6 and earlier
+const META_KEY = 'roas_v6_meta';  // tracks last backup date, banner dismissal
+
+const DEFAULT_SETTINGS = { roasStep: 0.5, scalePct: 10, cutPct: 20, margThresh: 4.25, margMinPct: 5 };
+const DEFAULT_CLIENT = () => ({
+  id: 'cli_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+  name: 'New Client',
+  settings: { ...DEFAULT_SETTINGS },
+  campaigns: [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
+  entries: []
+});
+const DEFAULT_DB = () => {
+  const c = DEFAULT_CLIENT();
+  c.name = 'Client 1';
+  return { schemaVersion: 7, preparedBy: 'Ahmed — Modonix', activeClientId: c.id, clients: [c] };
+};
+
+function migrateFromV6(legacyDb) {
+  // legacyDb shape: { settings: { roasStep, scalePct, cutPct, margThresh, margMinPct, clientName, preparedBy }, campaigns, entries }
+  const clientName = (legacyDb.settings && legacyDb.settings.clientName) ? legacyDb.settings.clientName : 'Client 1';
+  const preparedBy = (legacyDb.settings && legacyDb.settings.preparedBy) ? legacyDb.settings.preparedBy : 'Ahmed — Modonix';
+  const perClientSettings = { ...DEFAULT_SETTINGS };
+  ['roasStep', 'scalePct', 'cutPct', 'margThresh', 'margMinPct'].forEach(k => {
+    if (legacyDb.settings && legacyDb.settings[k] != null) perClientSettings[k] = legacyDb.settings[k];
+  });
+  const client = {
+    id: 'cli_' + Date.now() + '_migrated',
+    name: clientName,
+    settings: perClientSettings,
+    campaigns: legacyDb.campaigns || [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
+    entries: legacyDb.entries || []
+  };
+  return { schemaVersion: 7, preparedBy, activeClientId: client.id, clients: [client] };
 }
 
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
+let db;
+try {
+  const v7raw = localStorage.getItem(SK);
+  if (v7raw) {
+    db = JSON.parse(v7raw);
+  } else {
+    // No v7 data — try migrating from v6
+    const v6raw = localStorage.getItem(SK_LEGACY);
+    if (v6raw) {
+      const legacyDb = JSON.parse(v6raw);
+      db = migrateFromV6(legacyDb);
+      localStorage.setItem(SK, JSON.stringify(db));
+      // Keep SK_LEGACY in place — don't delete the old data, it's a safety net
+      setTimeout(() => toast('Migrated from v6 — your old data is now under "' + db.clients[0].name + '"', 'success'), 600);
+    } else {
+      db = DEFAULT_DB();
+    }
+  }
+  // Defensive defaults
+  if (!db.clients || !db.clients.length) db = DEFAULT_DB();
+  if (!db.activeClientId || !db.clients.find(c => c.id === db.activeClientId)) db.activeClientId = db.clients[0].id;
+  if (!db.preparedBy) db.preparedBy = 'Ahmed — Modonix';
+} catch (e) {
+  db = DEFAULT_DB();
 }
 
-function getDecWindow(campId, endDate){
-  const all=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!all.length) return all.slice(-4);
-  const idx=all.findIndex(e=>e.date===endDate);
-  if(idx<0) return all.slice(-4);
-  const start=Math.max(0,idx-3);
-  return all.slice(start,idx+1);
+let meta;
+try {
+  meta = JSON.parse(localStorage.getItem(META_KEY) || 'null') || { lastBackup: null, bannerDismissedUntil: null };
+} catch (e) {
+  meta = { lastBackup: null, bannerDismissedUntil: null };
 }
 
-function populateDecWindow(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const sel=document.getElementById('dec-end');
-  const cur=sel.value;
-  sel.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur) sel.value=cur;
+function save() { localStorage.setItem(SK, JSON.stringify(db)); }
+function saveMeta() { localStorage.setItem(META_KEY, JSON.stringify(meta)); }
+
+// ============================================================================
+// CLIENT ACCESSORS — everything below routes through the active client
+// ============================================================================
+function activeClient() {
+  return db.clients.find(c => c.id === db.activeClientId) || db.clients[0];
+}
+function cfg() { return activeClient().settings; }
+// Compatibility shims so existing code that wrote `db.campaigns` / `db.entries` still works
+Object.defineProperty(db, 'campaigns', { get() { return activeClient().campaigns; }, set(v) { activeClient().campaigns = v; }, configurable: true });
+Object.defineProperty(db, 'entries', { get() { return activeClient().entries; }, set(v) { activeClient().entries = v; }, configurable: true });
+Object.defineProperty(db, 'settings', { get() { return activeClient().settings; }, set(v) { activeClient().settings = v; }, configurable: true });
+
+// ============================================================================
+// BACKUP / RESTORE
+// ============================================================================
+function exportBackup() {
+  const payload = {
+    schema: 'roas_v7_backup',
+    exportedAt: new Date().toISOString(),
+    clientCount: db.clients.length,
+    activeClientName: activeClient().name,
+    data: {
+      [SK]: localStorage.getItem(SK),
+      [META_KEY]: localStorage.getItem(META_KEY)
+    }
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href = url;
+  a.download = `roas-backup-all-clients-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+
+  meta.lastBackup = new Date().toISOString();
+  meta.bannerDismissedUntil = null;
+  saveMeta();
+  updateBackupBanner();
+  updateLastBackupInfo();
+  toast(`Backup downloaded — ${db.clients.length} client(s). Store it safely.`, 'success');
+}
+
+function exportActiveClientOnly() {
+  const c = activeClient();
+  const payload = {
+    schema: 'roas_v7_client_backup',
+    exportedAt: new Date().toISOString(),
+    preparedBy: db.preparedBy,
+    client: JSON.parse(JSON.stringify(c))  // deep clone
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  const safeName = c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  a.href = url;
+  a.download = `roas-client-${safeName}-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+  toast(`Exported "${c.name}" only — file can be imported as a new client into another instance`, 'success');
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const payload = JSON.parse(e.target.result);
+
+      // Detect format
+      if (payload.schema === 'roas_v7_client_backup' && payload.client) {
+        // Single-client backup — add as new client (with rename if duplicate)
+        let newClient = JSON.parse(JSON.stringify(payload.client));
+        // Generate new ID to avoid collision
+        newClient.id = 'cli_' + Date.now() + '_imported';
+        // Handle name collision
+        let baseName = newClient.name || 'Imported Client';
+        let finalName = baseName;
+        let n = 2;
+        while (db.clients.find(c => c.name === finalName)) {
+          finalName = baseName + ' (' + n + ')';
+          n++;
+        }
+        newClient.name = finalName;
+        customConfirm(
+          `Import "${payload.client.name}" as a new client? It will be added as "${finalName}" alongside your existing ${db.clients.length} client(s).`,
+          () => {
+            db.clients.push(newClient);
+            db.activeClientId = newClient.id;
+            save();
+            toast('Client imported — switching to ' + newClient.name, 'success');
+            setTimeout(() => location.reload(), 800);
+          },
+          { title: 'Import Single Client', yesLabel: 'Import' }
+        );
+        event.target.value = '';
+        return;
+      }
+
+      // Full backup (v6 or v7) — replaces everything
+      if (!payload.data) {
+        toast('Invalid backup file — missing data block', 'error');
+        return;
+      }
+      const isV7 = !!payload.data[SK];
+      const isV6 = !!payload.data[SK_LEGACY];
+      if (!isV7 && !isV6) {
+        toast('Invalid backup — no recognizable ROAS data', 'error');
+        return;
+      }
+      const dateLabel = payload.exportedAt ? new Date(payload.exportedAt).toLocaleString() : 'unknown date';
+      const formatLabel = isV7 ? `${payload.clientCount || '?'} client(s)` : 'v6 single-client (will be migrated)';
+      customConfirm(
+        `This REPLACES all current data with the backup from ${dateLabel} (${formatLabel}). Continue?`,
+        () => {
+          if (isV7) {
+            localStorage.setItem(SK, payload.data[SK]);
+          } else {
+            // v6 backup — restore the legacy key, then migrate
+            localStorage.setItem(SK_LEGACY, payload.data[SK_LEGACY]);
+            localStorage.removeItem(SK);  // force migration on reload
+          }
+          if (payload.data[META_KEY]) localStorage.setItem(META_KEY, payload.data[META_KEY]);
+          toast('Backup restored — reloading...', 'success');
+          setTimeout(() => location.reload(), 800);
+        },
+        { title: 'Restore Full Backup', yesLabel: 'Restore' }
+      );
+    } catch (err) {
+      toast('Could not parse backup file: ' + err.message, 'error');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function updateBackupBanner() {
+  const banner = document.getElementById('backup-banner');
+  const text = document.getElementById('banner-text');
+  if (!banner || !text) return;
+
+  const now = new Date();
+  if (meta.bannerDismissedUntil && new Date(meta.bannerDismissedUntil) > now) {
+    banner.classList.add('hidden');
+    return;
+  }
+
+  if (!db.entries.length) {
+    banner.classList.add('hidden');
+    return;
+  }
+
+  if (!meta.lastBackup) {
+    text.textContent = '⚠ No backup yet — your data is at risk if browser data gets cleared. Export now (takes 2 seconds).';
+    banner.classList.remove('hidden');
+    return;
+  }
+
+  const days = Math.floor((now - new Date(meta.lastBackup)) / (1000 * 60 * 60 * 24));
+  if (days >= 7) {
+    text.textContent = `⚠ Last backup was ${days} days ago. Export a fresh one now.`;
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function dismissBanner() {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  meta.bannerDismissedUntil = tomorrow.toISOString();
+  saveMeta();
+  updateBackupBanner();
+}
+
+function updateLastBackupInfo() {
+  const el = document.getElementById('last-backup-info');
+  if (!el) return;
+  if (meta.lastBackup) {
+    const d = new Date(meta.lastBackup);
+    const days = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+    const ago = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
+    el.textContent = `Last backup: ${d.toLocaleString()} (${ago})`;
+  } else {
+    el.textContent = 'Last backup: never';
+  }
+}
+
+// ============================================================================
+// CUSTOM CONFIRM (works in sandboxed iframes too)
+// ============================================================================
+function customConfirm(message, onYes, opts = {}) {
+  const overlay = document.getElementById('confirm-modal');
+  document.getElementById('confirm-title').textContent = opts.title || 'Confirm';
+  document.getElementById('confirm-message').textContent = message;
+  const btnYes = document.getElementById('confirm-yes');
+  const btnNo = document.getElementById('confirm-no');
+  const tcWrap = document.getElementById('confirm-typecheck-wrap');
+  const tcInput = document.getElementById('confirm-typecheck');
+  btnYes.textContent = opts.yesLabel || 'Confirm';
+
+  const requireType = opts.requireType === true;
+  if (requireType) {
+    tcWrap.style.display = 'block';
+    tcInput.value = '';
+    btnYes.disabled = true;
+    btnYes.style.opacity = '0.4';
+    tcInput.oninput = () => {
+      const ok = tcInput.value.trim().toUpperCase() === 'DELETE';
+      btnYes.disabled = !ok;
+      btnYes.style.opacity = ok ? '1' : '0.4';
+    };
+  } else {
+    tcWrap.style.display = 'none';
+    btnYes.disabled = false;
+    btnYes.style.opacity = '1';
+  }
+
+  const cleanup = () => {
+    overlay.classList.remove('show');
+    btnYes.onclick = null;
+    btnNo.onclick = null;
+    tcInput.oninput = null;
+    document.removeEventListener('keydown', escHandler);
+  };
+  const escHandler = (e) => { if (e.key === 'Escape') cleanup(); };
+
+  btnYes.onclick = () => { if (!btnYes.disabled) { cleanup(); onYes(); } };
+  btnNo.onclick = cleanup;
+  document.addEventListener('keydown', escHandler);
+  overlay.classList.add('show');
+  setTimeout(() => (requireType ? tcInput : btnNo).focus(), 50);
+}
+
+function customPrompt(message, defaultValue, onSubmit, opts = {}) {
+  const overlay = document.getElementById('prompt-modal');
+  document.getElementById('prompt-title').textContent = opts.title || 'Input';
+  document.getElementById('prompt-message').textContent = message;
+  const input = document.getElementById('prompt-input');
+  input.value = defaultValue || '';
+  input.placeholder = opts.placeholder || '';
+  const btnOk = document.getElementById('prompt-ok');
+  const btnCancel = document.getElementById('prompt-cancel');
+  btnOk.textContent = opts.okLabel || 'OK';
+
+  const cleanup = () => {
+    overlay.classList.remove('show');
+    btnOk.onclick = null;
+    btnCancel.onclick = null;
+    input.onkeydown = null;
+    document.removeEventListener('keydown', escHandler);
+  };
+  const escHandler = (e) => { if (e.key === 'Escape') cleanup(); };
+  const submit = () => {
+    const val = input.value;
+    cleanup();
+    onSubmit(val);
+  };
+
+  btnOk.onclick = submit;
+  btnCancel.onclick = cleanup;
+  input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } };
+  document.addEventListener('keydown', escHandler);
+
+  overlay.classList.add('show');
+  setTimeout(() => { input.focus(); input.select(); }, 50);
+}
+
+function clearAllData() {
+  customConfirm(
+    `This permanently deletes ALL ${db.clients.length} client(s), ALL their campaigns, ALL weekly entries, and ALL settings. If you have not exported a backup, this is irreversible.`,
+    () => {
+      localStorage.removeItem(SK);
+      localStorage.removeItem(SK_LEGACY);
+      localStorage.removeItem(META_KEY);
+      location.reload();
+    },
+    { title: 'Clear ALL Data (All Clients)', yesLabel: 'Delete Everything', requireType: true }
+  );
+}
+
+// ============================================================================
+// TOAST
+// ============================================================================
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ============================================================================
+// CLIENT MANAGEMENT
+// ============================================================================
+function switchClient(clientId) {
+  if (!db.clients.find(c => c.id === clientId)) return;
+  db.activeClientId = clientId;
+  save();
+  // Re-render everything that depends on active client
+  populateSelects();
+  populateClientSwitcher();
+  onCampChange();
+  renderSettings();
+  // Active tab refresh
+  const activeTab = document.querySelector('.tab.active');
+  if (activeTab) {
+    const tabName = activeTab.textContent.toLowerCase().includes('window') ? 'window' :
+                    activeTab.textContent.toLowerCase().includes('decision') ? 'decision' :
+                    activeTab.textContent.toLowerCase().includes('history') ? 'history' :
+                    activeTab.textContent.toLowerCase().includes('settings') ? 'settings' : 'weekly';
+    showTab(tabName);
+  }
+  toast(`Switched to: ${activeClient().name}`, 'success');
+}
+
+function populateClientSwitcher() {
+  const sel = document.getElementById('client-switcher');
+  if (!sel) return;
+  sel.innerHTML = db.clients.map(c =>
+    `<option value="${c.id}" ${c.id === db.activeClientId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
+  ).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+}
+
+function quickAddClient() {
+  customPrompt('New client name:', '', (name) => {
+    const trimmed = (name || '').trim();
+    if (!trimmed) { toast('Client name cannot be empty', 'error'); return; }
+    if (db.clients.find(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
+      toast('A client with that name already exists', 'error');
+      return;
+    }
+    const newClient = DEFAULT_CLIENT();
+    newClient.name = trimmed;
+    db.clients.push(newClient);
+    db.activeClientId = newClient.id;
+    save();
+    populateClientSwitcher();
+    populateSelects();
+    onCampChange();
+    renderSettings();
+    toast(`Added "${trimmed}" — now active`, 'success');
+  }, { title: 'Add New Client', placeholder: 'e.g. Abolox', okLabel: 'Add Client' });
+}
+
+function renameActiveClient() {
+  const c = activeClient();
+  customPrompt('Rename client:', c.name, (newName) => {
+    const trimmed = (newName || '').trim();
+    if (!trimmed) { toast('Name cannot be empty', 'error'); return; }
+    if (db.clients.find(x => x.id !== c.id && x.name.toLowerCase() === trimmed.toLowerCase())) {
+      toast('Another client already has that name', 'error');
+      return;
+    }
+    c.name = trimmed;
+    save();
+    populateClientSwitcher();
+    renderSettings();
+    toast('Renamed to ' + trimmed, 'success');
+  }, { title: 'Rename Client', okLabel: 'Rename' });
+}
+
+function deleteActiveClient() {
+  if (db.clients.length <= 1) {
+    toast('Cannot delete the only client. Add another first.', 'error');
+    return;
+  }
+  const c = activeClient();
+  customConfirm(
+    `Permanently delete client "${c.name}" and ALL its campaigns + entries? Other clients are not affected. This cannot be undone unless you have a backup.`,
+    () => {
+      db.clients = db.clients.filter(x => x.id !== c.id);
+      db.activeClientId = db.clients[0].id;
+      save();
+      populateClientSwitcher();
+      populateSelects();
+      onCampChange();
+      renderSettings();
+      toast(`Deleted "${c.name}" — switched to ${activeClient().name}`, 'success');
+    },
+    { title: 'Delete Client', yesLabel: 'Delete Client', requireType: true }
+  );
+}
+
+// ============================================================================
+// CORE LOGIC (unchanged from v5)
+// ============================================================================
+function cfg() { return db.settings; }
+function getCamp(id) { return db.campaigns.find(c => c.id === id) || db.campaigns[0]; }
+function campPRT(c) { return c.gm > 0 ? 1 / c.gm : 0; }
+function campEffTarget(c) { return Math.max(c.targetROAS, campPRT(c)); }
+
+function getZone(o, t) {
+  if (o >= t * 1.2) return { zone: 'GREEN', action: 'Scale +' + cfg().scalePct + '%', cls: 'bg' };
+  if (o >= t * 0.9) return { zone: 'YELLOW', action: 'Hold spend, optimize', cls: 'by' };
+  return { zone: 'RED', action: 'Freeze + cut worst 20%', cls: 'br' };
+}
+
+function getMargROAS(entries) {
+  return entries.map((e, i) => {
+    if (i === 0) return null;
+    const dS = e.spend - entries[i - 1].spend;
+    const dR = e.totRev - entries[i - 1].totRev;
+    const pct = entries[i - 1].spend > 0 ? Math.abs(dS) / entries[i - 1].spend * 100 : 0;
+    if (pct < cfg().margMinPct) return null;
+    return dS !== 0 ? dR / dS : null;
+  });
+}
+
+function margZoneFromVal(m) {
+  const th = cfg().margThresh;
+  if (m === null) return { label: 'Insufficient spend change', cls: 'bb', status: 'N/A', override: null };
+  if (m > th) return { label: 'Scale +' + cfg().scalePct + '%', cls: 'bg', status: 'Optimal', override: null };
+  if (m >= 2.5) return { label: 'HOLD', cls: 'by', status: 'Diminishing', override: null };
+  if (m >= 1.0) return { label: 'REDUCE', cls: 'by', status: 'Dangerous', override: 'REDUCE' };
+  return { label: 'CUT -' + cfg().cutPct + '%', cls: 'br', status: 'Toxic', override: 'CUT' };
+}
+
+function calcBaseDecision(e4w, camp) {
+  const last = e4w[e4w.length - 1];
+  const tROAS = last.tROAS || camp.targetROAS;
+  const prt = campPRT(camp);
+  const et = campEffTarget(camp);
+  const ra = e4w.map(e => e.spend > 0 ? e.totRev / e.spend : 0);
+  const n = ra.length;
+  const w1 = ra[0];
+  const wN = ra[n - 1];
+  const totSpend = e4w.reduce((a, e) => a + e.spend, 0);
+  const blended = totSpend > 0 ? e4w.reduce((a, e) => a + e.totRev, 0) / totSpend : 0;
+  const trend = w1 > 0 ? (wN - w1) / w1 : 0;
+  const mean = ra.reduce((a, b) => a + b, 0) / n;
+  const std = Math.sqrt(ra.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n);
+  const stability = std <= 0.15 * mean ? 'STABLE' : std <= 0.3 * mean ? 'VOLATILE' : 'UNSTABLE';
+  const trendSt = trend >= 0.1 ? 'IMPROVING' : trend <= -0.1 ? 'DECLINING' : 'FLAT';
+  const levelSt = blended >= et * 1.1 ? 'STRONG' : blended >= et ? 'ACCEPTABLE' : blended >= et * 0.9 ? 'WEAK' : 'FAIL';
+  let dec = 'HOLD';
+  if (blended < prt || levelSt === 'FAIL') dec = 'CUT';
+  else if (levelSt === 'WEAK') dec = 'REDUCE';
+  else if (levelSt === 'ACCEPTABLE') dec = trendSt === 'DECLINING' ? 'REDUCE' : 'HOLD';
+  else if (levelSt === 'STRONG') {
+    if (trendSt === 'IMPROVING') dec = stability === 'STABLE' ? 'SCALE (FULL)' : stability === 'VOLATILE' ? 'SCALE (LIMITED)' : 'MICRO-SCALE';
+    else if (trendSt === 'DECLINING') dec = stability === 'STABLE' ? 'INVESTIGATE' : 'HOLD';
+    else dec = 'HOLD';
+  }
+  return { dec, levelSt, trendSt, stability, blended, trend: (trend * 100).toFixed(1), std: std.toFixed(3), et, prt, tROAS };
+}
+
+function getSignalDrivers(base, mz) {
+  const d = [];
+  if (mz.override) d.push({ signal: 'Marginal ROAS', value: mz.status, severity: 'override', reason: 'mROAS is ' + mz.status + '. Extra spend is destroying value. Overrides blended signal.' });
+  if (base.trendSt === 'DECLINING') d.push({ signal: 'Trend', value: 'Declining ' + base.trend + '%', severity: 'warning', reason: 'Performance getting worse week over week vs Week 1.' });
+  if (base.stability === 'VOLATILE') d.push({ signal: 'Stability', value: 'Volatile', severity: 'warning', reason: 'High week-to-week variance — signal noisy, scaling risky.' });
+  if (base.stability === 'UNSTABLE') d.push({ signal: 'Stability', value: 'Unstable', severity: 'override', reason: 'Extreme variance. No scaling until signal stabilizes.' });
+  if (base.levelSt === 'WEAK' || base.levelSt === 'FAIL') d.push({ signal: 'Level', value: base.levelSt, severity: 'override', reason: '4W blended ROAS below effective target. Margin at risk.' });
+  return d;
+}
+
+function getFinalDecision(base, mz) {
+  const mo = mz.override;
+  const hasConflict = mo && !['CUT', 'REDUCE'].includes(base.dec);
+  let finalDec = base.dec;
+  if (mo === 'CUT') finalDec = 'CUT';
+  else if (mo === 'REDUCE' && base.dec !== 'CUT') finalDec = 'REDUCE';
+  return { finalDec, hasConflict, baseDec: base.dec, mOverride: mo };
+}
+
+const RAT = {
+  'SCALE (FULL)': 'Level STRONG, trend IMPROVING, stability STABLE. Scale aggressively.',
+  'SCALE (LIMITED)': 'Level STRONG, trend IMPROVING, but VOLATILE. Scale with a cap.',
+  'MICRO-SCALE': 'Level STRONG, trend IMPROVING, but UNSTABLE. Small test increases only.',
+  'INVESTIGATE': 'Level STRONG but trend DECLINING. Find the driver before touching spend.',
+  'HOLD': 'Performance meets requirements but no signal to increase risk. Maintain and optimize.',
+  'REDUCE': 'ROAS near/below effective target or marginal spend destroying value. Reduce exposure.',
+  'CUT': '4W ROAS below profitability gate OR marginal ROAS is toxic. Stop the bleeding immediately.'
+};
+
+function getBudgetRoasAction(fd, tROAS, lastSpend) {
+  const step = cfg().roasStep;
+  const sp = cfg().scalePct / 100;
+  const cp = cfg().cutPct / 100;
+  let ba = '', bTo = lastSpend, bDir = 'hold', ra = '', rTo = tROAS, rDir = 'hold';
+  if (['SCALE (FULL)', 'SCALE (LIMITED)', 'MICRO-SCALE'].includes(fd)) {
+    bTo = lastSpend * (1 + sp); bDir = 'up';
+    ba = 'Increase spend by ' + cfg().scalePct + '%';
+    ra = 'Hold target ROAS at ' + tROAS.toFixed(2) + '×';
+  } else if (fd === 'INVESTIGATE' || fd === 'HOLD') {
+    ba = fd === 'INVESTIGATE' ? 'Hold spend — identify driver first' : 'Maintain current spend';
+    ra = 'Hold target ROAS at ' + tROAS.toFixed(2) + '×';
+  } else if (fd === 'REDUCE') {
+    bTo = lastSpend * (1 - cp / 2); bDir = 'down';
+    rTo = tROAS + step; rDir = 'up';
+    ba = 'Reduce spend by ' + (cfg().cutPct / 2).toFixed(0) + '%';
+    ra = 'Raise target ROAS by ' + step + '×';
+  } else if (fd === 'CUT') {
+    bTo = lastSpend * (1 - cp); bDir = 'down';
+    rTo = tROAS + step; rDir = 'up';
+    ba = 'Cut spend by ' + cfg().cutPct + '%';
+    ra = 'Raise target ROAS by ' + step + '×';
+  }
+  return { budgetAction: ba, budgetFrom: lastSpend, budgetTo: bTo, budgetDir: bDir, roasAction: ra, roasFrom: tROAS, roasTo: rTo, roasDir: rDir };
+}
+
+function decCls(d) {
+  if (['SCALE (FULL)', 'SCALE (LIMITED)', 'MICRO-SCALE'].includes(d)) return 'g';
+  if (['HOLD', 'INVESTIGATE'].includes(d)) return 'y';
+  return 'r';
+}
+function fmt$(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtR(n) { return (+n).toFixed(2) + '×'; }
+
+function getDecWindow(campId, endDate) {
+  const all = db.entries.filter(e => e.campId === campId);
+  if (!endDate || !all.length) return all.slice(-4);
+  const idx = all.findIndex(e => e.date === endDate);
+  if (idx < 0) return all.slice(-4);
+  const start = Math.max(0, idx - 3);
+  return all.slice(start, idx + 1);
+}
+
+function populateDecWindow() {
+  const campId = document.getElementById('dec-camp').value;
+  const entries = db.entries.filter(e => e.campId === campId);
+  const sel = document.getElementById('dec-end');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">Most recent 4 weeks</option>' +
+    entries.map(e => `<option value="${e.date}">${e.date}</option>`).join('');
+  if (cur && entries.find(e => e.date === cur)) sel.value = cur;
   renderDecision();
 }
 
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const camp=getCamp(campId);
-  const endDate=document.getElementById('dec-end').value;
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const last=entries[entries.length-1];
-  const dateRange=`${entries[0].date} to ${last.date}`;
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
-  // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
-  // From/To
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('ROAS Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Google Ads Campaign Analysis — '+camp.name,ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
-  // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('Gross Margin: '+(camp.gm*100).toFixed(1)+'%',ml+4,y+7);
-  doc.text('Profit Threshold: '+base.prt.toFixed(2)+'×',ml+50,y+7);
-  doc.text('Effective Target: '+base.et.toFixed(2)+'×',ml+100,y+7);
-  doc.text('This Week Target: '+fmtR(base.tROAS),ml+152,y+7);
-  y+=14;
-  // Decision banner
-  const decColor=finalDec.includes('SCALE')?[34,197,94]:finalDec==='INVESTIGATE'||finalDec==='HOLD'?[245,158,11]:[239,68,68];
-  const decBg=finalDec.includes('SCALE')?[240,255,244]:finalDec==='INVESTIGATE'||finalDec==='HOLD'?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,20,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+9);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+15);
-  y+=24;
-  // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const mROASColor=mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11];
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status+(mz.override?' (OVERRIDE)':''),subColor:mROASColor},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144]},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68]},
-    {label:'LEVEL STATUS',val:base.blended.toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68]},
-  ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-    doc.roundedRect(cx,y,cardW,20,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub,cx+3,y+18);
+// ============================================================================
+// UI HANDLERS
+// ============================================================================
+function populateSelects() {
+  ['w-camp', 'win-camp', 'dec-camp', 'hist-camp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = db.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    if (cur && db.campaigns.find(c => c.id === cur)) el.value = cur;
   });
-  y+=25;
-  // Conflict box
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,14,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+6);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(160,45,45);
-    doc.text('4W Blended says: '+baseDec+' · mROAS Override says: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+11);
-    y+=17;
+}
+
+function showTab(t) {
+  ['weekly', 'window', 'decision', 'history', 'settings'].forEach(x => {
+    document.getElementById('tab-' + x).style.display = x === t ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((b, i) => {
+    b.classList.toggle('active', ['weekly', 'window', 'decision', 'history', 'settings'][i] === t);
+  });
+  populateSelects();
+  if (t === 'window') renderWindow();
+  if (t === 'decision') { populateDecWindow(); }
+  if (t === 'history') renderHistory();
+  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); }
+}
+
+function onCampChange() {
+  const c = getCamp(document.getElementById('w-camp').value);
+  if (!c) return;
+  document.getElementById('w-troas').value = c.targetROAS;
+  document.getElementById('w-camp-info').innerHTML = `<div class="hint">Gross margin: <strong>${(c.gm * 100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${campPRT(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${campEffTarget(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Default target ROAS: <strong>${c.targetROAS}×</strong></div>`;
+  calcWeekly();
+}
+
+function toggleNewCamp() {
+  const b = document.getElementById('new-camp-box');
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+
+function addCamp() {
+  const name = document.getElementById('nc-name').value.trim();
+  const roas = parseFloat(document.getElementById('nc-roas').value) || 3.25;
+  const gm = parseFloat(document.getElementById('nc-gm').value) / 100 || 0.235;
+  if (!name) { toast('Campaign name required', 'error'); return; }
+  db.campaigns.push({ id: 'c' + Date.now(), name, targetROAS: roas, gm });
+  save();
+  populateSelects();
+  toggleNewCamp();
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-roas').value = '';
+  document.getElementById('nc-gm').value = '';
+  toast('Campaign added', 'success');
+}
+
+function calcWeekly() {
+  const tROAS = parseFloat(document.getElementById('w-troas').value);
+  const ppcR = parseFloat(document.getElementById('w-ppcr').value);
+  const ovrR = parseFloat(document.getElementById('w-ovr').value);
+  if (!ovrR || !tROAS) { document.getElementById('week-zone-row').style.display = 'none'; return; }
+  const z = getZone(ovrR, tROAS);
+  document.getElementById('wz-zone').innerHTML = `<span class="badge ${z.cls}">${z.zone}</span>`;
+  document.getElementById('wz-rank').textContent = (ovrR / tROAS).toFixed(2) + '×';
+  document.getElementById('wz-action').textContent = z.action;
+  document.getElementById('wz-ppc').innerHTML = ppcR ? `<span class="badge ${ppcR >= tROAS ? 'bg' : 'br'}">${ppcR >= tROAS ? 'Above' : 'Below'} Target</span>` : '—';
+  document.getElementById('week-zone-row').style.display = 'block';
+}
+
+function saveWeek() {
+  const campId = document.getElementById('w-camp').value;
+  const date = document.getElementById('w-date').value;
+  const tROAS = parseFloat(document.getElementById('w-troas').value) || getCamp(campId).targetROAS;
+  const ppcR = parseFloat(document.getElementById('w-ppcr').value) || 0;
+  const ovrR = parseFloat(document.getElementById('w-ovr').value) || 0;
+  const spend = parseFloat(document.getElementById('w-spend').value) || 0;
+  const ppcRev = parseFloat(document.getElementById('w-ppcrev').value) || 0;
+  const totRev = parseFloat(document.getElementById('w-totrev').value) || 0;
+  const msg = document.getElementById('w-msg');
+  if (!date || !spend) { msg.className = 'err'; msg.textContent = 'Date and spend required.'; return; }
+  db.entries.push({ id: 'e' + Date.now(), campId, date, tROAS, ppcR, ovrR, spend, ppcRev, totRev });
+  db.entries.sort((a, b) => a.date.localeCompare(b.date));
+  save();
+  msg.className = 'msg';
+  msg.textContent = 'Saved.';
+  setTimeout(() => msg.textContent = '', 2500);
+  ['w-ppcr', 'w-ovr', 'w-spend', 'w-ppcrev', 'w-totrev'].forEach(id => document.getElementById(id).value = '');
+  updateBackupBanner();
+}
+
+function renderWindow() {
+  const campId = document.getElementById('win-camp').value;
+  const entries = db.entries.filter(e => e.campId === campId).slice(-4);
+  if (!entries.length) {
+    document.getElementById('win-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No data yet. Add entries on the Weekly Entry tab.</p>';
+    return;
   }
-  // Drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bg=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bd=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bg);doc.setDrawColor(...bd);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bd);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0]||'',ml+75,y+4);
-      y+=12;
-    });
+  const marg = getMargROAS(entries);
+  let cumS = 0, cumP = 0, cumT = 0;
+  const rows = entries.map((e, i) => {
+    cumS += e.spend; cumP += e.ppcRev; cumT += e.totRev;
+    const pR = cumS > 0 ? cumP / cumS : 0;
+    const tR = cumS > 0 ? cumT / cumS : 0;
+    const m = marg[i];
+    const mz = margZoneFromVal(m);
+    return `<tr><td>${i + 1}W</td><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmt$(e.spend)}</td><td>${fmt$(cumS)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(cumP)}</td><td>${fmt$(e.totRev)}</td><td>${fmt$(cumT)}</td><td>${fmtR(pR)}</td><td>${fmtR(tR)}</td><td>${m !== null ? fmtR(m) : '—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><span class="badge ${mz.cls}">${mz.label}</span></td></tr>`;
+  }).join('');
+  document.getElementById('win-content').innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Win</th><th>Date</th><th>Tgt ROAS</th><th>Wk Spend</th><th>Cum Spend</th><th>Wk PPC Rev</th><th>Cum PPC Rev</th><th>Wk Tot Rev</th><th>Cum Tot Rev</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Marg ROAS</th><th>mROAS Status</th><th>mROAS Action</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function renderDecision() {
+  const campId = document.getElementById('dec-camp').value;
+  const camp = getCamp(campId);
+  const endDate = document.getElementById('dec-end') ? document.getElementById('dec-end').value : '';
+  const entries = getDecWindow(campId, endDate);
+  if (entries.length < 2) {
+    document.getElementById('dec-content').innerHTML = '<div class="card"><p style="color:var(--text3);font-size:13px">Need at least 2 weeks of data.</p></div>';
+    return;
   }
-  // Action rows
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'UP':acts.budgetDir==='down'?'DOWN':'HOLD';
-  const rDir=acts.roasDir==='up'?'UP':acts.roasDir==='down'?'DOWN':'HOLD';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[113,128,144];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[113,128,144];
-  const actionRows=[
-    ['Budget',acts.budgetAction,fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bDir,bCol],
-    ['Target ROAS',acts.roasAction,fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rDir,rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' ('+mz.status+')':'N/A',mz.label,'',mROASColor],
-  ];
-  actionRows.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-    doc.text(r[1],ml+35,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[4]);
-    doc.text(r[2],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
-  });
-  y+=6;
-  // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TARGET ROAS','PPC ROAS','OVERALL ROAS','SPEND','PPC REV','MARG ROAS'];
-  const colW=[26,26,22,26,26,26,22];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);
-  let cx2=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx2+2,y+5);cx2+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const m=marg[ri];
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),fmt$(e.spend),fmt$(e.ppcRev||0),m!==null?fmtR(m):'—'];
-    cx2=ml;
-    row.forEach((v,i)=>{doc.text(String(v),cx2+2,y+5);cx2+=colW[i];});
-    y+=7;
-  });
-  // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
-}
-
-function populateSelects(){['w-camp','win-camp','dec-camp','hist-camp'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML=db.campaigns.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');if(cur&&db.campaigns.find(c=>c.id===cur))el.value=cur})}
-function showTab(t){['weekly','window','decision','history','settings'].forEach(x=>{document.getElementById('tab-'+x).style.display=x===t?'block':'none'});document.querySelectorAll('.tab').forEach((b,i)=>{b.classList.toggle('active',['weekly','window','decision','history','settings'][i]===t)});
-function onDecCampChange(){
-  populateDecEnd();
-  renderDecision();
-}
-
-function populateDecEnd(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
-}
-
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
-}
-
-// placeholder_pdf
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const endDate=document.getElementById('dec-end').value;
-  const camp=getCamp(campId);
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
-
-  // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
-
-  // Title block
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('4-Week Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
-
-  // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
-  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
-  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
-  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
-  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
-  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
-  doc.text(fmtR(base.tROAS),ml+124,y+9);
-  y+=14;
-
-  // Decision banner
-  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
-  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+13);
-  y+=22;
-
-  // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
-    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
-  ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    const hasflag=c.flag!=='';
-    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
-    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
-    doc.setLineWidth(hasflag?0.6:0.3);
-    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
-  });
-  y+=27;
-
-  // Conflict notice
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
-    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
-    y+=16;
-  }
-
-  // Active drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0],ml+75,y+4);y+=12;
-    });
-  }
-
-  // Budget & ROAS actions
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
-  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
-  const recs=[
-    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
-    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
-  ];
-  recs.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
-    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
-  });
-  y+=6;
-
-  // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
-  const colW=[24,20,20,20,20,22,22,22,16];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
-  let cx=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    const m=marg[ri];
-    const mzr=margZoneFromVal(m);
-    const z=getZone(e.ovrR,e.tROAS);
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
-    cx=ml;
-    row.forEach((v,i)=>{
-      let tc=[45,55,72];
-      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
-      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
-      doc.setTextColor(...tc);
-      doc.text(String(v),cx+2,y+5);cx+=colW[i];
-    });
-    y+=7;
-  });
-
-  // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
-
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
-}
-
-populateSelects();if(t==='window')renderWindow();if(t==='decision')renderDecision();if(t==='history')renderHistory();if(t==='settings')renderSettings()}
-function onCampChange(){const c=getCamp(document.getElementById('w-camp').value);if(c){document.getElementById('w-troas').value=c.targetROAS;document.getElementById('w-camp-info').innerHTML=`<div class="hint">Gross margin: <strong>${(c.gm*100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${campPRT(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${campEffTarget(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Default target ROAS: <strong>${c.targetROAS}×</strong></div>`}calcWeekly()}
-function toggleNewCamp(){const b=document.getElementById('new-camp-box');b.style.display=b.style.display==='none'?'block':'none'}
-function addCamp(){const name=document.getElementById('nc-name').value.trim(),roas=parseFloat(document.getElementById('nc-roas').value)||3.25,gm=parseFloat(document.getElementById('nc-gm').value)/100||0.235;if(!name){alert('Campaign name required.');return}db.campaigns.push({id:'c'+Date.now(),name,targetROAS:roas,gm});save();
-function onDecCampChange(){
-  populateDecEnd();
-  renderDecision();
-}
-
-function populateDecEnd(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
-}
-
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
-}
-
-// placeholder_pdf
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const endDate=document.getElementById('dec-end').value;
-  const camp=getCamp(campId);
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
-
-  // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
-
-  // Title block
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('4-Week Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
-
-  // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
-  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
-  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
-  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
-  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
-  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
-  doc.text(fmtR(base.tROAS),ml+124,y+9);
-  y+=14;
-
-  // Decision banner
-  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
-  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+13);
-  y+=22;
-
-  // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
-    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
-  ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    const hasflag=c.flag!=='';
-    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
-    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
-    doc.setLineWidth(hasflag?0.6:0.3);
-    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
-  });
-  y+=27;
-
-  // Conflict notice
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
-    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
-    y+=16;
-  }
-
-  // Active drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0],ml+75,y+4);y+=12;
-    });
-  }
-
-  // Budget & ROAS actions
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
-  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
-  const recs=[
-    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
-    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
-  ];
-  recs.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
-    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
-  });
-  y+=6;
-
-  // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
-  const colW=[24,20,20,20,20,22,22,22,16];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
-  let cx=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    const m=marg[ri];
-    const mzr=margZoneFromVal(m);
-    const z=getZone(e.ovrR,e.tROAS);
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
-    cx=ml;
-    row.forEach((v,i)=>{
-      let tc=[45,55,72];
-      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
-      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
-      doc.setTextColor(...tc);
-      doc.text(String(v),cx+2,y+5);cx+=colW[i];
-    });
-    y+=7;
-  });
-
-  // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
-
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
-}
-
-populateSelects();toggleNewCamp();document.getElementById('nc-name').value='';document.getElementById('nc-roas').value='';document.getElementById('nc-gm').value=''}
-function calcWeekly(){const tROAS=parseFloat(document.getElementById('w-troas').value),ppcR=parseFloat(document.getElementById('w-ppcr').value),ovrR=parseFloat(document.getElementById('w-ovr').value);if(!ovrR||!tROAS){document.getElementById('week-zone-row').style.display='none';return}const z=getZone(ovrR,tROAS);document.getElementById('wz-zone').innerHTML=`<span class="badge ${z.cls}">${z.zone}</span>`;document.getElementById('wz-rank').textContent=(ovrR/tROAS).toFixed(2)+'×';document.getElementById('wz-action').textContent=z.action;document.getElementById('wz-ppc').innerHTML=ppcR?`<span class="badge ${ppcR>=tROAS?'bg':'br'}">${ppcR>=tROAS?'Above':'Below'} Target</span>`:'—';document.getElementById('week-zone-row').style.display='block'}
-function saveWeek(){const campId=document.getElementById('w-camp').value,date=document.getElementById('w-date').value,tROAS=parseFloat(document.getElementById('w-troas').value)||getCamp(campId).targetROAS,ppcR=parseFloat(document.getElementById('w-ppcr').value)||0,ovrR=parseFloat(document.getElementById('w-ovr').value)||0,spend=parseFloat(document.getElementById('w-spend').value)||0,ppcRev=parseFloat(document.getElementById('w-ppcrev').value)||0,totRev=parseFloat(document.getElementById('w-totrev').value)||0,msg=document.getElementById('w-msg');if(!date||!spend){msg.className='err';msg.textContent='Date and spend required.';return}db.entries.push({id:'e'+Date.now(),campId,date,tROAS,ppcR,ovrR,spend,ppcRev,totRev});db.entries.sort((a,b)=>a.date.localeCompare(b.date));save();msg.className='msg';msg.textContent='Saved.';setTimeout(()=>msg.textContent='',2500);['w-ppcr','w-ovr','w-spend','w-ppcrev','w-totrev'].forEach(id=>document.getElementById(id).value='')}
-function renderWindow(){const campId=document.getElementById('win-camp').value,entries=db.entries.filter(e=>e.campId===campId).slice(-4);if(!entries.length){document.getElementById('win-content').innerHTML='<p style="color:var(--text3);font-size:13px">No data yet. Add entries on the Weekly Entry tab.</p>';return}const marg=getMargROAS(entries);let cumS=0,cumP=0,cumT=0;const rows=entries.map((e,i)=>{cumS+=e.spend;cumP+=e.ppcRev;cumT+=e.totRev;const pR=cumS>0?cumP/cumS:0,tR=cumS>0?cumT/cumS:0,m=marg[i],mz=margZoneFromVal(m);return`<tr><td>${i+1}W</td><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmt$(e.spend)}</td><td>${fmt$(cumS)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(cumP)}</td><td>${fmt$(e.totRev)}</td><td>${fmt$(cumT)}</td><td>${fmtR(pR)}</td><td>${fmtR(tR)}</td><td>${m!==null?fmtR(m):'—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><span class="badge ${mz.cls}">${mz.label}</span></td></tr>`}).join('');document.getElementById('win-content').innerHTML=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Win</th><th>Date</th><th>Tgt ROAS</th><th>Wk Spend</th><th>Cum Spend</th><th>Wk PPC Rev</th><th>Cum PPC Rev</th><th>Wk Tot Rev</th><th>Cum Tot Rev</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Marg ROAS</th><th>mROAS Status</th><th>mROAS Action</th></tr></thead><tbody>${rows}</tbody></table></div>`}
-function renderDecision(){
-  const campId=document.getElementById('dec-camp').value,camp=getCamp(campId),endDate=document.getElementById('dec-end')?document.getElementById('dec-end').value:'',entries=getDecWindow(campId,endDate);
-  if(entries.length<2){document.getElementById('dec-content').innerHTML='<div class="card"><p style="color:var(--text3);font-size:13px">Need at least 2 weeks of data.</p></div>';return}
-  const base=calcBaseDecision(entries,camp),marg=getMargROAS(entries),lastMarg=marg[marg.length-1],mz=margZoneFromVal(lastMarg),drivers=getSignalDrivers(base,mz),{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz),acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend),cl=decCls(finalDec);
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→',rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→',bCol=acts.budgetDir==='up'?'var(--green)':acts.budgetDir==='down'?'var(--red)':'var(--text3)',rCol=acts.roasDir==='up'?'var(--red)':acts.roasDir==='down'?'var(--green)':'var(--text3)';
-  const signalCards=`<div class="signal-grid">
-    <div class="signal-card ${mz.override?'sig-override':mz.status==='N/A'?'sig-neutral':'sig-ok'}"><div class="signal-label">Marginal ROAS ${mz.override?'<span class="driver-tag">OVERRIDE</span>':''}</div><div class="signal-val" style="color:${mz.override?'var(--red)':mz.status==='Optimal'?'var(--green)':'var(--amber)'}">${lastMarg!==null?fmtR(lastMarg):'N/A'}</div><div><span class="badge ${mz.cls}">${mz.status}</span></div></div>
-    <div class="signal-card ${base.trendSt==='DECLINING'?'sig-warning':base.trendSt==='IMPROVING'?'sig-ok':'sig-neutral'}"><div class="signal-label">Trend W4 vs W1 ${base.trendSt==='DECLINING'?'<span class="driver-tag">DRIVER</span>':''}</div><div class="signal-val" style="color:${parseFloat(base.trend)>=0?'var(--green)':'var(--red)'}">${base.trend}%</div><div><span class="badge ${base.trendSt==='IMPROVING'?'bg':base.trendSt==='DECLINING'?'br':'bb'}">${base.trendSt}</span></div></div>
-    <div class="signal-card ${base.stability==='UNSTABLE'?'sig-override':base.stability==='VOLATILE'?'sig-warning':'sig-ok'}"><div class="signal-label">Stability ${base.stability!=='STABLE'?'<span class="driver-tag">DRIVER</span>':''}</div><div class="signal-val" style="color:${base.stability==='STABLE'?'var(--green)':base.stability==='VOLATILE'?'var(--amber)':'var(--red)'};font-size:15px">${base.std}</div><div><span class="badge ${base.stability==='STABLE'?'bg':base.stability==='VOLATILE'?'by':'br'}">${base.stability}</span></div></div>
-    <div class="signal-card ${base.levelSt==='FAIL'?'sig-override':base.levelSt==='WEAK'?'sig-warning':base.levelSt==='STRONG'?'sig-ok':'sig-neutral'}"><div class="signal-label">Level Status ${['FAIL','WEAK'].includes(base.levelSt)?'<span class="driver-tag">DRIVER</span>':''}</div><div class="signal-val" style="color:${base.levelSt==='STRONG'?'var(--green)':base.levelSt==='ACCEPTABLE'?'var(--blue)':base.levelSt==='WEAK'?'var(--amber)':'var(--red)'}">${base.blended.toFixed(2)}×</div><div><span class="badge ${base.levelSt==='STRONG'?'bg':base.levelSt==='ACCEPTABLE'?'bb':base.levelSt==='WEAK'?'by':'br'}">${base.levelSt}</span></div></div>
+  const base = calcBaseDecision(entries, camp);
+  const marg = getMargROAS(entries);
+  const lastMarg = marg[marg.length - 1];
+  const mz = margZoneFromVal(lastMarg);
+  const drivers = getSignalDrivers(base, mz);
+  const { finalDec, hasConflict, baseDec, mOverride } = getFinalDecision(base, mz);
+  const acts = getBudgetRoasAction(finalDec, base.tROAS, entries[entries.length - 1].spend);
+  const cl = decCls(finalDec);
+  const bDir = acts.budgetDir === 'up' ? '↑' : acts.budgetDir === 'down' ? '↓' : '→';
+  const rDir = acts.roasDir === 'up' ? '↑' : acts.roasDir === 'down' ? '↓' : '→';
+  const bCol = acts.budgetDir === 'up' ? 'var(--green)' : acts.budgetDir === 'down' ? 'var(--red)' : 'var(--text3)';
+  const rCol = acts.roasDir === 'up' ? 'var(--red)' : acts.roasDir === 'down' ? 'var(--green)' : 'var(--text3)';
+  const signalCards = `<div class="signal-grid">
+    <div class="signal-card ${mz.override ? 'sig-override' : mz.status === 'N/A' ? 'sig-neutral' : 'sig-ok'}"><div class="signal-label">Marginal ROAS ${mz.override ? '<span class="driver-tag">OVERRIDE</span>' : ''}</div><div class="signal-val" style="color:${mz.override ? 'var(--red)' : mz.status === 'Optimal' ? 'var(--green)' : 'var(--amber)'}">${lastMarg !== null ? fmtR(lastMarg) : 'N/A'}</div><div><span class="badge ${mz.cls}">${mz.status}</span></div></div>
+    <div class="signal-card ${base.trendSt === 'DECLINING' ? 'sig-warning' : base.trendSt === 'IMPROVING' ? 'sig-ok' : 'sig-neutral'}"><div class="signal-label">Trend W4 vs W1 ${base.trendSt === 'DECLINING' ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${parseFloat(base.trend) >= 0 ? 'var(--green)' : 'var(--red)'}">${base.trend}%</div><div><span class="badge ${base.trendSt === 'IMPROVING' ? 'bg' : base.trendSt === 'DECLINING' ? 'br' : 'bb'}">${base.trendSt}</span></div></div>
+    <div class="signal-card ${base.stability === 'UNSTABLE' ? 'sig-override' : base.stability === 'VOLATILE' ? 'sig-warning' : 'sig-ok'}"><div class="signal-label">Stability ${base.stability !== 'STABLE' ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${base.stability === 'STABLE' ? 'var(--green)' : base.stability === 'VOLATILE' ? 'var(--amber)' : 'var(--red)'};font-size:15px">${base.std}</div><div><span class="badge ${base.stability === 'STABLE' ? 'bg' : base.stability === 'VOLATILE' ? 'by' : 'br'}">${base.stability}</span></div></div>
+    <div class="signal-card ${base.levelSt === 'FAIL' ? 'sig-override' : base.levelSt === 'WEAK' ? 'sig-warning' : base.levelSt === 'STRONG' ? 'sig-ok' : 'sig-neutral'}"><div class="signal-label">Level Status ${['FAIL', 'WEAK'].includes(base.levelSt) ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${base.levelSt === 'STRONG' ? 'var(--green)' : base.levelSt === 'ACCEPTABLE' ? 'var(--blue)' : base.levelSt === 'WEAK' ? 'var(--amber)' : 'var(--red)'}">${base.blended.toFixed(2)}×</div><div><span class="badge ${base.levelSt === 'STRONG' ? 'bg' : base.levelSt === 'ACCEPTABLE' ? 'bb' : base.levelSt === 'WEAK' ? 'by' : 'br'}">${base.levelSt}</span></div></div>
   </div>`;
-  const conflictHtml=hasConflict?`<div class="conflict-box"><div class="conflict-title">Signal Conflict — mROAS Override Active</div><div class="conflict-row"><span class="badge bb" style="white-space:nowrap;flex-shrink:0">4W Blended says</span>&nbsp;${baseDec} — ${RAT[baseDec]||''}</div><div class="conflict-row" style="margin-top:6px"><span class="badge br" style="white-space:nowrap;flex-shrink:0">mROAS Override says</span>&nbsp;${mOverride} — Marginal spend is ${mz.status.toLowerCase()}. Blended ROAS is masking current destruction. mROAS wins.</div></div>`:'';
-  const driversHtml=drivers.length?`<div style="margin-bottom:14px"><div class="card-title">Active Signal Drivers</div>${drivers.map(d=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span class="badge ${d.severity==='override'?'br':'by'}" style="min-width:70px;text-align:center;flex-shrink:0">${d.signal}</span><span style="font-weight:500;color:var(--text);min-width:100px;font-family:'IBM Plex Mono',monospace">${d.value}</span><span style="color:var(--text3);line-height:1.5">${d.reason}</span></div>`).join('')}</div>`:'';
-  document.getElementById('dec-content').innerHTML=`
-    <div class="hint">Campaign: <strong>${camp.name}</strong> &nbsp;·&nbsp; Gross margin: <strong>${(camp.gm*100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${base.prt.toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${base.et.toFixed(2)}×</strong> &nbsp;·&nbsp; This week target: <strong>${fmtR(base.tROAS)}</strong></div>
+  const conflictHtml = hasConflict ? `<div class="conflict-box"><div class="conflict-title">Signal Conflict — mROAS Override Active</div><div class="conflict-row"><span class="badge bb" style="white-space:nowrap;flex-shrink:0">4W Blended says</span>&nbsp;${baseDec} — ${RAT[baseDec] || ''}</div><div class="conflict-row" style="margin-top:6px"><span class="badge br" style="white-space:nowrap;flex-shrink:0">mROAS Override says</span>&nbsp;${mOverride} — Marginal spend is ${mz.status.toLowerCase()}. Blended ROAS is masking current destruction. mROAS wins.</div></div>` : '';
+  const driversHtml = drivers.length ? `<div style="margin-bottom:14px"><div class="card-title">Active Signal Drivers</div>${drivers.map(d => `<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span class="badge ${d.severity === 'override' ? 'br' : 'by'}" style="min-width:70px;text-align:center;flex-shrink:0">${d.signal}</span><span style="font-weight:500;color:var(--text);min-width:100px;font-family:'IBM Plex Mono',monospace">${d.value}</span><span style="color:var(--text3);line-height:1.5">${d.reason}</span></div>`).join('')}</div>` : '';
+  document.getElementById('dec-content').innerHTML = `
+    <div class="hint">Campaign: <strong>${camp.name}</strong> &nbsp;·&nbsp; Gross margin: <strong>${(camp.gm * 100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${base.prt.toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${base.et.toFixed(2)}×</strong> &nbsp;·&nbsp; This week target: <strong>${fmtR(base.tROAS)}</strong></div>
     <div class="card"><div class="card-title">Signal Dashboard</div>
       ${signalCards}${conflictHtml}${driversHtml}
-      <div class="rec rec-${cl}"><div class="rec-t rec-t${cl}">${finalDec}${hasConflict?' (mROAS Override)':''}</div><div class="rec-b rec-b${cl}">${RAT[finalDec]||''}</div></div>
+      <div class="rec rec-${cl}"><div class="rec-t rec-t${cl}">${finalDec}${hasConflict ? ' (mROAS Override)' : ''}</div><div class="rec-b rec-b${cl}">${RAT[finalDec] || ''}</div></div>
       <div class="action-box">
         <div class="action-row"><span class="action-label">Budget Recommendation</span><span class="action-val">${acts.budgetAction} &nbsp;<span style="color:${bCol}">${bDir} ${fmt$(acts.budgetFrom)} → ${fmt$(acts.budgetTo)}</span></span></div>
         <div class="action-row"><span class="action-label">Target ROAS Recommendation</span><span class="action-val">${acts.roasAction} &nbsp;<span style="color:${rCol}">${rDir} ${fmtR(acts.roasFrom)} → ${fmtR(acts.roasTo)}</span></span></div>
-        <div class="action-row"><span class="action-label">Marginal ROAS Signal</span><span class="action-val">${lastMarg!==null?fmtR(lastMarg)+' &nbsp;':'— &nbsp;'}<span class="badge ${mz.cls}">${mz.status} — ${mz.label}</span></span></div>
+        <div class="action-row"><span class="action-label">Marginal ROAS Signal</span><span class="action-val">${lastMarg !== null ? fmtR(lastMarg) + ' &nbsp;' : '— &nbsp;'}<span class="badge ${mz.cls}">${mz.status} — ${mz.label}</span></span></div>
       </div>
     </div>
     <div class="card"><div class="card-title">Decision Legend</div>
@@ -960,681 +1086,346 @@ function renderDecision(){
         <tr><td>ANY</td><td>ANY</td><td>ANY</td><td>—</td><td><span class="badge br">Dangerous → REDUCE</span></td><td>mROAS 1×–2.5×: override to REDUCE.</td></tr>
         <tr><td>ANY</td><td>ANY</td><td>ANY</td><td>—</td><td><span class="badge br">Toxic → CUT</span></td><td>mROAS below 1×: override to CUT.</td></tr>
       </tbody></table></div>
-    </div>`
-}
-function renderHistory(){const campId=document.getElementById('hist-camp').value,period=document.getElementById('hist-period').value;let entries=db.entries.filter(e=>e.campId===campId);const now=new Date();if(period==='4w'){const s=new Date(now);s.setDate(s.getDate()-28);entries=entries.filter(e=>new Date(e.date)>=s)}if(period==='month'){const s=new Date(now.getFullYear(),now.getMonth(),1);entries=entries.filter(e=>new Date(e.date)>=s)}if(period==='quarter'){const q=Math.floor(now.getMonth()/3);const s=new Date(now.getFullYear(),q*3,1);entries=entries.filter(e=>new Date(e.date)>=s)}if(!entries.length){document.getElementById('hist-content').innerHTML='<p style="color:var(--text3);font-size:13px">No entries for this period.</p>';return}const marg=getMargROAS(entries);const rows=entries.slice().reverse().map((e,ri)=>{const i=entries.length-1-ri,z=getZone(e.ovrR,e.tROAS),m=marg[i],mz=margZoneFromVal(m);return`<tr><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmtR(e.ppcR)}</td><td>${fmtR(e.ovrR)}</td><td><span class="badge ${z.cls}">${z.zone}</span></td><td>${fmt$(e.spend)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(e.totRev)}</td><td>${m!==null?fmtR(m):'—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><button class="btn btn-del" onclick="delEntry('${e.id}')">Del</button></td></tr>`}).join('');document.getElementById('hist-content').innerHTML=`<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Tgt ROAS</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Zone</th><th>Spend</th><th>PPC Rev</th><th>Total Rev</th><th>Marg ROAS</th><th>mROAS</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`}
-function delEntry(id){db.entries=db.entries.filter(e=>e.id!==id);save();renderHistory()}
-function exportCSV(){const campId=document.getElementById('hist-camp').value,camp=getCamp(campId),entries=db.entries.filter(e=>e.campId===campId),marg=getMargROAS(entries),hdr='Date,Target ROAS,PPC ROAS,Overall ROAS,Zone,Spend,PPC Revenue,Total Revenue,Marginal ROAS,mROAS Status',rows=entries.map((e,i)=>{const z=getZone(e.ovrR,e.tROAS),m=marg[i],mz=margZoneFromVal(m);return`${e.date},${e.tROAS},${e.ppcR},${e.ovrR},${z.zone},${e.spend},${e.ppcRev},${e.totRev},${m!==null?m.toFixed(2):''},${mz.status}`});const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([hdr,...rows].join('\n'));a.download=camp.name.replace(/\s+/g,'_')+'_roas.csv';a.click()}
-function renderSettings(){
-  document.getElementById('s-client').value=cfg().clientName||'';
-  document.getElementById('s-preparer').value=cfg().preparedBy||'Ahmed — Modonix';document.getElementById('s-roasstep').value=cfg().roasStep;document.getElementById('s-scale-pct').value=cfg().scalePct;document.getElementById('s-cut-pct').value=cfg().cutPct;document.getElementById('s-marg-thresh').value=cfg().margThresh;document.getElementById('s-marg-min-pct').value=cfg().margMinPct;const th=cfg().margThresh;document.getElementById('marg-zones').innerHTML=`<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;document.getElementById('camp-list').innerHTML=db.campaigns.map(c=>`<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">${c.name}</div><div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Default target: ${c.targetROAS}× &nbsp;·&nbsp; Gross margin: ${(c.gm*100).toFixed(1)}% &nbsp;·&nbsp; Profit threshold: ${campPRT(c).toFixed(2)}× &nbsp;·&nbsp; Effective target: ${campEffTarget(c).toFixed(2)}×</div></div><button class="btn btn-edit" onclick="editCamp('${c.id}')">Edit</button>${db.campaigns.length>1?`<button class="btn btn-del" onclick="delCamp('${c.id}')">Remove</button>`:'<span style="font-size:11px;color:var(--text3)">Last</span>'}</div><div id="edit-${c.id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px"><div><label>Name</label><input id="en-${c.id}" value="${c.name}"></div><div><label>Default Target ROAS</label><input id="er-${c.id}" type="number" step="0.01" value="${c.targetROAS}"></div><div><label>Gross Margin %</label><input id="eg-${c.id}" type="number" step="0.1" value="${(c.gm*100).toFixed(1)}"></div></div><div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit('${c.id}')">Save</button><button class="btn btn-sec" onclick="editCamp('${c.id}')">Cancel</button></div></div>`).join('')}
-function editCamp(id){const b=document.getElementById('edit-'+id);b.style.display=b.style.display==='none'?'block':'none'}
-function saveCampEdit(id){const c=db.campaigns.find(x=>x.id===id);if(!c)return;c.name=document.getElementById('en-'+id).value.trim()||c.name;c.targetROAS=parseFloat(document.getElementById('er-'+id).value)||c.targetROAS;c.gm=parseFloat(document.getElementById('eg-'+id).value)/100||c.gm;save();
-function onDecCampChange(){
-  populateDecEnd();
-  renderDecision();
+    </div>`;
 }
 
-function populateDecEnd(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
+function renderHistory() {
+  const campId = document.getElementById('hist-camp').value;
+  const period = document.getElementById('hist-period').value;
+  let entries = db.entries.filter(e => e.campId === campId);
+  const now = new Date();
+  if (period === '4w') {
+    const s = new Date(now); s.setDate(s.getDate() - 28);
+    entries = entries.filter(e => new Date(e.date) >= s);
+  }
+  if (period === 'month') {
+    const s = new Date(now.getFullYear(), now.getMonth(), 1);
+    entries = entries.filter(e => new Date(e.date) >= s);
+  }
+  if (period === 'quarter') {
+    const q = Math.floor(now.getMonth() / 3);
+    const s = new Date(now.getFullYear(), q * 3, 1);
+    entries = entries.filter(e => new Date(e.date) >= s);
+  }
+  if (!entries.length) {
+    document.getElementById('hist-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No entries for this period.</p>';
+    return;
+  }
+  const marg = getMargROAS(entries);
+  const rows = entries.slice().reverse().map((e, ri) => {
+    const i = entries.length - 1 - ri;
+    const z = getZone(e.ovrR, e.tROAS);
+    const m = marg[i];
+    const mz = margZoneFromVal(m);
+    return `<tr><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmtR(e.ppcR)}</td><td>${fmtR(e.ovrR)}</td><td><span class="badge ${z.cls}">${z.zone}</span></td><td>${fmt$(e.spend)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(e.totRev)}</td><td>${m !== null ? fmtR(m) : '—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><button class="btn btn-del" onclick="delEntry('${e.id}')">Del</button></td></tr>`;
+  }).join('');
+  document.getElementById('hist-content').innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Tgt ROAS</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Zone</th><th>Spend</th><th>PPC Rev</th><th>Total Rev</th><th>Marg ROAS</th><th>mROAS</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
+function delEntry(id) {
+  customConfirm('Delete this entry?', () => {
+    db.entries = db.entries.filter(e => e.id !== id);
+    save();
+    renderHistory();
+    toast('Entry deleted', 'success');
+  }, { title: 'Delete Entry', yesLabel: 'Delete' });
 }
 
-// placeholder_pdf
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const endDate=document.getElementById('dec-end').value;
-  const camp=getCamp(campId);
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
+function exportCSV() {
+  const campId = document.getElementById('hist-camp').value;
+  const camp = getCamp(campId);
+  const entries = db.entries.filter(e => e.campId === campId);
+  if (!entries.length) { toast('No entries to export', 'error'); return; }
+  const marg = getMargROAS(entries);
+  const hdr = 'Date,Target ROAS,PPC ROAS,Overall ROAS,Zone,Spend,PPC Revenue,Total Revenue,Marginal ROAS,mROAS Status';
+  const rows = entries.map((e, i) => {
+    const z = getZone(e.ovrR, e.tROAS);
+    const m = marg[i];
+    const mz = margZoneFromVal(m);
+    return `${e.date},${e.tROAS},${e.ppcR},${e.ovrR},${z.zone},${e.spend},${e.ppcRev},${e.totRev},${m !== null ? m.toFixed(2) : ''},${mz.status}`;
+  });
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([hdr, ...rows].join('\n'));
+  a.download = camp.name.replace(/\s+/g, '_') + '_roas.csv';
+  a.click();
+  toast('CSV exported', 'success');
+}
+
+function renderSettings() {
+  const activeNameEl = document.getElementById('active-client-name');
+  if (activeNameEl) activeNameEl.textContent = activeClient().name;
+  const countEl = document.getElementById('client-count-info');
+  if (countEl) countEl.textContent = db.clients.length === 1 ? '1 client total' : db.clients.length + ' clients total';
+  document.getElementById('s-preparer').value = db.preparedBy || 'Ahmed — Modonix';
+  document.getElementById('s-roasstep').value = cfg().roasStep;
+  document.getElementById('s-scale-pct').value = cfg().scalePct;
+  document.getElementById('s-cut-pct').value = cfg().cutPct;
+  document.getElementById('s-marg-thresh').value = cfg().margThresh;
+  document.getElementById('s-marg-min-pct').value = cfg().margMinPct;
+  const th = cfg().margThresh;
+  document.getElementById('marg-zones').innerHTML = `<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;
+  document.getElementById('camp-list').innerHTML = activeClient().campaigns.map(c => `<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">${escapeHtml(c.name)}</div><div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Default target: ${c.targetROAS}× &nbsp;·&nbsp; Gross margin: ${(c.gm * 100).toFixed(1)}% &nbsp;·&nbsp; Profit threshold: ${campPRT(c).toFixed(2)}× &nbsp;·&nbsp; Effective target: ${campEffTarget(c).toFixed(2)}×</div></div><button class="btn btn-edit" onclick="editCamp('${c.id}')">Edit</button>${activeClient().campaigns.length > 1 ? `<button class="btn btn-del" onclick="delCamp('${c.id}')">Remove</button>` : '<span style="font-size:11px;color:var(--text3)">Last</span>'}</div><div id="edit-${c.id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px"><div><label>Name</label><input id="en-${c.id}" value="${escapeHtml(c.name)}"></div><div><label>Default Target ROAS</label><input id="er-${c.id}" type="number" step="0.01" value="${c.targetROAS}"></div><div><label>Gross Margin %</label><input id="eg-${c.id}" type="number" step="0.1" value="${(c.gm * 100).toFixed(1)}"></div></div><div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit('${c.id}')">Save</button><button class="btn btn-sec" onclick="editCamp('${c.id}')">Cancel</button></div></div>`).join('');
+}
+
+function updatePreparedBy() {
+  db.preparedBy = document.getElementById('s-preparer').value.trim() || 'Ahmed — Modonix';
+  save();
+}
+
+function editCamp(id) {
+  const b = document.getElementById('edit-' + id);
+  b.style.display = b.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveCampEdit(id) {
+  const c = db.campaigns.find(x => x.id === id);
+  if (!c) return;
+  c.name = document.getElementById('en-' + id).value.trim() || c.name;
+  c.targetROAS = parseFloat(document.getElementById('er-' + id).value) || c.targetROAS;
+  c.gm = parseFloat(document.getElementById('eg-' + id).value) / 100 || c.gm;
+  save();
+  populateSelects();
+  renderSettings();
+  onCampChange();
+  toast('Campaign updated', 'success');
+}
+
+function delCamp(id) {
+  if (db.campaigns.length <= 1) { toast('Cannot remove the last campaign', 'error'); return; }
+  customConfirm(
+    'Remove this campaign and ALL its weekly entries? This cannot be undone unless you have a backup.',
+    () => {
+      db.campaigns = db.campaigns.filter(c => c.id !== id);
+      db.entries = db.entries.filter(e => e.campId !== id);
+      save();
+      populateSelects();
+      renderSettings();
+      toast('Campaign removed', 'success');
+    },
+    { title: 'Remove Campaign', yesLabel: 'Remove' }
+  );
+}
+
+function updateSettings() {
+  cfg().roasStep = parseFloat(document.getElementById('s-roasstep').value) || 0.5;
+  cfg().scalePct = parseFloat(document.getElementById('s-scale-pct').value) || 10;
+  cfg().cutPct = parseFloat(document.getElementById('s-cut-pct').value) || 20;
+  cfg().margThresh = parseFloat(document.getElementById('s-marg-thresh').value) || 4.25;
+  cfg().margMinPct = parseFloat(document.getElementById('s-marg-min-pct').value) || 5;
+  save();
+  // Re-render the marg-zones table only (don't blow away inputs while typing)
+  const th = cfg().margThresh;
+  document.getElementById('marg-zones').innerHTML = `<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;
+}
+
+// ============================================================================
+// PDF EXPORT (single clean version, was duplicated 5× in v5)
+// ============================================================================
+function exportDecisionPDF() {
+  const campId = document.getElementById('dec-camp').value;
+  const endDate = document.getElementById('dec-end').value;
+  const camp = getCamp(campId);
+  const entries = getDecWindow(campId, endDate);
+  if (entries.length < 2) { toast('Need at least 2 weeks of data in this window', 'error'); return; }
+  if (!window.jspdf) { toast('PDF library still loading — try again in a moment', 'error'); return; }
+  const base = calcBaseDecision(entries, camp);
+  const marg = getMargROAS(entries);
+  const lastMarg = marg[marg.length - 1];
+  const mz = margZoneFromVal(lastMarg);
+  const drivers = getSignalDrivers(base, mz);
+  const { finalDec, hasConflict, baseDec, mOverride } = getFinalDecision(base, mz);
+  const acts = getBudgetRoasAction(finalDec, base.tROAS, entries[entries.length - 1].spend);
+  const client = activeClient().name || 'Client';
+  const preparer = db.preparedBy || 'Ahmed — Modonix';
+  const today = new Date().toISOString().slice(0, 10);
+  const dateRange = entries[0].date + ' to ' + entries[entries.length - 1].date;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
+  const W = 215.9, H = 279.4, ml = 15, mr = 15, usableW = W - ml - mr;
+  let y = 0;
 
   // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
+  doc.setFillColor(13, 15, 17); doc.rect(0, 0, W, 22, 'F');
+  doc.setFillColor(99, 102, 241); doc.rect(0, 22, W, 1, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
+  doc.text('MODONIX  ·  PREPARED FOR: ' + client.toUpperCase(), ml, 14);
+  doc.setFont('helvetica', 'normal'); doc.setTextColor(139, 143, 154);
+  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT', W - mr, 14, { align: 'right' });
+  y = 32;
 
   // Title block
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('4-Week Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('PREPARED BY', ml, y); doc.text('PREPARED FOR', W / 2 + 2, y); y += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(13, 15, 17);
+  doc.text(preparer, ml, y); doc.text(client, W / 2 + 2, y); y += 5;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.text('E-Commerce & Digital Commerce Consulting', ml, y); doc.text(today, W / 2 + 2, y); y += 8;
+  doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 6;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('Campaign: ' + camp.name + '  ·  Period: ' + dateRange, ml, y); y += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(13, 15, 17);
+  doc.text('4-Week Decision Report', ml, y); y += 7;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis', ml, y); y += 10;
+  doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 8;
 
   // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
-  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
-  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
-  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
-  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
-  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
-  doc.text(fmtR(base.tROAS),ml+124,y+9);
-  y+=14;
+  doc.setFillColor(248, 249, 250); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3);
+  doc.roundedRect(ml, y, usableW, 10, 2, 2, 'FD');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(113, 128, 144);
+  doc.text('GROSS MARGIN', ml + 3, y + 4); doc.text('PROFIT THRESHOLD', ml + 40, y + 4);
+  doc.text('EFFECTIVE TARGET', ml + 82, y + 4); doc.text('THIS WEEK TARGET', ml + 124, y + 4);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(13, 15, 17);
+  doc.text((camp.gm * 100).toFixed(1) + '%', ml + 3, y + 9);
+  doc.text(base.prt.toFixed(2) + '×', ml + 40, y + 9);
+  doc.text(base.et.toFixed(2) + '×', ml + 82, y + 9);
+  doc.text(fmtR(base.tROAS), ml + 124, y + 9);
+  y += 14;
 
   // Decision banner
-  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
-  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+13);
-  y+=22;
+  const decColor = finalDec.startsWith('SCALE') ? [34, 197, 94] : ['HOLD', 'INVESTIGATE'].some(x => finalDec.startsWith(x)) ? [245, 158, 11] : [239, 68, 68];
+  const decBg = finalDec.startsWith('SCALE') ? [240, 255, 244] : ['HOLD', 'INVESTIGATE'].some(x => finalDec.startsWith(x)) ? [255, 251, 235] : [255, 245, 245];
+  doc.setFillColor(...decBg); doc.setDrawColor(...decColor); doc.setLineWidth(0.5);
+  doc.roundedRect(ml, y, usableW, 18, 2, 2, 'FD');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(...decColor);
+  doc.text(finalDec + (hasConflict ? ' (mROAS Override)' : ''), ml + 5, y + 8);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(45, 55, 72);
+  const ratLines = doc.splitTextToSize(RAT[finalDec] || '', usableW - 10);
+  doc.text(ratLines, ml + 5, y + 13);
+  y += 22;
 
   // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
-    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.text('SIGNAL DASHBOARD', ml, y); y += 5;
+  const cardW = (usableW - 9) / 4;
+  const cards = [
+    { label: 'MARGINAL ROAS', val: lastMarg !== null ? fmtR(lastMarg) : 'N/A', sub: mz.status, subColor: mz.override ? [239, 68, 68] : mz.status === 'Optimal' ? [34, 197, 94] : [245, 158, 11], flag: mz.override ? 'OVERRIDE' : '' },
+    { label: 'TREND W4 VS W1', val: base.trend + '%', sub: base.trendSt, subColor: base.trendSt === 'IMPROVING' ? [34, 197, 94] : base.trendSt === 'DECLINING' ? [239, 68, 68] : [113, 128, 144], flag: base.trendSt === 'DECLINING' ? 'DRIVER' : '' },
+    { label: 'STABILITY', val: base.std, sub: base.stability, subColor: base.stability === 'STABLE' ? [34, 197, 94] : base.stability === 'VOLATILE' ? [245, 158, 11] : [239, 68, 68], flag: base.stability !== 'STABLE' ? 'DRIVER' : '' },
+    { label: 'LEVEL STATUS', val: (+base.blended).toFixed(2) + '×', sub: base.levelSt, subColor: base.levelSt === 'STRONG' ? [34, 197, 94] : base.levelSt === 'ACCEPTABLE' ? [59, 130, 246] : base.levelSt === 'WEAK' ? [245, 158, 11] : [239, 68, 68], flag: ['FAIL', 'WEAK'].includes(base.levelSt) ? 'DRIVER' : '' },
   ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    const hasflag=c.flag!=='';
-    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
-    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
-    doc.setLineWidth(hasflag?0.6:0.3);
-    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
+  cards.forEach((c, i) => {
+    const cx = ml + i * (cardW + 3);
+    const hasflag = c.flag !== '';
+    doc.setFillColor(hasflag ? 255 : 248, hasflag ? 245 : 249, hasflag ? 245 : 250);
+    doc.setDrawColor(...(hasflag ? c.subColor : [220, 226, 234]));
+    doc.setLineWidth(hasflag ? 0.6 : 0.3);
+    doc.roundedRect(cx, y, cardW, 22, 2, 2, 'FD');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
+    doc.text(c.label, cx + 3, y + 5);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(13, 15, 17);
+    doc.text(String(c.val), cx + 3, y + 12);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...c.subColor);
+    doc.text(c.sub + (c.flag ? ' · ' + c.flag : ''), cx + 3, y + 19);
   });
-  y+=27;
+  y += 27;
 
   // Conflict notice
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
-    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
-    y+=16;
+  if (hasConflict) {
+    doc.setFillColor(255, 245, 245); doc.setDrawColor(239, 68, 68); doc.setLineWidth(0.5);
+    doc.roundedRect(ml, y, usableW, 12, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(239, 68, 68);
+    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE', ml + 4, y + 5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(45, 55, 72);
+    doc.text('4W Blended: ' + baseDec + '  →  mROAS Override: ' + mOverride + ' — Marginal spend is ' + mz.status.toLowerCase() + '. mROAS wins.', ml + 4, y + 10);
+    y += 16;
   }
 
   // Active drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0],ml+75,y+4);y+=12;
+  if (drivers.length) {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+    doc.text('ACTIVE SIGNAL DRIVERS', ml, y); y += 5;
+    drivers.forEach(dr => {
+      const bgC = dr.severity === 'override' ? [255, 245, 245] : [255, 251, 235];
+      const bdC = dr.severity === 'override' ? [239, 68, 68] : [245, 158, 11];
+      doc.setFillColor(...bgC); doc.setDrawColor(...bdC); doc.setLineWidth(0.4);
+      doc.roundedRect(ml, y, usableW, 10, 1, 1, 'FD');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...bdC);
+      doc.text(dr.signal.toUpperCase(), ml + 3, y + 4);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(13, 15, 17);
+      doc.text(dr.value, ml + 38, y + 4);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(45, 55, 72);
+      const rl = doc.splitTextToSize(dr.reason, usableW - 85);
+      doc.text(rl[0], ml + 75, y + 4); y += 12;
     });
   }
 
-  // Budget & ROAS actions
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
-  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
-  const recs=[
-    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
-    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
+  // Recommendations
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.text('RECOMMENDATIONS', ml, y); y += 5;
+  const bDir = acts.budgetDir === 'up' ? '↑' : acts.budgetDir === 'down' ? '↓' : '→';
+  const rDir = acts.roasDir === 'up' ? '↑' : acts.roasDir === 'down' ? '↓' : '→';
+  const bCol = acts.budgetDir === 'up' ? [34, 197, 94] : acts.budgetDir === 'down' ? [239, 68, 68] : [136, 135, 128];
+  const rCol = acts.roasDir === 'up' ? [239, 68, 68] : acts.roasDir === 'down' ? [34, 197, 94] : [136, 135, 128];
+  const recs = [
+    ['Budget', acts.budgetAction + ' ' + bDir + ' ' + fmt$(acts.budgetFrom) + ' → ' + fmt$(acts.budgetTo), bCol],
+    ['Target ROAS', acts.roasAction + ' ' + rDir + ' ' + fmtR(acts.roasFrom) + ' → ' + fmtR(acts.roasTo), rCol],
+    ['Marginal ROAS', lastMarg !== null ? fmtR(lastMarg) + ' — ' + mz.status + ' — ' + mz.label : 'N/A', [113, 128, 144]],
   ];
-  recs.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
-    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
+  recs.forEach((r, i) => {
+    const bg = i % 2 === 0 ? [255, 255, 255] : [248, 249, 250];
+    doc.setFillColor(...bg); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2);
+    doc.rect(ml, y, usableW, 8, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+    doc.text(r[0].toUpperCase(), ml + 3, y + 5.5);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...r[2]);
+    doc.text(r[1], W - mr - 3, y + 5.5, { align: 'right' });
+    y += 8;
   });
-  y+=6;
+  y += 6;
 
   // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
-  const colW=[24,20,20,20,20,22,22,22,16];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
-  let cx=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    const m=marg[ri];
-    const mzr=margZoneFromVal(m);
-    const z=getZone(e.ovrR,e.tROAS);
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
-    cx=ml;
-    row.forEach((v,i)=>{
-      let tc=[45,55,72];
-      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
-      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.text('4-WEEK TREND', ml, y); y += 5;
+  const cols = ['DATE', 'TGT ROAS', 'PPC ROAS', 'OVR ROAS', 'ZONE', 'SPEND', 'PPC REV', 'TOT REV', 'MARG ROAS'];
+  const colW = [24, 20, 20, 20, 20, 22, 22, 22, 16];
+  doc.setFillColor(13, 15, 17); doc.rect(ml, y, usableW, 7, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(255, 255, 255);
+  let cx = ml;
+  cols.forEach((c, i) => { doc.text(c, cx + 2, y + 5); cx += colW[i]; });
+  y += 7;
+  entries.forEach((e, ri) => {
+    const bg = ri % 2 === 0 ? [255, 255, 255] : [248, 249, 250];
+    const m = marg[ri];
+    const mzr = margZoneFromVal(m);
+    const z = getZone(e.ovrR, e.tROAS);
+    doc.setFillColor(...bg); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2);
+    doc.rect(ml, y, usableW, 7, 'FD');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(45, 55, 72);
+    const row = [e.date, fmtR(e.tROAS), fmtR(e.ppcR), fmtR(e.ovrR), z.zone, fmt$(e.spend), fmt$(e.ppcRev || 0), fmt$(e.totRev || 0), m !== null ? fmtR(m) : '—'];
+    cx = ml;
+    row.forEach((v, i) => {
+      let tc = [45, 55, 72];
+      if (i === 4) tc = z.cls === 'bg' ? [34, 197, 94] : z.cls === 'by' ? [245, 158, 11] : [239, 68, 68];
+      if (i === 8 && m !== null) tc = mzr.cls === 'bg' ? [34, 197, 94] : mzr.cls === 'by' ? [245, 158, 11] : [239, 68, 68];
       doc.setTextColor(...tc);
-      doc.text(String(v),cx+2,y+5);cx+=colW[i];
+      doc.text(String(v), cx + 2, y + 5); cx += colW[i];
     });
-    y+=7;
+    y += 7;
   });
 
   // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
+  doc.setFillColor(240, 242, 245); doc.rect(0, H - 15, W, 15, 'F');
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
+  doc.text('Confidential — Prepared by ' + preparer + ' for ' + client, ml, H - 7);
+  doc.text('ROAS Controller · 4-Week Decision Report', W / 2, H - 7, { align: 'center' });
+  doc.text(today, W - mr, H - 7, { align: 'right' });
 
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
+  doc.save('ROAS_Decision_' + camp.name.replace(/\s+/g, '_') + '_' + dateRange.replace(/ /g, '_') + '.pdf');
+  toast('PDF exported', 'success');
 }
 
-populateSelects();renderSettings();onCampChange()}
-function delCamp(id){if(db.campaigns.length<=1){alert('Cannot remove the last campaign.');return}if(!confirm('Remove this campaign and all its entries?'))return;db.campaigns=db.campaigns.filter(c=>c.id!==id);db.entries=db.entries.filter(e=>e.campId!==id);save();
-function onDecCampChange(){
-  populateDecEnd();
-  renderDecision();
-}
-
-function populateDecEnd(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
-}
-
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
-}
-
-// placeholder_pdf
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const endDate=document.getElementById('dec-end').value;
-  const camp=getCamp(campId);
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
-
-  // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
-
-  // Title block
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('4-Week Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
-
-  // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
-  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
-  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
-  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
-  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
-  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
-  doc.text(fmtR(base.tROAS),ml+124,y+9);
-  y+=14;
-
-  // Decision banner
-  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
-  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+13);
-  y+=22;
-
-  // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
-    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
-  ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    const hasflag=c.flag!=='';
-    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
-    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
-    doc.setLineWidth(hasflag?0.6:0.3);
-    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
-  });
-  y+=27;
-
-  // Conflict notice
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
-    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
-    y+=16;
-  }
-
-  // Active drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0],ml+75,y+4);y+=12;
-    });
-  }
-
-  // Budget & ROAS actions
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
-  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
-  const recs=[
-    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
-    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
-  ];
-  recs.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
-    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
-  });
-  y+=6;
-
-  // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
-  const colW=[24,20,20,20,20,22,22,22,16];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
-  let cx=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    const m=marg[ri];
-    const mzr=margZoneFromVal(m);
-    const z=getZone(e.ovrR,e.tROAS);
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
-    cx=ml;
-    row.forEach((v,i)=>{
-      let tc=[45,55,72];
-      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
-      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
-      doc.setTextColor(...tc);
-      doc.text(String(v),cx+2,y+5);cx+=colW[i];
-    });
-    y+=7;
-  });
-
-  // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
-
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
-}
-
-populateSelects();renderSettings()}
-function updateSettings(){
-  cfg().clientName=document.getElementById('s-client').value.trim();
-  cfg().preparedBy=document.getElementById('s-preparer').value.trim();cfg().roasStep=parseFloat(document.getElementById('s-roasstep').value)||0.5;cfg().scalePct=parseFloat(document.getElementById('s-scale-pct').value)||10;cfg().cutPct=parseFloat(document.getElementById('s-cut-pct').value)||20;cfg().margThresh=parseFloat(document.getElementById('s-marg-thresh').value)||4.25;cfg().margMinPct=parseFloat(document.getElementById('s-marg-min-pct').value)||5;save();renderSettings()}
-
-function onDecCampChange(){
-  populateDecEnd();
-  renderDecision();
-}
-
-function populateDecEnd(){
-  const campId=document.getElementById('dec-camp').value;
-  const entries=db.entries.filter(e=>e.campId===campId);
-  const el=document.getElementById('dec-end');
-  if(!el) return;
-  const cur=el.value;
-  el.innerHTML='<option value="">Most recent 4 weeks</option>'+
-    entries.map(e=>`<option value="${e.date}">${e.date}</option>`).join('');
-  if(cur&&entries.find(e=>e.date===cur)) el.value=cur;
-}
-
-function getDecWindow(campId,endDate){
-  const entries=db.entries.filter(e=>e.campId===campId);
-  if(!endDate||!entries.length) return entries.slice(-4);
-  const idx=entries.findIndex(e=>e.date===endDate);
-  if(idx<0) return entries.slice(-4);
-  const start=Math.max(0,idx-3);
-  return entries.slice(start,idx+1);
-}
-
-// placeholder_pdf
-function exportDecisionPDF(){
-  const campId=document.getElementById('dec-camp').value;
-  const endDate=document.getElementById('dec-end').value;
-  const camp=getCamp(campId);
-  const entries=getDecWindow(campId,endDate);
-  if(entries.length<2){alert('Need at least 2 weeks of data in this window.');return;}
-  const base=calcBaseDecision(entries,camp);
-  const marg=getMargROAS(entries);
-  const lastMarg=marg[marg.length-1];
-  const mz=margZoneFromVal(lastMarg);
-  const drivers=getSignalDrivers(base,mz);
-  const{finalDec,hasConflict,baseDec,mOverride}=getFinalDecision(base,mz);
-  const acts=getBudgetRoasAction(finalDec,base.tROAS,entries[entries.length-1].spend);
-  const client=cfg().clientName||'Client';
-  const preparer=cfg().preparedBy||'Ahmed — Modonix';
-  const today=new Date().toISOString().slice(0,10);
-  const dateRange=entries[0].date+' to '+entries[entries.length-1].date;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
-  const W=215.9,H=279.4,ml=15,mr=15,usableW=W-ml-mr;
-  let y=0;
-
-  // Header
-  doc.setFillColor(13,15,17);doc.rect(0,0,W,22,'F');
-  doc.setFillColor(99,102,241);doc.rect(0,22,W,1,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
-  doc.text('MODONIX  ·  PREPARED FOR: '+client.toUpperCase(),ml,14);
-  doc.setFont('helvetica','normal');doc.setTextColor(139,143,154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT',W-mr,14,{align:'right'});
-  y=32;
-
-  // Title block
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('PREPARED BY',ml,y);doc.text('PREPARED FOR',W/2+2,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(13,15,17);
-  doc.text(preparer,ml,y);doc.text(client,W/2+2,y);y+=5;
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('E-Commerce & Digital Commerce Consulting',ml,y);doc.text(today,W/2+2,y);y+=8;
-  doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=6;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('Campaign: '+camp.name+'  ·  Period: '+dateRange,ml,y);y+=5;
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(13,15,17);
-  doc.text('4-Week Decision Report',ml,y);y+=7;
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(113,128,144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis',ml,y);y+=10;
-  doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=8;
-
-  // Campaign info bar
-  doc.setFillColor(248,249,250);doc.setDrawColor(220,226,234);doc.setLineWidth(0.3);
-  doc.roundedRect(ml,y,usableW,10,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(113,128,144);
-  doc.text('GROSS MARGIN',ml+3,y+4);doc.text('PROFIT THRESHOLD',ml+40,y+4);
-  doc.text('EFFECTIVE TARGET',ml+82,y+4);doc.text('THIS WEEK TARGET',ml+124,y+4);
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(13,15,17);
-  doc.text((camp.gm*100).toFixed(1)+'%',ml+3,y+9);
-  doc.text(base.prt.toFixed(2)+'×',ml+40,y+9);
-  doc.text(base.et.toFixed(2)+'×',ml+82,y+9);
-  doc.text(fmtR(base.tROAS),ml+124,y+9);
-  y+=14;
-
-  // Decision banner
-  const decColor=finalDec.startsWith('SCALE')?[34,197,94]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[245,158,11]:[239,68,68];
-  const decBg=finalDec.startsWith('SCALE')?[240,255,244]:['HOLD','INVESTIGATE'].some(x=>finalDec.startsWith(x))?[255,251,235]:[255,245,245];
-  doc.setFillColor(...decBg);doc.setDrawColor(...decColor);doc.setLineWidth(0.5);
-  doc.roundedRect(ml,y,usableW,18,2,2,'FD');
-  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...decColor);
-  doc.text(finalDec+(hasConflict?' (mROAS Override)':''),ml+5,y+8);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(45,55,72);
-  const ratLines=doc.splitTextToSize(RAT[finalDec]||'',usableW-10);
-  doc.text(ratLines,ml+5,y+13);
-  y+=22;
-
-  // Signal cards
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('SIGNAL DASHBOARD',ml,y);y+=5;
-  const cardW=(usableW-9)/4;
-  const cards=[
-    {label:'MARGINAL ROAS',val:lastMarg!==null?fmtR(lastMarg):'N/A',sub:mz.status,subColor:mz.override?[239,68,68]:mz.status==='Optimal'?[34,197,94]:[245,158,11],flag:mz.override?'OVERRIDE':''},
-    {label:'TREND W4 VS W1',val:base.trend+'%',sub:base.trendSt,subColor:base.trendSt==='IMPROVING'?[34,197,94]:base.trendSt==='DECLINING'?[239,68,68]:[113,128,144],flag:base.trendSt==='DECLINING'?'DRIVER':''},
-    {label:'STABILITY',val:base.std,sub:base.stability,subColor:base.stability==='STABLE'?[34,197,94]:base.stability==='VOLATILE'?[245,158,11]:[239,68,68],flag:base.stability!=='STABLE'?'DRIVER':''},
-    {label:'LEVEL STATUS',val:(+base.blended).toFixed(2)+'×',sub:base.levelSt,subColor:base.levelSt==='STRONG'?[34,197,94]:base.levelSt==='ACCEPTABLE'?[59,130,246]:base.levelSt==='WEAK'?[245,158,11]:[239,68,68],flag:['FAIL','WEAK'].includes(base.levelSt)?'DRIVER':''},
-  ];
-  cards.forEach((c,i)=>{
-    const cx=ml+i*(cardW+3);
-    const hasflag=c.flag!=='';
-    doc.setFillColor(hasflag?255:248,hasflag?245:249,hasflag?245:250);
-    doc.setDrawColor(...(hasflag?c.subColor:[220,226,234]));
-    doc.setLineWidth(hasflag?0.6:0.3);
-    doc.roundedRect(cx,y,cardW,22,2,2,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-    doc.text(c.label,cx+3,y+5);
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(13,15,17);
-    doc.text(String(c.val),cx+3,y+12);
-    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...c.subColor);
-    doc.text(c.sub+(c.flag?' · '+c.flag:''),cx+3,y+19);
-  });
-  y+=27;
-
-  // Conflict notice
-  if(hasConflict){
-    doc.setFillColor(255,245,245);doc.setDrawColor(239,68,68);doc.setLineWidth(0.5);
-    doc.roundedRect(ml,y,usableW,12,2,2,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(239,68,68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE',ml+4,y+5);
-    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(45,55,72);
-    doc.text('4W Blended: '+baseDec+'  →  mROAS Override: '+mOverride+' — Marginal spend is '+mz.status.toLowerCase()+'. mROAS wins.',ml+4,y+10);
-    y+=16;
-  }
-
-  // Active drivers
-  if(drivers.length){
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text('ACTIVE SIGNAL DRIVERS',ml,y);y+=5;
-    drivers.forEach(dr=>{
-      const bgC=dr.severity==='override'?[255,245,245]:[255,251,235];
-      const bdC=dr.severity==='override'?[239,68,68]:[245,158,11];
-      doc.setFillColor(...bgC);doc.setDrawColor(...bdC);doc.setLineWidth(0.4);
-      doc.roundedRect(ml,y,usableW,10,1,1,'FD');
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(),ml+3,y+4);
-      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(13,15,17);
-      doc.text(dr.value,ml+38,y+4);
-      doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-      const rl=doc.splitTextToSize(dr.reason,usableW-85);
-      doc.text(rl[0],ml+75,y+4);y+=12;
-    });
-  }
-
-  // Budget & ROAS actions
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('RECOMMENDATIONS',ml,y);y+=5;
-  const bDir=acts.budgetDir==='up'?'↑':acts.budgetDir==='down'?'↓':'→';
-  const rDir=acts.roasDir==='up'?'↑':acts.roasDir==='down'?'↓':'→';
-  const bCol=acts.budgetDir==='up'?[34,197,94]:acts.budgetDir==='down'?[239,68,68]:[136,135,128];
-  const rCol=acts.roasDir==='up'?[239,68,68]:acts.roasDir==='down'?[34,197,94]:[136,135,128];
-  const recs=[
-    ['Budget',acts.budgetAction+' '+bDir+' '+fmt$(acts.budgetFrom)+' → '+fmt$(acts.budgetTo),bCol],
-    ['Target ROAS',acts.roasAction+' '+rDir+' '+fmtR(acts.roasFrom)+' → '+fmtR(acts.roasTo),rCol],
-    ['Marginal ROAS',lastMarg!==null?fmtR(lastMarg)+' — '+mz.status+' — '+mz.label:'N/A',[113,128,144]],
-  ];
-  recs.forEach((r,i)=>{
-    const bg=i%2===0?[255,255,255]:[248,249,250];
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,8,'FD');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-    doc.text(r[0].toUpperCase(),ml+3,y+5.5);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...r[2]);
-    doc.text(r[1],W-mr-3,y+5.5,{align:'right'});
-    y+=8;
-  });
-  y+=6;
-
-  // 4-week trend table
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(113,128,144);
-  doc.text('4-WEEK TREND',ml,y);y+=5;
-  const cols=['DATE','TGT ROAS','PPC ROAS','OVR ROAS','ZONE','SPEND','PPC REV','TOT REV','MARG ROAS'];
-  const colW=[24,20,20,20,20,22,22,22,16];
-  doc.setFillColor(13,15,17);doc.rect(ml,y,usableW,7,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(255,255,255);
-  let cx=ml;
-  cols.forEach((c,i)=>{doc.text(c,cx+2,y+5);cx+=colW[i];});
-  y+=7;
-  entries.forEach((e,ri)=>{
-    const bg=ri%2===0?[255,255,255]:[248,249,250];
-    const m=marg[ri];
-    const mzr=margZoneFromVal(m);
-    const z=getZone(e.ovrR,e.tROAS);
-    doc.setFillColor(...bg);doc.setDrawColor(220,226,234);doc.setLineWidth(0.2);
-    doc.rect(ml,y,usableW,7,'FD');
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(45,55,72);
-    const row=[e.date,fmtR(e.tROAS),fmtR(e.ppcR),fmtR(e.ovrR),z.zone,fmt$(e.spend),fmt$(e.ppcRev||0),fmt$(e.totRev||0),m!==null?fmtR(m):'—'];
-    cx=ml;
-    row.forEach((v,i)=>{
-      let tc=[45,55,72];
-      if(i===4) tc=z.cls==='bg'?[34,197,94]:z.cls==='by'?[245,158,11]:[239,68,68];
-      if(i===8&&m!==null) tc=mzr.cls==='bg'?[34,197,94]:mzr.cls==='by'?[245,158,11]:[239,68,68];
-      doc.setTextColor(...tc);
-      doc.text(String(v),cx+2,y+5);cx+=colW[i];
-    });
-    y+=7;
-  });
-
-  // Footer
-  doc.setFillColor(240,242,245);doc.rect(0,H-15,W,15,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(113,128,144);
-  doc.text('Confidential — Prepared by '+preparer+' for '+client,ml,H-7);
-  doc.text('ROAS Controller · 4-Week Decision Report',W/2,H-7,{align:'center'});
-  doc.text(today,W-mr,H-7,{align:'right'});
-
-  doc.save('ROAS_Decision_'+camp.name.replace(/\s+/g,'_')+'_'+dateRange.replace(/ /g,'_')+'.pdf');
-}
-
-populateSelects();document.getElementById('w-date').value=new Date().toISOString().slice(0,10);onCampChange();renderSettings();
+// ============================================================================
+// INIT
+// ============================================================================
+populateClientSwitcher();
+populateSelects();
+document.getElementById('w-date').value = new Date().toISOString().slice(0, 10);
+onCampChange();
+renderSettings();
+updateBackupBanner();
+updateLastBackupInfo();
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
