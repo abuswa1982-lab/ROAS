@@ -2067,6 +2067,47 @@ function exportAuditPDF() {
 }
 
 
+// ===== REFRESH FROM SHEET (engine) =====
+const SHEET_URL_KEY = 'roas_sheeturl';
+function saveSheetUrl(){ var e=document.getElementById('s-sheet-url'); if(e) localStorage.setItem(SHEET_URL_KEY, e.value.trim()); }
+function loadSheetUrlToUi(){ var e=document.getElementById('s-sheet-url'); if(e) e.value = localStorage.getItem(SHEET_URL_KEY) || ''; }
+function parseCSV(t){ var R=[],r=[],c='',q=false; for(var i=0;i<t.length;i++){ var ch=t[i],nx=t[i+1]; if(q){ if(ch=='"'&&nx=='"'){c+='"';i++;} else if(ch=='"'){q=false;} else c+=ch; } else { if(ch=='"')q=true; else if(ch==','){r.push(c);c='';} else if(ch=='\n'){r.push(c);R.push(r);r=[];c='';} else if(ch=='\r'){} else c+=ch; } } if(c.length||r.length){r.push(c);R.push(r);} return R.filter(function(x){return x.some(function(v){return v.trim()!='';});}); }
+function shNum(v){ var n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?0:n; }
+async function refreshFromSheet(){
+  var url = localStorage.getItem(SHEET_URL_KEY);
+  if(!url){ toast('Add your sheet link in Settings first',''); return; }
+  toast('Reading sheet...','');
+  var text;
+  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + 'cb=' + Date.now()); if(!resp.ok) throw 0; text = await resp.text(); }
+  catch(e){ toast('Could not read sheet — check the published link',''); return; }
+  var rows = parseCSV(text);
+  if(rows.length < 2){ toast('Sheet looks empty',''); return; }
+  var head = rows[0].map(function(h){return h.trim().toLowerCase();});
+  function col(names){ for(var k=0;k<names.length;k++){ var i=head.indexOf(names[k]); if(i>-1) return i; } return -1; }
+  var ci = { name:col(['app campaign','campaign','app category']), date:col(['week of','scanning day','date']), spend:col(['spend','cost']), ppc:col(['ppc revenue','revenue']), tot:col(['total revenue']), tr:col(['target roas','target']) };
+  if(ci.name<0 || ci.date<0){ toast('Sheet missing App Campaign or Week Of column',''); return; }
+  var client = activeClient();
+  var byName = {}; client.campaigns.forEach(function(c){ byName[c.name.trim().toLowerCase()] = c; });
+  var added=0, updated=0, unmatched=[];
+  rows.slice(1).forEach(function(r){
+    var nm=(r[ci.name]||'').trim(); if(!nm) return;
+    var camp=byName[nm.toLowerCase()]; if(!camp){ unmatched.push(nm); return; }
+    var date=(r[ci.date]||'').trim(); if(!date) return;
+    var spend=shNum(r[ci.spend]), ppcRev=shNum(r[ci.ppc]), totRev=shNum(r[ci.tot]);
+    var tROAS=(ci.tr>-1 && r[ci.tr])?shNum(r[ci.tr]):camp.targetROAS;
+    var ppcR=spend>0?+(ppcRev/spend).toFixed(2):0, ovrR=spend>0?+(totRev/spend).toFixed(2):0;
+    var ex=client.entries.find(function(e){ return e.campId==camp.id && e.date==date; });
+    if(ex){ ex.tROAS=tROAS; ex.ppcR=ppcR; ex.ovrR=ovrR; ex.spend=spend; ex.ppcRev=ppcRev; ex.totRev=totRev; updated++; }
+    else{ client.entries.push({ id:'e'+Date.now()+Math.floor(Math.random()*1000), campId:camp.id, date:date, tROAS:tROAS, ppcR:ppcR, ovrR:ovrR, spend:spend, ppcRev:ppcRev, totRev:totRev }); added++; }
+  });
+  client.entries.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  save(); populateSelects();
+  var msg = 'Refreshed: '+added+' added, '+updated+' updated';
+  if(unmatched.length) msg += ' · '+unmatched.length+' unmatched ('+Array.from(new Set(unmatched)).slice(0,3).join(', ')+')';
+  toast(msg, unmatched.length?'':'success');
+}
+// ===== END REFRESH FROM SHEET =====
+
 populateClientSwitcher();
 populateSelects();
 document.getElementById('w-date').value = new Date().toISOString().slice(0, 10);
