@@ -122,7 +122,7 @@ select option{background:var(--surface2)}
     <button class="btn-header" onclick="quickAddClient()" title="Add a new client" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
     <span class="header-tag">v8.3 · AI Auditor</span>
     <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON — do this weekly">⬇ Export Backup</button>
-    <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>
+    <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>  <button class="btn-header" onclick="refreshFromSheet()" title="Pull the latest week from your Google Sheet" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">⟳ Refresh from Sheet</button>
     <input type="file" id="backup-import" style="display:none" accept=".json" onchange="importBackup(event)">
   </div>
 </div>
@@ -327,7 +327,11 @@ select option{background:var(--surface2)}
     </p>
     <div style="max-width:500px">
       <label>Anthropic API Key</label>
-      <input type="password" id="s-api-key" placeholder="sk-ant-..." oninput="saveApiKey()">
+      <input type="password" id="s-api-key" placeholder="sk-ant-..." oninput="saveApiKey()"> </div>
+    <div style="max-width:500px;margin-top:14px">
+      <label>Google Sheet — Published Staging CSV Link</label>
+      <input type="text" id="s-sheet-url" placeholder="https://docs.google.com/.../pub?...output=csv" oninput="saveSheetUrl()">
+      <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:6px">Paste the published CSV link for your Staging tab. Used by "Refresh from Sheet".</p>
     </div>
     <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:10px" id="ai-spend-info"></p>
   </div>
@@ -540,6 +544,143 @@ function exportBackup() {
   saveMeta();
   updateBackupBanner();
   updateLastBackupInfo();
+  // ============================================================================
+// REFRESH FROM SHEET (v8.4)
+// ============================================================================
+const SHEET_URL_KEY = 'roas_v8_sheeturl';
+ 
+function saveSheetUrl() {
+  const el = document.getElementById('s-sheet-url');
+  if (el) localStorage.setItem(SHEET_URL_KEY, el.value.trim());
+}
+function loadSheetUrlToUi() {
+  const el = document.getElementById('s-sheet-url');
+  if (el) el.value = localStorage.getItem(SHEET_URL_KEY) || '';
+}
+ 
+// Tiny CSV parser (handles quoted fields + commas inside quotes)
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i], next = text[i + 1];
+    if (inQuotes) {
+      if (ch === '"' && next === '"') { cell += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { cell += ch; }
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+      else if (ch === '\r') { /* skip */ }
+      else cell += ch;
+    }
+  }
+  if (cell.length || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(c => c.trim() !== ''));
+}
+ 
+function num(v) { const n = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? 0 : n; }
+ 
+async function refreshFromSheet() {
+  const url = localStorage.getItem(SHEET_URL_KEY);
+  if (!url) {
+    toast('No sheet link set — add it in Settings first', 'error');
+    showTab('settings');
+    return;
+  }
+  toast('Reading sheet...', '');
+  let text;
+  try {
+    const resp = await fetch(url + (url.includes('?') ? '&' : '?') + 'cachebust=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    text = await resp.text();
+  } catch (err) {
+    toast('Could not read sheet — check the published link', 'error');
+    return;
+  }
+ 
+  const rows = parseCSV(text);
+  if (rows.length < 2) { toast('Sheet looks empty', 'error'); return; }
+ 
+  // Map headers -> column index (tolerant to order/case)
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const col = (names) => {
+    for (const n of names) { const i = header.indexOf(n); if (i !== -1) return i; }
+    return -1;
+  };
+  const ci = {
+    name:   col(['app campaign', 'campaign', 'app category']),
+    date:   col(['week of', 'scanning day', 'date']),
+    spend:  col(['spend', 'cost']),
+    ppcRev: col(['ppc revenue', 'revenue']),
+    totRev: col(['total revenue', 'tot rev']),
+    tROAS:  col(['target roas', 'target']),
+  };
+  if (ci.name === -1 || ci.date === -1) {
+    toast('Sheet missing App Campaign or Week Of columns', 'error');
+    return;
+  }
+ 
+  const client = activeClient();
+  const campByName = {};
+  client.campaigns.forEach(c => { campByName[c.name.trim().toLowerCase()] = c; });
+ 
+  let updated = 0, added = 0, unmatched = [];
+  rows.slice(1).forEach(r => {
+    const nm = (r[ci.name] || '').trim();
+    if (!nm) return;
+    const camp = campByName[nm.toLowerCase()];
+    if (!camp) { unmatched.push(nm); return; }
+ 
+    const date = (r[ci.date] || '').trim();
+    if (!date) return;
+    const spend  = num(r[ci.spend]);
+    const ppcRev = num(r[ci.ppcRev]);
+    const totRev = num(r[ci.totRev]);
+    const tROAS  = ci.tROAS !== -1 && r[ci.tROAS] ? num(r[ci.tROAS]) : camp.targetROAS;
+    const ppcR = spend > 0 ? +(ppcRev / spend).toFixed(2) : 0;
+    const ovrR = spend > 0 ? +(totRev / spend).toFixed(2) : 0;
+ 
+    // Upsert by campId + date (preserve a manually-entered Direct-inclusive total if already there? no — sheet is source of truth)
+    const existing = client.entries.find(e => e.campId === camp.id && e.date === date);
+    if (existing) {
+      existing.tROAS = tROAS; existing.ppcR = ppcR; existing.ovrR = ovrR;
+      existing.spend = spend; existing.ppcRev = ppcRev; existing.totRev = totRev;
+      updated++;
+    } else {
+      client.entries.push({ id: 'e' + Date.now() + Math.floor(Math.random()*1000), campId: camp.id, date, tROAS, ppcR, ovrR, spend, ppcRev, totRev });
+      added++;
+    }
+  });
+ 
+  client.entries.sort((a, b) => a.date.localeCompare(b.date));
+  save();
+  populateSelects();
+  const active = document.querySelector('.tab.active');
+  if (active) showTab(active.textContent.toLowerCase().includes('window') ? 'window' :
+                      active.textContent.toLowerCase().includes('decision') ? 'decision' :
+                      active.textContent.toLowerCase().includes('history') ? 'history' :
+                      active.textContent.toLowerCase().includes('settings') ? 'settings' : 'weekly');
+  updateBackupBanner();
+ 
+  let msg = `Refreshed: ${added} added, ${updated} updated`;
+  if (unmatched.length) msg += ` · ${unmatched.length} unmatched (${[...new Set(unmatched)].slice(0,3).join(', ')})`;
+  toast(msg, unmatched.length ? 'error' : 'success');
+}
+ 
+// Load the saved sheet URL into Settings when that tab opens
+const _origShowTab_forSheet = showTab;
+showTab = function(t) { _origShowTab_forSheet(t); if (t === 'settings') loadSheetUrlToUi(); };
+ 
+loadSheetUrlToUi();
+ 
+============================================================
+DONE. Commit/save the file on GitHub.
+Then open your app, go to Settings, paste the published CSV
+link into the new "Google Sheet" field, and click
+"⟳ Refresh from Sheet" up top.
+============================================================
   toast(`Backup downloaded — ${db.clients.length} client(s). Store it safely.`, 'success');
 }
 
