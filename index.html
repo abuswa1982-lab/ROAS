@@ -539,12 +539,14 @@ function exportBackup() {
   a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
 
-  meta.lastBackup = new Date().toISOString();
+ meta.lastBackup = new Date().toISOString();
   meta.bannerDismissedUntil = null;
   saveMeta();
   updateBackupBanner();
   updateLastBackupInfo();
+  toast(`Backup downloaded — ${db.clients.length} client(s). Store it safely.`, 'success');
 }
+
 function exportActiveClientOnly() {
   const c = activeClient();
   const payload = {
