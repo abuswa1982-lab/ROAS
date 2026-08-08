@@ -120,8 +120,7 @@ select option{background:var(--surface2)}
   <div class="header-right">
     <select id="client-switcher" onchange="switchClient(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 10px;border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:140px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer"></select>
     <button class="btn-header" onclick="quickAddClient()" title="Add a new client" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
-    <span class="header-tag" id="version-tag">v9.1 · Cloud Sync</span>
-    <span id="sync-indicator" class="header-tag" style="cursor:pointer" onclick="cloudPull(true)" title="Click to force-pull latest from cloud">☁ not configured</span>
+    <span class="header-tag">v8.3 · AI Auditor</span>
     <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON — do this weekly">⬇ Export Backup</button>
     <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>  <button class="btn-header" onclick="refreshFromSheet()" title="Pull the latest week from your Google Sheet" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">⟳ Refresh from Sheet</button>
     <input type="file" id="backup-import" style="display:none" accept=".json" onchange="importBackup(event)">
@@ -338,23 +337,6 @@ select option{background:var(--surface2)}
   </div>
 
   <div class="card">
-    <div class="card-title">Cloud Sync (Multiple Computers)</div>
-    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
-      Makes a shared database the source of truth instead of just this browser. Once set up, entering data on one computer shows up on every other computer signed into the same setup — no export/import needed.
-    </p>
-    <div class="g2" style="max-width:700px;margin-bottom:10px">
-      <div><label>Cloud Sync URL</label><input type="text" id="s-cloud-url" placeholder="https://modonix-portal-sync.abuswa1982.workers.dev/sync/roas_control" oninput="saveCloudUrl()"></div>
-      <div><label>Sync Secret</label><input type="password" id="s-cloud-secret" placeholder="your shared secret" oninput="saveCloudSecret()"></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-pri" onclick="cloudPush(true)">⬆ Push Now</button>
-      <button class="btn btn-sec" onclick="cloudPull(true)">⬇ Pull Latest</button>
-      <span id="cloud-sync-info" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
-    </div>
-    <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:10px">Same URL + Secret on every computer = same data everywhere.</p>
-  </div>
-
-  <div class="card">
     <div class="card-title">Backup &amp; Restore</div>
     <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
       <strong style="color:var(--amber)">Important:</strong> Your data lives only in this browser. If you clear browser data, switch computers, or your browser corrupts storage — it's gone unless you've exported a backup.
@@ -518,7 +500,7 @@ try {
   meta = { lastBackup: null, bannerDismissedUntil: null };
 }
 
-function save() { localStorage.setItem(SK, JSON.stringify(db)); scheduleCloudPush(); }
+function save() { localStorage.setItem(SK, JSON.stringify(db)); }
 function saveMeta() { localStorage.setItem(META_KEY, JSON.stringify(meta)); }
 
 // ============================================================================
@@ -1084,7 +1066,7 @@ function showTab(t) {
   if (t === 'decision') { populateDecWindow(); }
   if (t === 'history') renderHistory();
   if (t === 'audit') { populateAuditClientSwitcher(); updateCostPreview(); }
-  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); loadCloudSettingsToUi(); loadSheetUrlToUi(); }
+  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); }
 }
 
 function onCampChange() {
@@ -2096,7 +2078,7 @@ async function refreshFromSheet(){
   if(!url){ toast('Add your sheet link in Settings first',''); return; }
   toast('Reading sheet...','');
   var text;
-  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + '_ts=' + Date.now(), { cache: 'no-store' }); if(!resp.ok) throw 0; text = await resp.text(); }
+  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + 'cb=' + Date.now()); if(!resp.ok) throw 0; text = await resp.text(); }
   catch(e){ toast('Could not read sheet — check the published link',''); return; }
   var rows = parseCSV(text);
   if(rows.length < 2){ toast('Sheet looks empty',''); return; }
@@ -2126,154 +2108,6 @@ async function refreshFromSheet(){
 }
 // ===== END REFRESH FROM SHEET =====
 
-// ============================================================================
-// CLOUD SYNC (engine) — makes a shared database the source of truth so data
-// shows up the same on every computer/browser you sign into, not just this one
-// ============================================================================
-const CLOUD_URL_KEY = 'roas_cloud_url';
-const CLOUD_SECRET_KEY = 'roas_cloud_secret';
-const CLOUD_LAST_SYNC_KEY = 'roas_cloud_last_sync';
-let cloudPushTimer = null;
-let cloudSyncInFlight = false;
-
-function getCloudConfig() {
-  return {
-    url: (localStorage.getItem(CLOUD_URL_KEY) || '').trim(),
-    secret: (localStorage.getItem(CLOUD_SECRET_KEY) || '').trim()
-  };
-}
-
-function saveCloudUrl() {
-  const e = document.getElementById('s-cloud-url');
-  if (e) localStorage.setItem(CLOUD_URL_KEY, e.value.trim());
-  updateSyncIndicator();
-}
-function saveCloudSecret() {
-  const e = document.getElementById('s-cloud-secret');
-  if (e) localStorage.setItem(CLOUD_SECRET_KEY, e.value.trim());
-  updateSyncIndicator();
-}
-function loadCloudSettingsToUi() {
-  const u = document.getElementById('s-cloud-url');
-  const s = document.getElementById('s-cloud-secret');
-  const cfg2 = getCloudConfig();
-  if (u) u.value = cfg2.url;
-  if (s) s.value = cfg2.secret;
-  updateCloudSyncInfo();
-}
-
-function updateSyncIndicator(status) {
-  const el = document.getElementById('sync-indicator');
-  if (!el) return;
-  const cfg2 = getCloudConfig();
-  if (!cfg2.url || !cfg2.secret) { el.textContent = '☁ not configured'; el.title = 'Add your Cloud Sync URL + Secret in Settings'; return; }
-  if (status) { el.textContent = status; return; }
-  const last = localStorage.getItem(CLOUD_LAST_SYNC_KEY);
-  if (last) {
-    el.textContent = '☁ synced ' + new Date(last).toLocaleTimeString();
-    el.title = 'Click to force-pull latest from cloud';
-  } else {
-    el.textContent = '☁ configured — not synced yet';
-  }
-}
-
-function updateCloudSyncInfo() {
-  const el = document.getElementById('cloud-sync-info');
-  if (!el) return;
-  const last = localStorage.getItem(CLOUD_LAST_SYNC_KEY);
-  el.textContent = last ? ('Last synced: ' + new Date(last).toLocaleString()) : 'Never synced yet.';
-}
-
-function scheduleCloudPush() {
-  const cfg2 = getCloudConfig();
-  if (!cfg2.url || !cfg2.secret) return;
-  clearTimeout(cloudPushTimer);
-  cloudPushTimer = setTimeout(() => cloudPush(false), 1200);
-}
-
-async function cloudPush(manual) {
-  const cfg2 = getCloudConfig();
-  if (!cfg2.url || !cfg2.secret) { if (manual) toast('Add your Cloud Sync URL + Secret in Settings first', 'error'); return; }
-  if (cloudSyncInFlight) return;
-  cloudSyncInFlight = true;
-  updateSyncIndicator('☁ syncing...');
-  try {
-    const resp = await fetch(cfg2.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ secret: cfg2.secret, data: db })
-    });
-    const result = await resp.json();
-    if (result.ok) {
-      localStorage.setItem(CLOUD_LAST_SYNC_KEY, result.savedAt || new Date().toISOString());
-      updateSyncIndicator();
-      updateCloudSyncInfo();
-      if (manual) toast('Synced to cloud', 'success');
-    } else {
-      updateSyncIndicator('☁ sync error');
-      if (manual) toast('Sync failed: ' + (result.error || 'unknown error — check the Secret matches'), 'error');
-    }
-  } catch (err) {
-    updateSyncIndicator('☁ sync failed');
-    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
-  } finally {
-    cloudSyncInFlight = false;
-  }
-}
-
-async function cloudPull(manual) {
-  const cfg2 = getCloudConfig();
-  if (!cfg2.url || !cfg2.secret) { if (manual) toast('Add your Cloud Sync URL + Secret in Settings first', 'error'); return; }
-  updateSyncIndicator('☁ pulling...');
-  try {
-    const resp = await fetch(cfg2.url + '?secret=' + encodeURIComponent(cfg2.secret) + '&_ts=' + Date.now(), { cache: 'no-store' });
-    const result = await resp.json();
-    if (result.error) {
-      updateSyncIndicator('☁ sync error');
-      if (manual) toast('Pull failed: ' + result.error + ' — check the Secret matches', 'error');
-      return;
-    }
-    if (result.data && result.data.clients && result.data.clients.length) {
-      db = result.data;
-      if (!db.activeClientId || !db.clients.find(c => c.id === db.activeClientId)) db.activeClientId = db.clients[0].id;
-      if (!db.preparedBy) db.preparedBy = 'Ahmed — Modonix';
-      db.clients.forEach(c => { if (!c.audits) c.audits = []; });
-      localStorage.setItem(SK, JSON.stringify(db));
-      localStorage.setItem(CLOUD_LAST_SYNC_KEY, result.savedAt || new Date().toISOString());
-      refreshAllUI();
-      updateSyncIndicator();
-      updateCloudSyncInfo();
-      if (manual) toast('Pulled latest from cloud', 'success');
-    } else {
-      // Cloud has no data yet — seed it with what's local right now
-      if (manual) toast('Cloud is empty — pushing this browser\'s data to seed it', '');
-      cloudPush(manual);
-    }
-  } catch (err) {
-    updateSyncIndicator('☁ sync failed');
-    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
-  }
-}
-
-function refreshAllUI() {
-  populateClientSwitcher();
-  populateSelects();
-  onCampChange();
-  renderSettings();
-  const activeTab = document.querySelector('.tab.active');
-  if (activeTab) {
-    const tabName = activeTab.textContent.toLowerCase().includes('window') ? 'window' :
-                    activeTab.textContent.toLowerCase().includes('decision') ? 'decision' :
-                    activeTab.textContent.toLowerCase().includes('history') ? 'history' :
-                    activeTab.textContent.toLowerCase().includes('audit') ? 'audit' :
-                    activeTab.textContent.toLowerCase().includes('settings') ? 'settings' : 'weekly';
-    showTab(tabName);
-  }
-}
-// ============================================================================
-// END CLOUD SYNC
-// ============================================================================
-
 populateClientSwitcher();
 populateSelects();
 document.getElementById('w-date').value = new Date().toISOString().slice(0, 10);
@@ -2282,9 +2116,6 @@ renderSettings();
 updateBackupBanner();
 updateLastBackupInfo();
 loadSheetUrlToUi();
-loadCloudSettingsToUi();
-updateSyncIndicator();
-cloudPull(false);
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
