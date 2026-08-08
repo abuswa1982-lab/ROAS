@@ -2096,7 +2096,7 @@ async function refreshFromSheet(){
   if(!url){ toast('Add your sheet link in Settings first',''); return; }
   toast('Reading sheet...','');
   var text;
-  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + 'cb=' + Date.now()); if(!resp.ok) throw 0; text = await resp.text(); }
+  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + '_ts=' + Date.now(), { cache: 'no-store' }); if(!resp.ok) throw 0; text = await resp.text(); }
   catch(e){ toast('Could not read sheet — check the published link',''); return; }
   var rows = parseCSV(text);
   if(rows.length < 2){ toast('Sheet looks empty',''); return; }
@@ -2226,7 +2226,7 @@ async function cloudPull(manual) {
   if (!cfg2.url || !cfg2.secret) { if (manual) toast('Add your Cloud Sync URL + Secret in Settings first', 'error'); return; }
   updateSyncIndicator('☁ pulling...');
   try {
-    const resp = await fetch(cfg2.url + '?secret=' + encodeURIComponent(cfg2.secret) + '&cb=' + Date.now());
+    const resp = await fetch(cfg2.url + '?secret=' + encodeURIComponent(cfg2.secret) + '&_ts=' + Date.now(), { cache: 'no-store' });
     const result = await resp.json();
     if (result.error) {
       updateSyncIndicator('☁ sync error');
