@@ -337,6 +337,22 @@ select option{background:var(--surface2)}
   </div>
 
   <div class="card">
+    <div class="card-title">Cloud Sync</div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+      Optional. Lets you access the same data from more than one computer. Your data is pushed to the cloud automatically and silently every time you save something here. Pulling data down to this computer always requires you to click the button below and confirm — it will never happen by itself.
+    </p>
+    <div class="g2" style="max-width:700px;margin-bottom:12px">
+      <div><label>Sync URL</label><input type="text" id="s-cloud-url" placeholder="https://..." oninput="saveCloudUrl()"></div>
+      <div><label>Secret</label><input type="password" id="s-cloud-secret" placeholder="secret key" oninput="saveCloudSecret()"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-sec" onclick="cloudPush(true)">Push Now</button>
+      <button class="btn btn-sec" onclick="cloudPull(true)">Pull Latest</button>
+      <span id="cloud-sync-status" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title">Backup &amp; Restore</div>
     <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
       <strong style="color:var(--amber)">Important:</strong> Your data lives only in this browser. If you clear browser data, switch computers, or your browser corrupts storage — it's gone unless you've exported a backup.
@@ -431,6 +447,7 @@ const SK = 'roas_v7';
 const SK_LEGACY = 'roas_v5';  // v6 and earlier
 const META_KEY = 'roas_v6_meta';  // tracks last backup date, banner dismissal
 const AI_KEY = 'roas_v8_ai';  // stores API key + model (separate from data so backups can exclude it)
+const CLOUD_KEY = 'roas_cloud_sync';  // stores cloud sync URL + secret (separate from data)
 
 const DEFAULT_SETTINGS = { roasStep: 0.5, scalePct: 10, cutPct: 20, margThresh: 4.25, margMinPct: 5 };
 const DEFAULT_CLIENT = () => ({
@@ -500,7 +517,7 @@ try {
   meta = { lastBackup: null, bannerDismissedUntil: null };
 }
 
-function save() { localStorage.setItem(SK, JSON.stringify(db)); }
+function save() { localStorage.setItem(SK, JSON.stringify(db)); scheduleCloudPush(); }
 function saveMeta() { localStorage.setItem(META_KEY, JSON.stringify(meta)); }
 
 // ============================================================================
@@ -514,6 +531,90 @@ function cfg() { return activeClient().settings; }
 Object.defineProperty(db, 'campaigns', { get() { return activeClient().campaigns; }, set(v) { activeClient().campaigns = v; }, configurable: true });
 Object.defineProperty(db, 'entries', { get() { return activeClient().entries; }, set(v) { activeClient().entries = v; }, configurable: true });
 Object.defineProperty(db, 'settings', { get() { return activeClient().settings; }, set(v) { activeClient().settings = v; }, configurable: true });
+
+// ============================================================================
+// CLOUD SYNC — push happens automatically after every save (silent, best-effort).
+// Pull always requires an explicit click + confirmation, same pattern as Import Backup.
+// ============================================================================
+let cloudSettings = { url: '', secret: '' };
+try {
+  const raw = localStorage.getItem(CLOUD_KEY);
+  if (raw) cloudSettings = { ...cloudSettings, ...JSON.parse(raw) };
+} catch (e) {}
+
+function saveCloudSettings() { localStorage.setItem(CLOUD_KEY, JSON.stringify(cloudSettings)); }
+function saveCloudUrl() { cloudSettings.url = document.getElementById('s-cloud-url').value.trim(); saveCloudSettings(); }
+function saveCloudSecret() { cloudSettings.secret = document.getElementById('s-cloud-secret').value.trim(); saveCloudSettings(); }
+function loadCloudSettingsToUi() {
+  const u = document.getElementById('s-cloud-url');
+  const s = document.getElementById('s-cloud-secret');
+  if (u) u.value = cloudSettings.url || '';
+  if (s) s.value = cloudSettings.secret || '';
+}
+function setCloudStatus(msg) {
+  const el = document.getElementById('cloud-sync-status');
+  if (el) el.textContent = msg;
+}
+
+let cloudPushTimer = null;
+function scheduleCloudPush() {
+  if (!cloudSettings.url || !cloudSettings.secret) return;  // not configured — do nothing
+  clearTimeout(cloudPushTimer);
+  cloudPushTimer = setTimeout(() => cloudPush(false), 1500);
+}
+
+async function cloudPush(manual) {
+  if (!cloudSettings.url || !cloudSettings.secret) {
+    if (manual) toast('Add your Sync URL and Secret in Settings first', 'error');
+    return;
+  }
+  try {
+    const resp = await fetch(cloudSettings.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: cloudSettings.secret, data: localStorage.getItem(SK) })
+    });
+    if (!resp.ok) throw new Error('Server returned ' + resp.status);
+    setCloudStatus('Last pushed: ' + new Date().toLocaleTimeString());
+    if (manual) toast('Pushed to cloud', 'success');
+  } catch (err) {
+    setCloudStatus('Push failed — will retry on next save');
+    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
+  }
+}
+
+async function cloudPull(manual) {
+  if (!cloudSettings.url || !cloudSettings.secret) {
+    if (manual) toast('Add your Sync URL and Secret in Settings first', 'error');
+    return;
+  }
+  try {
+    const sep = cloudSettings.url.indexOf('?') > -1 ? '&' : '?';
+    const resp = await fetch(cloudSettings.url + sep + 'secret=' + encodeURIComponent(cloudSettings.secret) + '&_ts=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) throw new Error('Server returned ' + resp.status);
+    const payload = await resp.json();
+    if (!payload || !payload.data) {
+      setCloudStatus('Nothing in the cloud yet');
+      if (manual) toast('No data found in the cloud yet — push first', 'error');
+      return;
+    }
+    if (manual) {
+      customConfirm(
+        'This REPLACES all current data on this computer with the version from the cloud. Continue?',
+        () => {
+          localStorage.setItem(SK, payload.data);
+          setCloudStatus('Pulled: ' + new Date().toLocaleTimeString());
+          toast('Pulled from cloud — reloading...', 'success');
+          setTimeout(() => location.reload(), 800);
+        },
+        { title: 'Pull From Cloud', yesLabel: 'Replace With Cloud Version' }
+      );
+    }
+  } catch (err) {
+    setCloudStatus('Pull failed — check the link and your connection');
+    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
+  }
+}
 
 // ============================================================================
 // BACKUP / RESTORE
@@ -1066,7 +1167,7 @@ function showTab(t) {
   if (t === 'decision') { populateDecWindow(); }
   if (t === 'history') renderHistory();
   if (t === 'audit') { populateAuditClientSwitcher(); updateCostPreview(); }
-  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); }
+  if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); loadCloudSettingsToUi(); }
 }
 
 function onCampChange() {
@@ -2078,7 +2179,7 @@ async function refreshFromSheet(){
   if(!url){ toast('Add your sheet link in Settings first',''); return; }
   toast('Reading sheet...','');
   var text;
-  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + 'cb=' + Date.now()); if(!resp.ok) throw 0; text = await resp.text(); }
+  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + '_ts=' + Date.now(), { cache: 'no-store' }); if(!resp.ok) throw 0; text = await resp.text(); }
   catch(e){ toast('Could not read sheet — check the published link',''); return; }
   var rows = parseCSV(text);
   if(rows.length < 2){ toast('Sheet looks empty',''); return; }
@@ -2116,6 +2217,7 @@ renderSettings();
 updateBackupBanner();
 updateLastBackupInfo();
 loadSheetUrlToUi();
+loadCloudSettingsToUi();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
