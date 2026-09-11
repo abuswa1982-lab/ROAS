@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROAS Control — Abolox</title>
+<title>ROAS Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -14,20 +14,19 @@ body{min-height:100vh;padding:0 0 60px}
 .header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;flex-wrap:wrap;gap:12px}
 .header-logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--text2);letter-spacing:.1em;text-transform:uppercase}
 .header-logo span{color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .header-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);border:1px solid var(--border);padding:3px 8px;border-radius:4px}
 .btn-header{padding:6px 12px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
 .btn-header.export{background:transparent;color:var(--green);border:1px solid var(--green-border)}
 .btn-header.export:hover{background:var(--green-bg)}
 .btn-header.import{background:transparent;color:var(--blue);border:1px solid var(--blue-border)}
 .btn-header.import:hover{background:var(--blue-bg)}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .backup-banner{background:var(--amber-bg);border-bottom:1px solid var(--amber-border);padding:10px 24px;font-size:12px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace}
 .backup-banner.hidden{display:none}
 .backup-banner-text{flex:1;min-width:200px}
 .backup-banner button{background:var(--amber);color:#0e0f11;border:none;padding:5px 12px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
-.backup-banner button:hover{background:#fbbf24}
 .backup-banner .dismiss{background:transparent;color:var(--amber);border:1px solid var(--amber-border)}
-.container{max-width:1100px;margin:0 auto;padding:24px 24px 0}
+.container{max-width:1150px;margin:0 auto;padding:24px 24px 0}
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto}
 .tab{padding:10px 18px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;transition:color .15s}
 .tab:hover{color:var(--text2)}
@@ -37,8 +36,10 @@ body{min-height:100vh;padding:0 0 60px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.g5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+@media(max-width:820px){.g5{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:700px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:480px){.g2,.g3,.g4{grid-template-columns:1fr}}
+@media(max-width:480px){.g2,.g3,.g4,.g5{grid-template-columns:1fr}}
 label{font-size:11px;color:var(--text3);display:block;margin-bottom:5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em}
 input,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);color:var(--text);font-size:13px;font-family:'IBM Plex Sans',sans-serif;outline:none;transition:border-color .15s}
 input:focus,select:focus{border-color:var(--border2)}
@@ -52,32 +53,28 @@ select option{background:var(--surface2)}
 .mc{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
 .mc-l{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 .mc-v{font-size:22px;font-weight:600;color:var(--text);font-family:'IBM Plex Mono',monospace}
+.mc-s{font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:5px}
 .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.04em}
 .bg{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
 .by{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
 .br{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .bb{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.bn{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
 .rec{border-radius:var(--radius);padding:16px;margin-bottom:12px}
 .rec-g{background:var(--green-bg);border:1px solid var(--green-border)}
 .rec-y{background:var(--amber-bg);border:1px solid var(--amber-border)}
 .rec-r{background:var(--red-bg);border:1px solid var(--red-border)}
+.rec-b{background:var(--blue-bg);border:1px solid var(--blue-border)}
 .rec-t{font-size:15px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:6px}
-.rec-tg{color:var(--green)}.rec-ty{color:var(--amber)}.rec-tr{color:var(--red)}
-.rec-b{font-size:13px;line-height:1.6}
-.rec-bg{color:rgba(34,197,94,0.8)}.rec-by{color:rgba(245,158,11,0.8)}.rec-br{color:rgba(239,68,68,0.8)}
-.signal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
-@media(max-width:700px){.signal-grid{grid-template-columns:1fr 1fr}}
-.signal-card{border-radius:var(--radius);padding:14px;border:1px solid var(--border)}
-.sig-override{border-color:var(--red-border);background:var(--red-bg)}
-.sig-warning{border-color:var(--amber-border);background:var(--amber-bg)}
+.rec-tg{color:var(--green)}.rec-ty{color:var(--amber)}.rec-tr{color:var(--red)}.rec-tb{color:var(--blue)}
+.rec-bd{font-size:13px;line-height:1.6;color:var(--text2)}
+.signal-card{border-radius:var(--radius);padding:14px;border:1px solid var(--border);background:var(--surface2)}
 .sig-ok{border-color:var(--green-border);background:var(--green-bg)}
-.sig-neutral{background:var(--surface2)}
-.signal-label{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.signal-val{font-size:18px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:4px}
-.driver-tag{font-size:9px;padding:1px 5px;border-radius:3px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.04em}
-.conflict-box{border-radius:var(--radius);padding:14px;background:var(--red-bg);border:1px solid var(--red-border);margin-bottom:12px}
-.conflict-title{font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--red);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
-.conflict-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:rgba(239,68,68,0.8);margin-bottom:4px;line-height:1.5}
+.sig-warn{border-color:var(--amber-border);background:var(--amber-bg)}
+.sig-bad{border-color:var(--red-border);background:var(--red-bg)}
+.sig-watch{border-color:var(--blue-border);background:var(--blue-bg)}
+.signal-label{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.signal-val{font-size:19px;font-weight:600;font-family:'IBM Plex Mono',monospace;margin-bottom:5px}
 .action-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px}
 .action-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap}
 .action-row:last-child{border-bottom:none}
@@ -89,18 +86,16 @@ select option{background:var(--surface2)}
 .tbl td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text2);white-space:nowrap;font-family:'IBM Plex Mono',monospace}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tbody tr:hover td{background:var(--surface2)}
+.tbl tfoot td{border-top:1px solid var(--border2);color:var(--text);font-weight:500;background:var(--surface2)}
 .sep{border:none;border-top:1px solid var(--border);margin:16px 0}
 .hint{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;font-family:'IBM Plex Mono',monospace}
 .hint strong{color:var(--text2)}
 .btn-pdf{background:transparent;color:var(--green);border:1px solid var(--green-border);padding:7px 14px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border-radius:var(--radius);text-transform:uppercase;letter-spacing:.05em}.btn-pdf:hover{background:var(--green-bg)}
 .camp-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
 .camp-row:last-child{border-bottom:none}
-.marg-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;flex-wrap:wrap;font-size:12px}
-.marg-item:last-child{border-bottom:none}
 .msg{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace}
 .err{font-size:12px;color:var(--red);font-family:'IBM Plex Mono',monospace}
 .window-selector{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap}
-.window-selector select{width:200px}
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.show{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;min-width:380px;max-width:90vw}
@@ -111,6 +106,7 @@ select option{background:var(--surface2)}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.error{border-left-color:var(--red);color:var(--red)}
 .toast.success{border-left-color:var(--green);color:var(--green)}
+.dir-up{color:var(--green)}.dir-down{color:var(--red)}.dir-flat{color:var(--text3)}
 </style>
 </head>
 <body>
@@ -119,18 +115,17 @@ select option{background:var(--surface2)}
   <div class="header-logo"><span>ROAS</span> Control</div>
   <div class="header-right">
     <select id="client-switcher" onchange="switchClient(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 10px;border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:140px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer"></select>
-    <button class="btn-header" onclick="quickAddClient()" title="Add a new client" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
-    <span class="header-tag">v8.3 · AI Auditor</span>
-    <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON — do this weekly">⬇ Export Backup</button>
-    <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore data from a backup JSON file">⬆ Import Backup</button>  <button class="btn-header" onclick="refreshFromSheet()" title="Pull the latest week from your Google Sheet" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">⟳ Refresh from Sheet</button>
+    <button class="btn-header" onclick="quickAddClient()" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
+    <span class="header-tag">v9.0 · Two-Track</span>
+    <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON">⬇ Export Backup</button>
+    <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore from a backup JSON file">⬆ Import Backup</button>
+    <button class="btn-header" onclick="refreshFromSheet()" title="Pull the latest weeks from your Google Sheet" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">⟳ Refresh from Sheet</button>
     <input type="file" id="backup-import" style="display:none" accept=".json" onchange="importBackup(event)">
   </div>
 </div>
 
 <div id="backup-banner" class="backup-banner hidden">
-  <div class="backup-banner-text">
-    <strong id="banner-text"></strong>
-  </div>
+  <div class="backup-banner-text"><strong id="banner-text"></strong></div>
   <button onclick="exportBackup()">⬇ Backup Now</button>
   <button class="dismiss" onclick="dismissBanner()">Remind Tomorrow</button>
 </div>
@@ -138,7 +133,7 @@ select option{background:var(--surface2)}
 <div class="container">
 <div class="tabs">
   <button class="tab active" onclick="showTab('weekly')">Weekly Entry</button>
-  <button class="tab" onclick="showTab('window')">4-Week Window</button>
+  <button class="tab" onclick="showTab('trend')">Weekly Trend</button>
   <button class="tab" onclick="showTab('decision')">Decision Layer</button>
   <button class="tab" onclick="showTab('history')">History</button>
   <button class="tab" onclick="showTab('audit')">AI Audit</button>
@@ -157,7 +152,7 @@ select option{background:var(--surface2)}
       <div class="card-title">New Campaign</div>
       <div class="g4" style="margin-bottom:12px">
         <div><label>Name</label><input id="nc-name" placeholder="e.g. Hand Tools"></div>
-        <div><label>Default Target ROAS</label><input id="nc-roas" type="number" step="0.01" placeholder="3.25"></div>
+        <div><label>PPC ROAS Target</label><input id="nc-roas" type="number" step="0.01" placeholder="3.25"></div>
         <div><label>Gross Margin %</label><input id="nc-gm" type="number" step="0.1" placeholder="23.5"></div>
         <div style="display:flex;align-items:flex-end;gap:8px">
           <button class="btn btn-pri" onclick="addCamp()">Add</button>
@@ -166,29 +161,16 @@ select option{background:var(--surface2)}
       </div>
     </div>
     <hr class="sep">
-    <div class="card-title">Step 1 — Target + ROAS</div>
-    <div class="hint">Target ROAS pre-fills from campaign default. Change it freely — each week stores its own target.</div>
-    <div class="g4" style="margin-bottom:14px">
-      <div><label>Week Of</label><input type="date" id="w-date"></div>
-      <div><label>Target ROAS (this week)</label><input type="number" id="w-troas" step="0.01" oninput="calcWeekly()"></div>
-      <div><label>PPC ROAS</label><input type="number" id="w-ppcr" step="0.01" placeholder="0.00" oninput="calcWeekly()"></div>
-      <div><label>Overall ROAS</label><input type="number" id="w-ovr" step="0.01" placeholder="0.00" oninput="calcWeekly()"></div>
+    <div class="card-title">Enter the week</div>
+    <div class="hint">Enter <strong>dollars only</strong>. Both ROAS numbers are calculated, never typed. PPC ROAS = PPC revenue / spend. Overall ROAS = total revenue / spend.</div>
+    <div class="g5" style="margin-bottom:14px">
+      <div><label>Week Of</label><input type="date" id="w-date" onchange="calcWeekly()"></div>
+      <div><label>PPC ROAS Target</label><input type="number" id="w-troas" step="0.01" oninput="calcWeekly()"></div>
+      <div><label>Spend ($)</label><input type="number" id="w-spend" step="0.01" placeholder="0.00" oninput="calcWeekly()"></div>
+      <div><label>PPC Revenue ($)</label><input type="number" id="w-ppcrev" step="0.01" placeholder="0.00" oninput="calcWeekly()"></div>
+      <div><label>Total Revenue ($)</label><input type="number" id="w-totrev" step="0.01" placeholder="0.00" oninput="calcWeekly()"></div>
     </div>
-    <div id="week-zone-row" style="display:none;margin-bottom:14px">
-      <div class="g4">
-        <div class="mc"><div class="mc-l">Zone</div><div id="wz-zone" class="mc-v" style="font-size:15px;margin-top:4px"></div></div>
-        <div class="mc"><div class="mc-l">Rank (Overall / Target)</div><div id="wz-rank" class="mc-v"></div></div>
-        <div class="mc"><div class="mc-l">Action</div><div id="wz-action" style="font-size:13px;color:var(--text2);margin-top:6px"></div></div>
-        <div class="mc"><div class="mc-l">PPC vs Target</div><div id="wz-ppc" style="margin-top:6px"></div></div>
-      </div>
-    </div>
-    <hr class="sep">
-    <div class="card-title">Step 2 — Spend + Revenue</div>
-    <div class="g3" style="margin-bottom:14px">
-      <div><label>Spend ($)</label><input type="number" id="w-spend" step="0.01" placeholder="0.00"></div>
-      <div><label>PPC Revenue ($)</label><input type="number" id="w-ppcrev" step="0.01" placeholder="0.00"></div>
-      <div><label>Total Revenue ($)</label><input type="number" id="w-totrev" step="0.01" placeholder="0.00"></div>
-    </div>
+    <div id="week-live" style="display:none;margin-bottom:14px"></div>
     <div style="display:flex;gap:10px;align-items:center">
       <button class="btn btn-pri" onclick="saveWeek()">Save Week</button>
       <span id="w-msg"></span>
@@ -196,15 +178,25 @@ select option{background:var(--surface2)}
   </div>
 </div>
 
-<div id="tab-window" style="display:none">
-  <div style="margin-bottom:16px"><select id="win-camp" style="width:220px" onchange="renderWindow()"></select></div>
-  <div class="card"><div class="card-title">Rolling Window — Last 4 Weeks</div><div id="win-content"></div></div>
+<div id="tab-trend" style="display:none">
+  <div class="window-selector">
+    <div><label style="margin-bottom:4px">Campaign</label><select id="win-camp" style="width:210px" onchange="renderTrend()"></select></div>
+    <div><label style="margin-bottom:4px">Weeks Shown</label>
+      <select id="win-weeks" style="width:150px" onchange="renderTrend()">
+        <option value="4">Last 4 weeks</option>
+        <option value="8">Last 8 weeks</option>
+        <option value="12">Last 12 weeks</option>
+        <option value="0">All weeks</option>
+      </select>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">Week By Week</div><div id="win-content"></div></div>
 </div>
 
 <div id="tab-decision" style="display:none">
   <div class="window-selector">
     <div><label style="margin-bottom:4px">Campaign</label><select id="dec-camp" style="width:210px" onchange="populateDecWindow()"></select></div>
-    <div><label style="margin-bottom:4px">Ending Week</label><select id="dec-end" style="width:180px" onchange="renderDecision()"><option value="">Most recent 4 weeks</option></select></div>
+    <div><label style="margin-bottom:4px">Decision Week</label><select id="dec-end" style="width:180px" onchange="renderDecision()"><option value="">Most recent week</option></select></div>
     <button class="btn-pdf" onclick="exportDecisionPDF()">Export PDF</button>
   </div>
   <div id="dec-content"></div>
@@ -230,28 +222,18 @@ select option{background:var(--surface2)}
   <div class="card">
     <div class="card-title">Audit Setup</div>
     <p style="font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:14px;font-family:'IBM Plex Mono',monospace">Senior auditor reads your data slice, sees what the rules engine missed, returns operator-grade analysis. Configure API key in Settings.</p>
-
     <div class="g3" style="margin-bottom:14px">
-      <div>
-        <label>Client</label>
-        <select id="aud-client" onchange="onAuditClientChange()"></select>
-      </div>
-      <div>
-        <label>Scope</label>
+      <div><label>Client</label><select id="aud-client" onchange="onAuditClientChange()"></select></div>
+      <div><label>Scope</label>
         <select id="aud-scope" onchange="onAuditScopeChange()">
           <option value="single">Single Campaign</option>
           <option value="all">All Campaigns (cross-campaign view)</option>
         </select>
       </div>
-      <div id="aud-campaign-wrap">
-        <label>Campaign</label>
-        <select id="aud-campaign"></select>
-      </div>
+      <div id="aud-campaign-wrap"><label>Campaign</label><select id="aud-campaign"></select></div>
     </div>
-
     <div class="g3" style="margin-bottom:14px">
-      <div>
-        <label>Primary Period</label>
+      <div><label>Primary Period</label>
         <select id="aud-period" onchange="onAuditPeriodChange()">
           <option value="4w">Last 4 weeks</option>
           <option value="8w">Last 8 weeks</option>
@@ -259,60 +241,42 @@ select option{background:var(--surface2)}
           <option value="custom">Custom date range</option>
         </select>
       </div>
-      <div id="aud-custom-start-wrap" style="display:none">
-        <label>Start Date</label>
-        <input type="date" id="aud-custom-start">
-      </div>
-      <div id="aud-custom-end-wrap" style="display:none">
-        <label>End Date</label>
-        <input type="date" id="aud-custom-end">
-      </div>
+      <div id="aud-custom-start-wrap" style="display:none"><label>Start Date</label><input type="date" id="aud-custom-start"></div>
+      <div id="aud-custom-end-wrap" style="display:none"><label>End Date</label><input type="date" id="aud-custom-end"></div>
     </div>
-
     <div class="g3" style="margin-bottom:14px">
-      <div>
-        <label>Compare To</label>
+      <div><label>Compare To</label>
         <select id="aud-compare" onchange="onAuditCompareChange()">
           <option value="none">No comparison</option>
           <option value="prev">Previous equivalent period (auto)</option>
           <option value="custom">Custom comparison range</option>
         </select>
       </div>
-      <div id="aud-comp-start-wrap" style="display:none">
-        <label>Compare Start</label>
-        <input type="date" id="aud-comp-start">
-      </div>
-      <div id="aud-comp-end-wrap" style="display:none">
-        <label>Compare End</label>
-        <input type="date" id="aud-comp-end">
-      </div>
+      <div id="aud-comp-start-wrap" style="display:none"><label>Compare Start</label><input type="date" id="aud-comp-start"></div>
+      <div id="aud-comp-end-wrap" style="display:none"><label>Compare End</label><input type="date" id="aud-comp-end"></div>
     </div>
-
     <div style="margin-bottom:14px">
       <label>Specific Question (optional)</label>
       <input type="text" id="aud-question" placeholder="e.g. Why did week 3 fall off? Or: Is this seasonal?">
     </div>
-
     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
       <button class="btn btn-pri" id="aud-run-btn" onclick="runAudit()">▶ Run Audit</button>
       <span id="aud-cost-preview" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
       <span id="aud-status" style="font-size:12px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
     </div>
   </div>
-
   <div class="card" id="aud-output-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div class="card-title" style="margin-bottom:0">Audit Output</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-sec" onclick="copyAuditOutput()" style="font-size:11px;padding:6px 12px">📋 Copy</button>
-        <button class="btn btn-sec" onclick="saveAudit()" id="aud-save-btn" style="font-size:11px;padding:6px 12px">💾 Save to History</button>
+        <button class="btn btn-sec" onclick="saveAudit()" style="font-size:11px;padding:6px 12px">💾 Save to History</button>
         <button class="btn-pdf" onclick="exportAuditPDF()" style="font-size:11px;padding:6px 12px">⬇ Export PDF</button>
       </div>
     </div>
     <div id="aud-output" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;font-size:13px;line-height:1.7;color:var(--text);white-space:pre-wrap;font-family:'IBM Plex Sans',sans-serif;min-height:200px"></div>
     <div id="aud-usage-info" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:10px"></div>
   </div>
-
   <div class="card" id="aud-history-card">
     <div class="card-title">Past Audits (this client)</div>
     <div id="aud-history-list"></div>
@@ -322,25 +286,18 @@ select option{background:var(--surface2)}
 <div id="tab-settings" style="display:none">
   <div class="card">
     <div class="card-title">AI Auditor Settings</div>
-    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
-      Paste your Anthropic API key — that's it. Tool uses Sonnet (balanced cost and quality, roughly $0.03–0.05 per audit). Get a key at <span style="font-family:'IBM Plex Mono',monospace">console.anthropic.com</span>. Key is stored only in this browser.
-    </p>
-    <div style="max-width:500px">
-      <label>Anthropic API Key</label>
-      <input type="password" id="s-api-key" placeholder="sk-ant-..." oninput="saveApiKey()"> </div>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Paste your Anthropic API key. Tool uses Sonnet (roughly $0.03 to $0.05 per audit). Get a key at <span style="font-family:'IBM Plex Mono',monospace">console.anthropic.com</span>. Key is stored only in this browser.</p>
+    <div style="max-width:500px"><label>Anthropic API Key</label><input type="password" id="s-api-key" placeholder="sk-ant-..." oninput="saveApiKey()"></div>
     <div style="max-width:500px;margin-top:14px">
-      <label>Google Sheet — Published Staging CSV Link</label>
+      <label>Google Sheet: Published Staging CSV Link</label>
       <input type="text" id="s-sheet-url" placeholder="https://docs.google.com/.../pub?...output=csv" oninput="saveSheetUrl()">
-      <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:6px">Paste the published CSV link for your Staging tab. Used by "Refresh from Sheet".</p>
+      <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:6px">Published CSV link for your Staging tab. Used by "Refresh from Sheet".</p>
     </div>
     <p style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:10px" id="ai-spend-info"></p>
   </div>
-
   <div class="card">
     <div class="card-title">Cloud Sync</div>
-    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
-      Optional. Lets you access the same data from more than one computer. Your data is pushed to the cloud automatically and silently every time you save something here. Pulling data down to this computer always requires you to click the button below and confirm — it will never happen by itself.
-    </p>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">Optional. Data is pushed to the cloud automatically after every save. Pulling down always requires the button below plus a confirmation.</p>
     <div class="g2" style="max-width:700px;margin-bottom:12px">
       <div><label>Sync URL</label><input type="text" id="s-cloud-url" placeholder="https://..." oninput="saveCloudUrl()"></div>
       <div><label>Secret</label><input type="password" id="s-cloud-secret" placeholder="secret key" oninput="saveCloudSecret()"></div>
@@ -351,14 +308,9 @@ select option{background:var(--surface2)}
       <span id="cloud-sync-status" style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace"></span>
     </div>
   </div>
-
   <div class="card">
     <div class="card-title">Backup &amp; Restore</div>
-    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">
-      <strong style="color:var(--amber)">Important:</strong> Your data lives only in this browser. If you clear browser data, switch computers, or your browser corrupts storage — it's gone unless you've exported a backup.
-      <br><br>
-      <strong style="color:var(--text)">Habit:</strong> Click "Export Backup" every Monday after entering the week's data. Save the JSON file to a cloud folder (Drive, Dropbox).
-    </p>
+    <p style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px"><strong style="color:var(--amber)">Important:</strong> Your data lives only in this browser. Export every Monday after entering the week and save the JSON to a cloud folder.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn-header export" onclick="exportBackup()">⬇ Export Backup (All Clients)</button>
       <button class="btn-header import" onclick="document.getElementById('backup-import-2').click()">⬆ Import Backup (JSON)</button>
@@ -367,7 +319,6 @@ select option{background:var(--surface2)}
     </div>
     <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:'IBM Plex Mono',monospace" id="last-backup-info"></p>
   </div>
-
   <div class="card">
     <div class="card-title">Active Client</div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
@@ -377,38 +328,34 @@ select option{background:var(--surface2)}
       <span style="margin-left:auto;color:var(--text3);font-size:11px;font-family:'IBM Plex Mono',monospace" id="client-count-info"></span>
     </div>
     <hr class="sep">
-    <div class="card-title">Operator Information (global, all clients)</div>
+    <div class="card-title">Operator Information (global)</div>
     <div style="max-width:500px;margin-bottom:8px">
       <label>Prepared By</label>
-      <input type="text" id="s-preparer" placeholder="e.g. Ahmed — Modonix" oninput="updatePreparedBy()">
-      <p style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'IBM Plex Mono',monospace">Used on all PDF reports for all clients.</p>
+      <input type="text" id="s-preparer" placeholder="e.g. Ahmed | Modonix" oninput="updatePreparedBy()">
     </div>
     <hr class="sep">
-    <div class="card-title">Adjustment Step Sizes (this client only)</div>
-    <div class="g3" style="margin-bottom:16px">
-      <div><label>ROAS Step Size (×)</label><input type="number" id="s-roasstep" step="0.05" oninput="updateSettings()"></div>
+    <div class="card-title">Decision Settings (this client only)</div>
+    <div class="g4" style="margin-bottom:10px">
+      <div><label>PPC Target Step (×)</label><input type="number" id="s-roasstep" step="0.05" oninput="updateSettings()"></div>
       <div><label>Scale Spend Increase %</label><input type="number" id="s-scale-pct" step="1" oninput="updateSettings()"></div>
       <div><label>Cut Spend Decrease %</label><input type="number" id="s-cut-pct" step="1" oninput="updateSettings()"></div>
+      <div><label>Direction Threshold %</label><input type="number" id="s-dir-thresh" step="0.5" oninput="updateSettings()"></div>
     </div>
+    <div class="hint">Direction threshold is how much a week has to move before it counts as up or down instead of flat. Below this, the week reads FLAT. Too low and normal noise looks like a trend.</div>
     <hr class="sep">
-    <div class="card-title">Marginal ROAS (this client only)</div>
-    <div class="g2" style="max-width:420px;margin-bottom:16px">
-      <div><label>Optimal Threshold (×)</label><input type="number" id="s-marg-thresh" step="0.05" oninput="updateSettings()"></div>
-      <div><label>Min Spend Change % to Calculate</label><input type="number" id="s-marg-min-pct" step="1" oninput="updateSettings()"></div>
-    </div>
-    <div id="marg-zones"></div>
+    <div class="card-title">Decision States</div>
+    <div id="state-legend"></div>
     <hr class="sep">
     <div class="card-title">Campaigns (this client only)</div>
     <div id="camp-list"></div>
     <hr class="sep">
     <div class="card-title" style="color:var(--red)">Danger Zone</div>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Permanent deletion of <strong style="color:var(--red)">ALL clients'</strong> data — campaigns, entries, settings, everything. Cannot be undone unless you have a backup file.</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Permanent deletion of <strong style="color:var(--red)">ALL clients'</strong> data. Cannot be undone without a backup file.</p>
     <button class="btn btn-del" onclick="clearAllData()">Clear ALL Data (All Clients)</button>
   </div>
 </div>
 </div>
 
-<!-- CONFIRM MODAL -->
 <div class="modal-overlay" id="confirm-modal">
   <div class="modal">
     <h2 id="confirm-title">Confirm</h2>
@@ -424,7 +371,6 @@ select option{background:var(--surface2)}
   </div>
 </div>
 
-<!-- PROMPT MODAL (replaces native prompt() which is blocked in sandboxed iframes) -->
 <div class="modal-overlay" id="prompt-modal">
   <div class="modal">
     <h2 id="prompt-title">Input</h2>
@@ -441,234 +387,191 @@ select option{background:var(--surface2)}
 
 <script>
 // ============================================================================
-// STORAGE — v7 multi-client schema, auto-migrates from v6 (roas_v5 key)
+// STORAGE: same keys as v7/v8 so existing data and existing backup files load.
+// normalizeDb() runs on every load and is idempotent.
 // ============================================================================
 const SK = 'roas_v7';
-const SK_LEGACY = 'roas_v5';  // v6 and earlier
-const META_KEY = 'roas_v6_meta';  // tracks last backup date, banner dismissal
-const AI_KEY = 'roas_v8_ai';  // stores API key + model (separate from data so backups can exclude it)
-const CLOUD_KEY = 'roas_cloud_sync';  // stores cloud sync URL + secret (separate from data)
+const SK_LEGACY = 'roas_v5';
+const META_KEY = 'roas_v6_meta';
+const AI_KEY = 'roas_v8_ai';
+const CLOUD_KEY = 'roas_cloud_sync';
+const WATCH_LIMIT = 3;
 
-const DEFAULT_SETTINGS = { roasStep: 0.5, scalePct: 10, cutPct: 20, margThresh: 4.25, margMinPct: 5 };
+const DEFAULT_SETTINGS = { roasStep: 0.5, scalePct: 10, cutPct: 20, dirThresh: 3 };
 const DEFAULT_CLIENT = () => ({
   id: 'cli_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
   name: 'New Client',
   settings: { ...DEFAULT_SETTINGS },
   campaigns: [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
   entries: [],
-  audits: []  // v8: AI audit history
+  audits: []
 });
 const DEFAULT_DB = () => {
   const c = DEFAULT_CLIENT();
   c.name = 'Client 1';
-  return { schemaVersion: 7, preparedBy: 'Ahmed — Modonix', activeClientId: c.id, clients: [c] };
+  return { schemaVersion: 9, preparedBy: 'Ahmed | Modonix', activeClientId: c.id, clients: [c] };
 };
 
 function migrateFromV6(legacyDb) {
-  // legacyDb shape: { settings: { roasStep, scalePct, cutPct, margThresh, margMinPct, clientName, preparedBy }, campaigns, entries }
-  const clientName = (legacyDb.settings && legacyDb.settings.clientName) ? legacyDb.settings.clientName : 'Client 1';
-  const preparedBy = (legacyDb.settings && legacyDb.settings.preparedBy) ? legacyDb.settings.preparedBy : 'Ahmed — Modonix';
-  const perClientSettings = { ...DEFAULT_SETTINGS };
-  ['roasStep', 'scalePct', 'cutPct', 'margThresh', 'margMinPct'].forEach(k => {
-    if (legacyDb.settings && legacyDb.settings[k] != null) perClientSettings[k] = legacyDb.settings[k];
+  const clientName = (legacyDb.settings && legacyDb.settings.clientName) || 'Client 1';
+  const preparedBy = (legacyDb.settings && legacyDb.settings.preparedBy) || 'Ahmed | Modonix';
+  const s = { ...DEFAULT_SETTINGS };
+  ['roasStep', 'scalePct', 'cutPct'].forEach(k => {
+    if (legacyDb.settings && legacyDb.settings[k] != null) s[k] = legacyDb.settings[k];
   });
-  const client = {
-    id: 'cli_' + Date.now() + '_migrated',
-    name: clientName,
-    settings: perClientSettings,
-    campaigns: legacyDb.campaigns || [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
-    entries: legacyDb.entries || []
+  return {
+    schemaVersion: 9, preparedBy, activeClientId: 'cli_' + Date.now() + '_migrated',
+    clients: [{
+      id: 'cli_' + Date.now() + '_migrated', name: clientName, settings: s,
+      campaigns: legacyDb.campaigns || [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }],
+      entries: legacyDb.entries || [], audits: []
+    }]
   };
-  return { schemaVersion: 7, preparedBy, activeClientId: client.id, clients: [client] };
 }
 
-let db;
+// v9 normalize: revenue is the single source of truth. Old entries that stored typed
+// ROAS get their revenue backfilled from it, then the typed ROAS fields are dropped.
+let normalizeReport = { backfilled: 0, dropped: 0, deduped: 0 };
+function normalizeDb(d) {
+  normalizeReport = { backfilled: 0, dropped: 0, deduped: 0 };
+  if (!d.clients || !d.clients.length) return DEFAULT_DB();
+  if (!d.preparedBy) d.preparedBy = 'Ahmed | Modonix';
+  d.clients.forEach(c => {
+    if (!c.audits) c.audits = [];
+    if (!c.settings) c.settings = { ...DEFAULT_SETTINGS };
+    if (c.settings.dirThresh == null) c.settings.dirThresh = DEFAULT_SETTINGS.dirThresh;
+    ['roasStep', 'scalePct', 'cutPct'].forEach(k => { if (c.settings[k] == null) c.settings[k] = DEFAULT_SETTINGS[k]; });
+    delete c.settings.margThresh; delete c.settings.margMinPct;
+    if (!c.campaigns || !c.campaigns.length) c.campaigns = [{ id: 'c1', name: 'Main Campaign', targetROAS: 3.25, gm: 0.235 }];
+    if (!c.entries) c.entries = [];
+    c.entries.forEach(e => {
+      e.spend = +e.spend || 0;
+      e.ppcRev = +e.ppcRev || 0;
+      e.totRev = +e.totRev || 0;
+      if (e.spend > 0) {
+        if (!e.totRev && e.ovrR) { e.totRev = +(e.ovrR * e.spend).toFixed(2); normalizeReport.backfilled++; }
+        if (!e.ppcRev && e.ppcR) { e.ppcRev = +(e.ppcR * e.spend).toFixed(2); normalizeReport.backfilled++; }
+      }
+      if ('ovrR' in e || 'ppcR' in e) { delete e.ovrR; delete e.ppcR; normalizeReport.dropped++; }
+    });
+    // collapse duplicate campId+date rows, keeping the last one entered
+    const seen = new Map();
+    c.entries.forEach(e => seen.set(e.campId + '|' + e.date, e));
+    if (seen.size !== c.entries.length) normalizeReport.deduped += c.entries.length - seen.size;
+    c.entries = Array.from(seen.values()).sort((a, b) => a.date.localeCompare(b.date));
+  });
+  if (!d.activeClientId || !d.clients.find(c => c.id === d.activeClientId)) d.activeClientId = d.clients[0].id;
+  d.schemaVersion = 9;
+  return d;
+}
+
+let db, loadFailed = false;
 try {
   const v7raw = localStorage.getItem(SK);
-  if (v7raw) {
-    db = JSON.parse(v7raw);
-  } else {
-    // No v7 data — try migrating from v6
+  if (v7raw) db = JSON.parse(v7raw);
+  else {
     const v6raw = localStorage.getItem(SK_LEGACY);
     if (v6raw) {
-      const legacyDb = JSON.parse(v6raw);
-      db = migrateFromV6(legacyDb);
-      localStorage.setItem(SK, JSON.stringify(db));
-      // Keep SK_LEGACY in place — don't delete the old data, it's a safety net
-      setTimeout(() => toast('Migrated from v6 — your old data is now under "' + db.clients[0].name + '"', 'success'), 600);
-    } else {
-      db = DEFAULT_DB();
-    }
+      db = migrateFromV6(JSON.parse(v6raw));
+      setTimeout(() => toast('Migrated older data into "' + db.clients[0].name + '"', 'success'), 600);
+    } else db = DEFAULT_DB();
   }
-  // Defensive defaults
-  if (!db.clients || !db.clients.length) db = DEFAULT_DB();
-  if (!db.activeClientId || !db.clients.find(c => c.id === db.activeClientId)) db.activeClientId = db.clients[0].id;
-  if (!db.preparedBy) db.preparedBy = 'Ahmed — Modonix';
-  // v8: backfill audits field on existing clients
-  db.clients.forEach(c => { if (!c.audits) c.audits = []; });
+  db = normalizeDb(db);
 } catch (e) {
+  // Could not read stored data. Preserve the raw copy under a recovery key and do NOT
+  // write defaults over it at init, so nothing unreadable is silently destroyed.
+  loadFailed = true;
+  try {
+    const raw = localStorage.getItem(SK);
+    if (raw) localStorage.setItem('roas_recovery_' + Date.now(), raw);
+  } catch (e2) {}
   db = DEFAULT_DB();
 }
 
 let meta;
-try {
-  meta = JSON.parse(localStorage.getItem(META_KEY) || 'null') || { lastBackup: null, bannerDismissedUntil: null };
-} catch (e) {
-  meta = { lastBackup: null, bannerDismissedUntil: null };
-}
+try { meta = JSON.parse(localStorage.getItem(META_KEY) || 'null') || { lastBackup: null, bannerDismissedUntil: null }; }
+catch (e) { meta = { lastBackup: null, bannerDismissedUntil: null }; }
 
 function save() { localStorage.setItem(SK, JSON.stringify(db)); scheduleCloudPush(); }
 function saveMeta() { localStorage.setItem(META_KEY, JSON.stringify(meta)); }
 
-// ============================================================================
-// CLIENT ACCESSORS — everything below routes through the active client
-// ============================================================================
-function activeClient() {
-  return db.clients.find(c => c.id === db.activeClientId) || db.clients[0];
-}
-function cfg() { return activeClient().settings; }
-// Compatibility shims so existing code that wrote `db.campaigns` / `db.entries` still works
+function activeClient() { return db.clients.find(c => c.id === db.activeClientId) || db.clients[0]; }
 Object.defineProperty(db, 'campaigns', { get() { return activeClient().campaigns; }, set(v) { activeClient().campaigns = v; }, configurable: true });
 Object.defineProperty(db, 'entries', { get() { return activeClient().entries; }, set(v) { activeClient().entries = v; }, configurable: true });
 Object.defineProperty(db, 'settings', { get() { return activeClient().settings; }, set(v) { activeClient().settings = v; }, configurable: true });
+function cfg() { return activeClient().settings; }
 
 // ============================================================================
-// CLOUD SYNC — push happens automatically after every save (silent, best-effort).
-// Pull always requires an explicit click + confirmation, same pattern as Import Backup.
+// CLOUD SYNC
 // ============================================================================
 let cloudSettings = { url: '', secret: '' };
-try {
-  const raw = localStorage.getItem(CLOUD_KEY);
-  if (raw) cloudSettings = { ...cloudSettings, ...JSON.parse(raw) };
-} catch (e) {}
-
+try { const raw = localStorage.getItem(CLOUD_KEY); if (raw) cloudSettings = { ...cloudSettings, ...JSON.parse(raw) }; } catch (e) {}
 function saveCloudSettings() { localStorage.setItem(CLOUD_KEY, JSON.stringify(cloudSettings)); }
 function saveCloudUrl() { cloudSettings.url = document.getElementById('s-cloud-url').value.trim(); saveCloudSettings(); }
 function saveCloudSecret() { cloudSettings.secret = document.getElementById('s-cloud-secret').value.trim(); saveCloudSettings(); }
 function loadCloudSettingsToUi() {
-  const u = document.getElementById('s-cloud-url');
-  const s = document.getElementById('s-cloud-secret');
-  if (u) u.value = cloudSettings.url || '';
-  if (s) s.value = cloudSettings.secret || '';
+  const u = document.getElementById('s-cloud-url'), s = document.getElementById('s-cloud-secret');
+  if (u) u.value = cloudSettings.url || ''; if (s) s.value = cloudSettings.secret || '';
 }
-function setCloudStatus(msg) {
-  const el = document.getElementById('cloud-sync-status');
-  if (el) el.textContent = msg;
-}
-
+function setCloudStatus(m) { const el = document.getElementById('cloud-sync-status'); if (el) el.textContent = m; }
 let cloudPushTimer = null;
 function scheduleCloudPush() {
-  if (!cloudSettings.url || !cloudSettings.secret) return;  // not configured — do nothing
+  if (!cloudSettings.url || !cloudSettings.secret) return;
   clearTimeout(cloudPushTimer);
   cloudPushTimer = setTimeout(() => cloudPush(false), 1500);
 }
-
 async function cloudPush(manual) {
-  if (!cloudSettings.url || !cloudSettings.secret) {
-    if (manual) toast('Add your Sync URL and Secret in Settings first', 'error');
-    return;
-  }
+  if (!cloudSettings.url || !cloudSettings.secret) { if (manual) toast('Add your Sync URL and Secret in Settings first', 'error'); return; }
   try {
-    const resp = await fetch(cloudSettings.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: cloudSettings.secret, data: localStorage.getItem(SK) })
-    });
+    const resp = await fetch(cloudSettings.url, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: cloudSettings.secret, data: localStorage.getItem(SK) }) });
     if (!resp.ok) throw new Error('Server returned ' + resp.status);
     setCloudStatus('Last pushed: ' + new Date().toLocaleTimeString());
     if (manual) toast('Pushed to cloud', 'success');
   } catch (err) {
-    setCloudStatus('Push failed — will retry on next save');
-    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
+    setCloudStatus('Push failed, will retry on next save');
+    if (manual) toast('Could not reach cloud sync URL', 'error');
   }
 }
-
 async function cloudPull(manual) {
-  if (!cloudSettings.url || !cloudSettings.secret) {
-    if (manual) toast('Add your Sync URL and Secret in Settings first', 'error');
-    return;
-  }
+  if (!cloudSettings.url || !cloudSettings.secret) { if (manual) toast('Add your Sync URL and Secret in Settings first', 'error'); return; }
   try {
     const sep = cloudSettings.url.indexOf('?') > -1 ? '&' : '?';
     const resp = await fetch(cloudSettings.url + sep + 'secret=' + encodeURIComponent(cloudSettings.secret) + '&_ts=' + Date.now(), { cache: 'no-store' });
     if (!resp.ok) throw new Error('Server returned ' + resp.status);
     const payload = await resp.json();
-    if (!payload || !payload.data) {
-      setCloudStatus('Nothing in the cloud yet');
-      if (manual) toast('No data found in the cloud yet — push first', 'error');
-      return;
-    }
-    if (manual) {
-      customConfirm(
-        'This REPLACES all current data on this computer with the version from the cloud. Continue?',
-        () => {
-          localStorage.setItem(SK, payload.data);
-          setCloudStatus('Pulled: ' + new Date().toLocaleTimeString());
-          toast('Pulled from cloud — reloading...', 'success');
-          setTimeout(() => location.reload(), 800);
-        },
-        { title: 'Pull From Cloud', yesLabel: 'Replace With Cloud Version' }
-      );
-    }
-  } catch (err) {
-    setCloudStatus('Pull failed — check the link and your connection');
-    if (manual) toast('Could not reach cloud sync URL — check the link and your connection', 'error');
-  }
+    if (!payload || !payload.data) { setCloudStatus('Nothing in the cloud yet'); if (manual) toast('No data in the cloud yet, push first', 'error'); return; }
+    if (manual) customConfirm('This REPLACES all current data on this computer with the cloud version. Continue?', () => {
+      localStorage.setItem(SK, payload.data);
+      toast('Pulled from cloud, reloading...', 'success');
+      setTimeout(() => location.reload(), 800);
+    }, { title: 'Pull From Cloud', yesLabel: 'Replace With Cloud Version' });
+  } catch (err) { setCloudStatus('Pull failed'); if (manual) toast('Could not reach cloud sync URL', 'error'); }
 }
 
 // ============================================================================
 // BACKUP / RESTORE
 // ============================================================================
 function exportBackup() {
-  const payload = {
-    schema: 'roas_v7_backup',
-    exportedAt: new Date().toISOString(),
-    clientCount: db.clients.length,
-    activeClientName: activeClient().name,
-    data: {
-      [SK]: localStorage.getItem(SK),
-      [META_KEY]: localStorage.getItem(META_KEY)
-    }
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toISOString().slice(0, 10);
-  a.href = url;
-  a.download = `roas-backup-all-clients-${date}.json`;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-
- meta.lastBackup = new Date().toISOString();
-  meta.bannerDismissedUntil = null;
-  saveMeta();
-  updateBackupBanner();
-  updateLastBackupInfo();
-  toast(`Backup downloaded — ${db.clients.length} client(s). Store it safely.`, 'success');
+  const payload = { schema: 'roas_v7_backup', exportedAt: new Date().toISOString(), clientCount: db.clients.length,
+    activeClientName: activeClient().name, data: { [SK]: localStorage.getItem(SK), [META_KEY]: localStorage.getItem(META_KEY) } };
+  downloadJson(payload, 'roas-backup-all-clients-' + new Date().toISOString().slice(0, 10) + '.json');
+  meta.lastBackup = new Date().toISOString(); meta.bannerDismissedUntil = null;
+  saveMeta(); updateBackupBanner(); updateLastBackupInfo();
+  toast('Backup downloaded: ' + db.clients.length + ' client(s)', 'success');
 }
-
 function exportActiveClientOnly() {
   const c = activeClient();
-  const payload = {
-    schema: 'roas_v7_client_backup',
-    exportedAt: new Date().toISOString(),
-    preparedBy: db.preparedBy,
-    client: JSON.parse(JSON.stringify(c))  // deep clone
-  };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const date = new Date().toISOString().slice(0, 10);
-  const safeName = c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
-  a.href = url;
-  a.download = `roas-client-${safeName}-${date}.json`;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-  toast(`Exported "${c.name}" only — file can be imported as a new client into another instance`, 'success');
+  downloadJson({ schema: 'roas_v7_client_backup', exportedAt: new Date().toISOString(), preparedBy: db.preparedBy, client: JSON.parse(JSON.stringify(c)) },
+    'roas-client-' + c.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-' + new Date().toISOString().slice(0, 10) + '.json');
+  toast('Exported "' + c.name + '" only', 'success');
 }
-
+function downloadJson(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
 function importBackup(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -676,469 +579,264 @@ function importBackup(event) {
   reader.onload = (e) => {
     try {
       const payload = JSON.parse(e.target.result);
-
-      // Detect format
       if (payload.schema === 'roas_v7_client_backup' && payload.client) {
-        // Single-client backup — add as new client (with rename if duplicate)
-        let newClient = JSON.parse(JSON.stringify(payload.client));
-        // Generate new ID to avoid collision
-        newClient.id = 'cli_' + Date.now() + '_imported';
-        // Handle name collision
-        let baseName = newClient.name || 'Imported Client';
-        let finalName = baseName;
-        let n = 2;
-        while (db.clients.find(c => c.name === finalName)) {
-          finalName = baseName + ' (' + n + ')';
-          n++;
-        }
-        newClient.name = finalName;
-        customConfirm(
-          `Import "${payload.client.name}" as a new client? It will be added as "${finalName}" alongside your existing ${db.clients.length} client(s).`,
-          () => {
-            db.clients.push(newClient);
-            db.activeClientId = newClient.id;
-            save();
-            toast('Client imported — switching to ' + newClient.name, 'success');
-            setTimeout(() => location.reload(), 800);
-          },
-          { title: 'Import Single Client', yesLabel: 'Import' }
-        );
-        event.target.value = '';
-        return;
+        let nc = JSON.parse(JSON.stringify(payload.client));
+        nc.id = 'cli_' + Date.now() + '_imported';
+        let base = nc.name || 'Imported Client', finalName = base, n = 2;
+        while (db.clients.find(c => c.name === finalName)) { finalName = base + ' (' + n + ')'; n++; }
+        nc.name = finalName;
+        customConfirm('Import "' + payload.client.name + '" as a new client? It will be added as "' + finalName + '".', () => {
+          db.clients.push(nc); db.activeClientId = nc.id; db = normalizeDb(db); save();
+          toast('Client imported', 'success'); setTimeout(() => location.reload(), 800);
+        }, { title: 'Import Single Client', yesLabel: 'Import' });
+        event.target.value = ''; return;
       }
-
-      // Full backup (v6 or v7) — replaces everything
-      if (!payload.data) {
-        toast('Invalid backup file — missing data block', 'error');
-        return;
-      }
-      const isV7 = !!payload.data[SK];
-      const isV6 = !!payload.data[SK_LEGACY];
-      if (!isV7 && !isV6) {
-        toast('Invalid backup — no recognizable ROAS data', 'error');
-        return;
-      }
+      if (!payload.data) { toast('Invalid backup file, missing data block', 'error'); return; }
+      const isV7 = !!payload.data[SK], isV6 = !!payload.data[SK_LEGACY];
+      if (!isV7 && !isV6) { toast('Invalid backup, no recognizable ROAS data', 'error'); return; }
       const dateLabel = payload.exportedAt ? new Date(payload.exportedAt).toLocaleString() : 'unknown date';
-      const formatLabel = isV7 ? `${payload.clientCount || '?'} client(s)` : 'v6 single-client (will be migrated)';
-      customConfirm(
-        `This REPLACES all current data with the backup from ${dateLabel} (${formatLabel}). Continue?`,
-        () => {
-          if (isV7) {
-            localStorage.setItem(SK, payload.data[SK]);
-          } else {
-            // v6 backup — restore the legacy key, then migrate
-            localStorage.setItem(SK_LEGACY, payload.data[SK_LEGACY]);
-            localStorage.removeItem(SK);  // force migration on reload
-          }
-          if (payload.data[META_KEY]) localStorage.setItem(META_KEY, payload.data[META_KEY]);
-          toast('Backup restored — reloading...', 'success');
-          setTimeout(() => location.reload(), 800);
-        },
-        { title: 'Restore Full Backup', yesLabel: 'Restore' }
-      );
-    } catch (err) {
-      toast('Could not parse backup file: ' + err.message, 'error');
-    }
+      customConfirm('This REPLACES all current data with the backup from ' + dateLabel + '. Continue?', () => {
+        if (isV7) localStorage.setItem(SK, payload.data[SK]);
+        else { localStorage.setItem(SK_LEGACY, payload.data[SK_LEGACY]); localStorage.removeItem(SK); }
+        if (payload.data[META_KEY]) localStorage.setItem(META_KEY, payload.data[META_KEY]);
+        toast('Backup restored, reloading...', 'success'); setTimeout(() => location.reload(), 800);
+      }, { title: 'Restore Full Backup', yesLabel: 'Restore' });
+    } catch (err) { toast('Could not parse backup file: ' + err.message, 'error'); }
     event.target.value = '';
   };
   reader.readAsText(file);
 }
-
 function updateBackupBanner() {
-  const banner = document.getElementById('backup-banner');
-  const text = document.getElementById('banner-text');
+  const banner = document.getElementById('backup-banner'), text = document.getElementById('banner-text');
   if (!banner || !text) return;
-
   const now = new Date();
-  if (meta.bannerDismissedUntil && new Date(meta.bannerDismissedUntil) > now) {
-    banner.classList.add('hidden');
-    return;
-  }
-
-  if (!db.entries.length) {
-    banner.classList.add('hidden');
-    return;
-  }
-
-  if (!meta.lastBackup) {
-    text.textContent = '⚠ No backup yet — your data is at risk if browser data gets cleared. Export now (takes 2 seconds).';
-    banner.classList.remove('hidden');
-    return;
-  }
-
-  const days = Math.floor((now - new Date(meta.lastBackup)) / (1000 * 60 * 60 * 24));
-  if (days >= 7) {
-    text.textContent = `⚠ Last backup was ${days} days ago. Export a fresh one now.`;
-    banner.classList.remove('hidden');
-  } else {
-    banner.classList.add('hidden');
-  }
+  if (meta.bannerDismissedUntil && new Date(meta.bannerDismissedUntil) > now) { banner.classList.add('hidden'); return; }
+  if (!db.entries.length) { banner.classList.add('hidden'); return; }
+  if (!meta.lastBackup) { text.textContent = '⚠ No backup yet. Your data is at risk if browser data gets cleared.'; banner.classList.remove('hidden'); return; }
+  const days = Math.floor((now - new Date(meta.lastBackup)) / 86400000);
+  if (days >= 7) { text.textContent = '⚠ Last backup was ' + days + ' days ago. Export a fresh one now.'; banner.classList.remove('hidden'); }
+  else banner.classList.add('hidden');
 }
-
-function dismissBanner() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  meta.bannerDismissedUntil = tomorrow.toISOString();
-  saveMeta();
-  updateBackupBanner();
-}
-
+function dismissBanner() { const t = new Date(); t.setDate(t.getDate() + 1); meta.bannerDismissedUntil = t.toISOString(); saveMeta(); updateBackupBanner(); }
 function updateLastBackupInfo() {
-  const el = document.getElementById('last-backup-info');
-  if (!el) return;
-  if (meta.lastBackup) {
-    const d = new Date(meta.lastBackup);
-    const days = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
-    const ago = days === 0 ? 'today' : days === 1 ? 'yesterday' : `${days} days ago`;
-    el.textContent = `Last backup: ${d.toLocaleString()} (${ago})`;
-  } else {
-    el.textContent = 'Last backup: never';
-  }
+  const el = document.getElementById('last-backup-info'); if (!el) return;
+  if (!meta.lastBackup) { el.textContent = 'Last backup: never'; return; }
+  const d = new Date(meta.lastBackup), days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  el.textContent = 'Last backup: ' + d.toLocaleString() + ' (' + (days === 0 ? 'today' : days === 1 ? 'yesterday' : days + ' days ago') + ')';
 }
 
 // ============================================================================
-// CUSTOM CONFIRM (works in sandboxed iframes too)
+// MODALS + TOAST
 // ============================================================================
 function customConfirm(message, onYes, opts = {}) {
   const overlay = document.getElementById('confirm-modal');
   document.getElementById('confirm-title').textContent = opts.title || 'Confirm';
   document.getElementById('confirm-message').textContent = message;
-  const btnYes = document.getElementById('confirm-yes');
-  const btnNo = document.getElementById('confirm-no');
-  const tcWrap = document.getElementById('confirm-typecheck-wrap');
-  const tcInput = document.getElementById('confirm-typecheck');
+  const btnYes = document.getElementById('confirm-yes'), btnNo = document.getElementById('confirm-no');
+  const tcWrap = document.getElementById('confirm-typecheck-wrap'), tcInput = document.getElementById('confirm-typecheck');
   btnYes.textContent = opts.yesLabel || 'Confirm';
-
   const requireType = opts.requireType === true;
   if (requireType) {
-    tcWrap.style.display = 'block';
-    tcInput.value = '';
-    btnYes.disabled = true;
-    btnYes.style.opacity = '0.4';
-    tcInput.oninput = () => {
-      const ok = tcInput.value.trim().toUpperCase() === 'DELETE';
-      btnYes.disabled = !ok;
-      btnYes.style.opacity = ok ? '1' : '0.4';
-    };
-  } else {
-    tcWrap.style.display = 'none';
-    btnYes.disabled = false;
-    btnYes.style.opacity = '1';
-  }
-
-  const cleanup = () => {
-    overlay.classList.remove('show');
-    btnYes.onclick = null;
-    btnNo.onclick = null;
-    tcInput.oninput = null;
-    document.removeEventListener('keydown', escHandler);
-  };
-  const escHandler = (e) => { if (e.key === 'Escape') cleanup(); };
-
+    tcWrap.style.display = 'block'; tcInput.value = ''; btnYes.disabled = true; btnYes.style.opacity = '0.4';
+    tcInput.oninput = () => { const ok = tcInput.value.trim().toUpperCase() === 'DELETE'; btnYes.disabled = !ok; btnYes.style.opacity = ok ? '1' : '0.4'; };
+  } else { tcWrap.style.display = 'none'; btnYes.disabled = false; btnYes.style.opacity = '1'; }
+  const cleanup = () => { overlay.classList.remove('show'); btnYes.onclick = null; btnNo.onclick = null; tcInput.oninput = null; document.removeEventListener('keydown', esc); };
+  const esc = (e) => { if (e.key === 'Escape') cleanup(); };
   btnYes.onclick = () => { if (!btnYes.disabled) { cleanup(); onYes(); } };
   btnNo.onclick = cleanup;
-  document.addEventListener('keydown', escHandler);
+  document.addEventListener('keydown', esc);
   overlay.classList.add('show');
   setTimeout(() => (requireType ? tcInput : btnNo).focus(), 50);
 }
-
 function customPrompt(message, defaultValue, onSubmit, opts = {}) {
   const overlay = document.getElementById('prompt-modal');
   document.getElementById('prompt-title').textContent = opts.title || 'Input';
   document.getElementById('prompt-message').textContent = message;
   const input = document.getElementById('prompt-input');
-  input.value = defaultValue || '';
-  input.placeholder = opts.placeholder || '';
-  const btnOk = document.getElementById('prompt-ok');
-  const btnCancel = document.getElementById('prompt-cancel');
+  input.value = defaultValue || ''; input.placeholder = opts.placeholder || '';
+  const btnOk = document.getElementById('prompt-ok'), btnCancel = document.getElementById('prompt-cancel');
   btnOk.textContent = opts.okLabel || 'OK';
-
-  const cleanup = () => {
-    overlay.classList.remove('show');
-    btnOk.onclick = null;
-    btnCancel.onclick = null;
-    input.onkeydown = null;
-    document.removeEventListener('keydown', escHandler);
-  };
-  const escHandler = (e) => { if (e.key === 'Escape') cleanup(); };
-  const submit = () => {
-    const val = input.value;
-    cleanup();
-    onSubmit(val);
-  };
-
-  btnOk.onclick = submit;
-  btnCancel.onclick = cleanup;
+  const cleanup = () => { overlay.classList.remove('show'); btnOk.onclick = null; btnCancel.onclick = null; input.onkeydown = null; document.removeEventListener('keydown', esc); };
+  const esc = (e) => { if (e.key === 'Escape') cleanup(); };
+  const submit = () => { const v = input.value; cleanup(); onSubmit(v); };
+  btnOk.onclick = submit; btnCancel.onclick = cleanup;
   input.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submit(); } };
-  document.addEventListener('keydown', escHandler);
-
+  document.addEventListener('keydown', esc);
   overlay.classList.add('show');
   setTimeout(() => { input.focus(); input.select(); }, 50);
 }
-
 function clearAllData() {
-  customConfirm(
-    `This permanently deletes ALL ${db.clients.length} client(s), ALL their campaigns, ALL weekly entries, and ALL settings. If you have not exported a backup, this is irreversible.`,
-    () => {
-      localStorage.removeItem(SK);
-      localStorage.removeItem(SK_LEGACY);
-      localStorage.removeItem(META_KEY);
-      location.reload();
-    },
-    { title: 'Clear ALL Data (All Clients)', yesLabel: 'Delete Everything', requireType: true }
-  );
+  customConfirm('This permanently deletes ALL ' + db.clients.length + ' client(s), campaigns, entries and settings.', () => {
+    localStorage.removeItem(SK); localStorage.removeItem(SK_LEGACY); localStorage.removeItem(META_KEY); location.reload();
+  }, { title: 'Clear ALL Data', yesLabel: 'Delete Everything', requireType: true });
 }
-
-// ============================================================================
-// TOAST
-// ============================================================================
 function toast(msg, type = '') {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
+  el.textContent = msg; el.className = 'toast show ' + type;
   setTimeout(() => el.classList.remove('show'), 3500);
 }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 // ============================================================================
 // CLIENT MANAGEMENT
 // ============================================================================
 function switchClient(clientId) {
   if (!db.clients.find(c => c.id === clientId)) return;
-  db.activeClientId = clientId;
-  save();
-  // Re-render everything that depends on active client
-  populateSelects();
-  populateClientSwitcher();
-  onCampChange();
-  renderSettings();
-  // Active tab refresh
-  const activeTab = document.querySelector('.tab.active');
-  if (activeTab) {
-    const tabName = activeTab.textContent.toLowerCase().includes('window') ? 'window' :
-                    activeTab.textContent.toLowerCase().includes('decision') ? 'decision' :
-                    activeTab.textContent.toLowerCase().includes('history') ? 'history' :
-                    activeTab.textContent.toLowerCase().includes('settings') ? 'settings' : 'weekly';
-    showTab(tabName);
-  }
-  toast(`Switched to: ${activeClient().name}`, 'success');
+  db.activeClientId = clientId; save();
+  populateSelects(); populateClientSwitcher(); onCampChange(); renderSettings();
+  const t = document.querySelector('.tab.active');
+  const label = t ? t.textContent.toLowerCase() : '';
+  showTab(label.includes('trend') ? 'trend' : label.includes('decision') ? 'decision' : label.includes('history') ? 'history' : label.includes('settings') ? 'settings' : label.includes('audit') ? 'audit' : 'weekly');
+  toast('Switched to: ' + activeClient().name, 'success');
 }
-
 function populateClientSwitcher() {
-  const sel = document.getElementById('client-switcher');
-  if (!sel) return;
-  sel.innerHTML = db.clients.map(c =>
-    `<option value="${c.id}" ${c.id === db.activeClientId ? 'selected' : ''}>${escapeHtml(c.name)}</option>`
-  ).join('');
+  const sel = document.getElementById('client-switcher'); if (!sel) return;
+  sel.innerHTML = db.clients.map(c => '<option value="' + c.id + '"' + (c.id === db.activeClientId ? ' selected' : '') + '>' + escapeHtml(c.name) + '</option>').join('');
 }
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-}
-
 function quickAddClient() {
   customPrompt('New client name:', '', (name) => {
-    const trimmed = (name || '').trim();
-    if (!trimmed) { toast('Client name cannot be empty', 'error'); return; }
-    if (db.clients.find(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
-      toast('A client with that name already exists', 'error');
-      return;
-    }
-    const newClient = DEFAULT_CLIENT();
-    newClient.name = trimmed;
-    db.clients.push(newClient);
-    db.activeClientId = newClient.id;
-    save();
-    populateClientSwitcher();
-    populateSelects();
-    onCampChange();
-    renderSettings();
-    toast(`Added "${trimmed}" — now active`, 'success');
+    const t = (name || '').trim();
+    if (!t) { toast('Client name cannot be empty', 'error'); return; }
+    if (db.clients.find(c => c.name.toLowerCase() === t.toLowerCase())) { toast('A client with that name already exists', 'error'); return; }
+    const nc = DEFAULT_CLIENT(); nc.name = t;
+    db.clients.push(nc); db.activeClientId = nc.id; save();
+    populateClientSwitcher(); populateSelects(); onCampChange(); renderSettings();
+    toast('Added "' + t + '" is now active', 'success');
   }, { title: 'Add New Client', placeholder: 'e.g. Abolox', okLabel: 'Add Client' });
 }
-
 function renameActiveClient() {
   const c = activeClient();
-  customPrompt('Rename client:', c.name, (newName) => {
-    const trimmed = (newName || '').trim();
-    if (!trimmed) { toast('Name cannot be empty', 'error'); return; }
-    if (db.clients.find(x => x.id !== c.id && x.name.toLowerCase() === trimmed.toLowerCase())) {
-      toast('Another client already has that name', 'error');
-      return;
-    }
-    c.name = trimmed;
-    save();
-    populateClientSwitcher();
-    renderSettings();
-    toast('Renamed to ' + trimmed, 'success');
+  customPrompt('Rename client:', c.name, (n) => {
+    const t = (n || '').trim();
+    if (!t) { toast('Name cannot be empty', 'error'); return; }
+    if (db.clients.find(x => x.id !== c.id && x.name.toLowerCase() === t.toLowerCase())) { toast('Another client already has that name', 'error'); return; }
+    c.name = t; save(); populateClientSwitcher(); renderSettings(); toast('Renamed to ' + t, 'success');
   }, { title: 'Rename Client', okLabel: 'Rename' });
 }
-
 function deleteActiveClient() {
-  if (db.clients.length <= 1) {
-    toast('Cannot delete the only client. Add another first.', 'error');
-    return;
-  }
+  if (db.clients.length <= 1) { toast('Cannot delete the only client', 'error'); return; }
   const c = activeClient();
-  customConfirm(
-    `Permanently delete client "${c.name}" and ALL its campaigns + entries? Other clients are not affected. This cannot be undone unless you have a backup.`,
-    () => {
-      db.clients = db.clients.filter(x => x.id !== c.id);
-      db.activeClientId = db.clients[0].id;
-      save();
-      populateClientSwitcher();
-      populateSelects();
-      onCampChange();
-      renderSettings();
-      toast(`Deleted "${c.name}" — switched to ${activeClient().name}`, 'success');
-    },
-    { title: 'Delete Client', yesLabel: 'Delete Client', requireType: true }
-  );
+  customConfirm('Permanently delete client "' + c.name + '" and ALL its campaigns and entries?', () => {
+    db.clients = db.clients.filter(x => x.id !== c.id);
+    db.activeClientId = db.clients[0].id; save();
+    populateClientSwitcher(); populateSelects(); onCampChange(); renderSettings();
+    toast('Deleted "' + c.name + '"', 'success');
+  }, { title: 'Delete Client', yesLabel: 'Delete Client', requireType: true });
 }
 
 // ============================================================================
-// CORE LOGIC (unchanged from v5)
+// CORE ENGINE: two-track. Revenue is the only stored truth; ROAS is derived.
+//   PPC ROAS  = ppcRev / spend   judged against the week's PPC target
+//   Overall   = totRev / spend   judged against break-even (1 / gross margin)
+// No cumulative anything. No marginal ROAS.
 // ============================================================================
-function cfg() { return db.settings; }
 function getCamp(id) { return db.campaigns.find(c => c.id === id) || db.campaigns[0]; }
-function campPRT(c) { return c.gm > 0 ? 1 / c.gm : 0; }
-function campEffTarget(c) { return Math.max(c.targetROAS, campPRT(c)); }
+function breakEven(c) { return c.gm > 0 ? 1 / c.gm : 0; }
+function ppcRoasOf(e) { return e.spend > 0 ? e.ppcRev / e.spend : 0; }
+function merOf(e) { return e.spend > 0 ? e.totRev / e.spend : 0; }
+function ppcTgtOf(e, c) { return e.tROAS || c.targetROAS; }
+function fmt$(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtR(n) { return (+n).toFixed(2) + '×'; }
+function pct(n) { return (n >= 0 ? '+' : '') + n.toFixed(1) + '%'; }
 
-function getZone(o, t) {
-  if (o >= t * 1.2) return { zone: 'GREEN', action: 'Scale +' + cfg().scalePct + '%', cls: 'bg' };
-  if (o >= t * 0.9) return { zone: 'YELLOW', action: 'Hold spend, optimize', cls: 'by' };
-  return { zone: 'RED', action: 'Freeze + cut worst 20%', cls: 'br' };
+function dirOf(cur, prev, thr) {
+  if (prev === null || prev === undefined || prev <= 0) return 'NEW';
+  const ch = (cur - prev) / prev * 100;
+  if (ch >= thr) return 'UP';
+  if (ch <= -thr) return 'DOWN';
+  return 'FLAT';
+}
+function dirArrow(d) { return d === 'UP' ? '↑' : d === 'DOWN' ? '↓' : d === 'FLAT' ? '→' : '·'; }
+function dirCls(d) { return d === 'UP' ? 'dir-up' : d === 'DOWN' ? 'dir-down' : 'dir-flat'; }
+
+const STATES = {
+  SCALE:     { label: 'SCALE',              cls: 'bg', tone: 'g' },
+  SCALE_TEST:{ label: 'SCALE (TEST)',       cls: 'bg', tone: 'g' },
+  HOLD:      { label: 'HOLD',               cls: 'by', tone: 'y' },
+  HOLD_INV:  { label: 'HOLD + INVESTIGATE', cls: 'by', tone: 'y' },
+  WATCH:     { label: 'WATCH',              cls: 'bb', tone: 'b' },
+  CLEARED:   { label: 'CLEARED / FIX ATTRIBUTION', cls: 'bg', tone: 'g' },
+  REDUCE:    { label: 'REDUCE',             cls: 'br', tone: 'r' },
+  DEMAND:    { label: 'DEMAND PROBLEM',     cls: 'br', tone: 'r' },
+  CUT:       { label: 'CUT',                cls: 'br', tone: 'r' }
+};
+
+// The whole decision. Order matters: first match wins.
+function resolveState(x) {
+  if (!x.merOk && !x.ppcOk)
+    return { code: 'CUT', note: 'Overall ROAS is below break-even and PPC is under target. Spend is not paying for itself on either measure.' };
+  if (!x.merOk && x.ppcOk)
+    return { code: 'DEMAND', note: 'PPC is hitting target but overall ROAS is below break-even. Paid is working; non-paid revenue is the problem. Cutting ads makes this worse.' };
+  if (x.merOk && !x.ppcOk) {
+    if (x.merDownStreak >= 2)
+      return { code: 'REDUCE', note: 'PPC under target and overall ROAS has fallen ' + x.merDownStreak + ' weeks running. The cushion is going.' };
+    if (x.watch >= WATCH_LIMIT) {
+      if (x.dm === 'DOWN')
+        return { code: 'REDUCE', note: 'Week ' + x.watch + ' of weak PPC and overall ROAS is now turning down. Patience is spent.' };
+      return { code: 'CLEARED', note: 'PPC has been under target ' + x.watch + ' weeks while overall ROAS held above break-even. Paid is almost certainly under-credited. Fix attribution or reset the PPC target to a number that reflects reality.' };
+    }
+    return { code: 'WATCH', note: 'PPC is under target but overall ROAS is holding above break-even. This is the case you do not panic on. Hold spend.' };
+  }
+  if (x.upStreak >= 2)
+    return { code: 'SCALE', note: 'PPC and overall ROAS are both above target and both up ' + x.upStreak + ' weeks running. This is the trend you scale into.' };
+  if (x.dp === 'UP' && x.dm === 'UP')
+    return { code: 'SCALE_TEST', note: 'Both above target and both up, but only one week. Test a small increase and confirm next week.' };
+  if (x.dp === 'DOWN' || x.dm === 'DOWN')
+    return { code: 'HOLD_INV', note: 'Still above target on both, but something is sliding. Find the driver before changing spend.' };
+  return { code: 'HOLD', note: 'Both above target and steady. Nothing here says add risk.' };
 }
 
-function getMargROAS(entries) {
+// Walks the series in order and carries the streak and watch counters forward.
+function analyzeSeries(entries, camp) {
+  const thr = cfg().dirThresh, be = breakEven(camp);
+  let upStreak = 0, merDownStreak = 0, watch = 0;
   return entries.map((e, i) => {
-    if (i === 0) return null;
-    const dS = e.spend - entries[i - 1].spend;
-    const dR = e.totRev - entries[i - 1].totRev;
-    const pct = entries[i - 1].spend > 0 ? Math.abs(dS) / entries[i - 1].spend * 100 : 0;
-    if (pct < cfg().margMinPct) return null;
-    return dS !== 0 ? dR / dS : null;
+    const p = ppcRoasOf(e), m = merOf(e), pt = ppcTgtOf(e, camp);
+    const prev = i > 0 ? entries[i - 1] : null;
+    const dp = dirOf(p, prev ? ppcRoasOf(prev) : null, thr);
+    const dm = dirOf(m, prev ? merOf(prev) : null, thr);
+    const ppcOk = p >= pt, merOk = m >= be;
+    if (dp === 'UP' && dm === 'UP') upStreak++; else upStreak = 0;
+    if (dm === 'DOWN') merDownStreak++; else merDownStreak = 0;
+    if (merOk && !ppcOk) watch++; else watch = 0;
+    const ctx = { ppcOk, merOk, dp, dm, upStreak, watch, merDownStreak };
+    return Object.assign({ e, ppc: p, mer: m, pt, be, dp, dm, ppcOk, merOk, upStreak, watch, merDownStreak, st: resolveState(ctx) });
   });
 }
 
-function margZoneFromVal(m) {
-  const th = cfg().margThresh;
-  if (m === null) return { label: 'Insufficient spend change', cls: 'bb', status: 'N/A', override: null };
-  if (m > th) return { label: 'Scale +' + cfg().scalePct + '%', cls: 'bg', status: 'Optimal', override: null };
-  if (m >= 2.5) return { label: 'HOLD', cls: 'by', status: 'Diminishing', override: null };
-  if (m >= 1.0) return { label: 'REDUCE', cls: 'by', status: 'Dangerous', override: 'REDUCE' };
-  return { label: 'CUT -' + cfg().cutPct + '%', cls: 'br', status: 'Toxic', override: 'CUT' };
+function actionsFor(row) {
+  const s = cfg(), code = row.st.code, lastSpend = row.e.spend, pt = row.pt;
+  let bTo = lastSpend, bDir = 'hold', bTxt = 'Hold spend', tTo = pt, tDir = 'hold', tTxt = 'Hold PPC target at ' + fmtR(pt);
+  if (code === 'SCALE') { bTo = lastSpend * (1 + s.scalePct / 100); bDir = 'up'; bTxt = 'Increase spend ' + s.scalePct + '%'; }
+  else if (code === 'SCALE_TEST') { bTo = lastSpend * (1 + s.scalePct / 200); bDir = 'up'; bTxt = 'Test increase ' + (s.scalePct / 2).toFixed(0) + '%'; }
+  else if (code === 'HOLD_INV') { bTxt = 'Hold spend, identify the driver first'; }
+  else if (code === 'WATCH') { bTxt = 'Hold spend, week ' + row.watch + ' of ' + WATCH_LIMIT; }
+  else if (code === 'CLEARED') { bTxt = 'Hold spend. The PPC target is the thing to change, not the budget'; tTxt = 'Review PPC target of ' + fmtR(pt) + ' against real attribution'; }
+  else if (code === 'DEMAND') { bTxt = 'Hold ad spend. The problem is not paid'; }
+  else if (code === 'REDUCE') { bTo = lastSpend * (1 - s.cutPct / 200); bDir = 'down'; bTxt = 'Reduce spend ' + (s.cutPct / 2).toFixed(0) + '%'; tTo = pt + s.roasStep; tDir = 'up'; tTxt = 'Raise PPC target ' + s.roasStep + '×'; }
+  else if (code === 'CUT') { bTo = lastSpend * (1 - s.cutPct / 100); bDir = 'down'; bTxt = 'Cut spend ' + s.cutPct + '%'; tTo = pt + s.roasStep; tDir = 'up'; tTxt = 'Raise PPC target ' + s.roasStep + '×'; }
+  return { bTxt, bFrom: lastSpend, bTo, bDir, tTxt, tFrom: pt, tTo, tDir };
 }
 
-function calcBaseDecision(e4w, camp) {
-  const last = e4w[e4w.length - 1];
-  const tROAS = last.tROAS || camp.targetROAS;
-  const prt = campPRT(camp);
-  const et = campEffTarget(camp);
-  const ra = e4w.map(e => e.spend > 0 ? e.totRev / e.spend : 0);
-  const n = ra.length;
-  const w1 = ra[0];
-  const wN = ra[n - 1];
-  const totSpend = e4w.reduce((a, e) => a + e.spend, 0);
-  const blended = totSpend > 0 ? e4w.reduce((a, e) => a + e.totRev, 0) / totSpend : 0;
-  const trend = w1 > 0 ? (wN - w1) / w1 : 0;
-  const mean = ra.reduce((a, b) => a + b, 0) / n;
-  const std = Math.sqrt(ra.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n);
-  const stability = std <= 0.15 * mean ? 'STABLE' : std <= 0.3 * mean ? 'VOLATILE' : 'UNSTABLE';
-  const trendSt = trend >= 0.1 ? 'IMPROVING' : trend <= -0.1 ? 'DECLINING' : 'FLAT';
-  const levelSt = blended >= et * 1.1 ? 'STRONG' : blended >= et ? 'ACCEPTABLE' : blended >= et * 0.9 ? 'WEAK' : 'FAIL';
-  let dec = 'HOLD';
-  if (blended < prt || levelSt === 'FAIL') dec = 'CUT';
-  else if (levelSt === 'WEAK') dec = 'REDUCE';
-  else if (levelSt === 'ACCEPTABLE') dec = trendSt === 'DECLINING' ? 'REDUCE' : 'HOLD';
-  else if (levelSt === 'STRONG') {
-    if (trendSt === 'IMPROVING') dec = stability === 'STABLE' ? 'SCALE (FULL)' : stability === 'VOLATILE' ? 'SCALE (LIMITED)' : 'MICRO-SCALE';
-    else if (trendSt === 'DECLINING') dec = stability === 'STABLE' ? 'INVESTIGATE' : 'HOLD';
-    else dec = 'HOLD';
-  }
-  return { dec, levelSt, trendSt, stability, blended, trend: (trend * 100).toFixed(1), std: std.toFixed(3), et, prt, tROAS };
+// Answers "what will the tool tell me next week". Each row states the condition
+// explicitly and runs it through the same resolveState, so nothing is guessed.
+function previewNext(cur) {
+  const n = cur.watch, up = cur.upStreak, md = cur.merDownStreak;
+  const mk = (cond, x) => ({ cond, watch: x.watch, st: resolveState(x) });
+  return [
+    mk('Both above target, both up again', { ppcOk: 1, merOk: 1, dp: 'UP', dm: 'UP', upStreak: up + 1, watch: 0, merDownStreak: 0 }),
+    mk('Both above target, roughly flat', { ppcOk: 1, merOk: 1, dp: 'FLAT', dm: 'FLAT', upStreak: 0, watch: 0, merDownStreak: 0 }),
+    mk('Both above target, one of them slipping', { ppcOk: 1, merOk: 1, dp: 'DOWN', dm: 'FLAT', upStreak: 0, watch: 0, merDownStreak: 0 }),
+    mk('PPC slips under target, overall holds above break-even', { ppcOk: 0, merOk: 1, dp: 'DOWN', dm: 'FLAT', upStreak: 0, watch: n + 1, merDownStreak: 0 }),
+    mk('PPC under target and overall turns down too', { ppcOk: 0, merOk: 1, dp: 'DOWN', dm: 'DOWN', upStreak: 0, watch: n + 1, merDownStreak: md + 1 }),
+    mk('Overall falls below break-even, PPC still under target', { ppcOk: 0, merOk: 0, dp: 'DOWN', dm: 'DOWN', upStreak: 0, watch: 0, merDownStreak: md + 1 }),
+    mk('Overall falls below break-even but PPC is on target', { ppcOk: 1, merOk: 0, dp: 'FLAT', dm: 'DOWN', upStreak: 0, watch: 0, merDownStreak: md + 1 })
+  ];
 }
 
-function getSignalDrivers(base, mz) {
-  const d = [];
-  if (mz.override) d.push({ signal: 'Marginal ROAS', value: mz.status, severity: 'override', reason: 'mROAS is ' + mz.status + '. Extra spend is destroying value. Overrides blended signal.' });
-  if (base.trendSt === 'DECLINING') d.push({ signal: 'Trend', value: 'Declining ' + base.trend + '%', severity: 'warning', reason: 'Performance getting worse week over week vs Week 1.' });
-  if (base.stability === 'VOLATILE') d.push({ signal: 'Stability', value: 'Volatile', severity: 'warning', reason: 'High week-to-week variance — signal noisy, scaling risky.' });
-  if (base.stability === 'UNSTABLE') d.push({ signal: 'Stability', value: 'Unstable', severity: 'override', reason: 'Extreme variance. No scaling until signal stabilizes.' });
-  if (base.levelSt === 'WEAK' || base.levelSt === 'FAIL') d.push({ signal: 'Level', value: base.levelSt, severity: 'override', reason: '4W blended ROAS below effective target. Margin at risk.' });
-  return d;
-}
-
-function getFinalDecision(base, mz) {
-  const mo = mz.override;
-  const hasConflict = mo && !['CUT', 'REDUCE'].includes(base.dec);
-  let finalDec = base.dec;
-  if (mo === 'CUT') finalDec = 'CUT';
-  else if (mo === 'REDUCE' && base.dec !== 'CUT') finalDec = 'REDUCE';
-  return { finalDec, hasConflict, baseDec: base.dec, mOverride: mo };
-}
-
-const RAT = {
-  'SCALE (FULL)': 'Level STRONG, trend IMPROVING, stability STABLE. Scale aggressively.',
-  'SCALE (LIMITED)': 'Level STRONG, trend IMPROVING, but VOLATILE. Scale with a cap.',
-  'MICRO-SCALE': 'Level STRONG, trend IMPROVING, but UNSTABLE. Small test increases only.',
-  'INVESTIGATE': 'Level STRONG but trend DECLINING. Find the driver before touching spend.',
-  'HOLD': 'Performance meets requirements but no signal to increase risk. Maintain and optimize.',
-  'REDUCE': 'ROAS near/below effective target or marginal spend destroying value. Reduce exposure.',
-  'CUT': '4W ROAS below profitability gate OR marginal ROAS is toxic. Stop the bleeding immediately.'
-};
-
-function getBudgetRoasAction(fd, tROAS, lastSpend) {
-  const step = cfg().roasStep;
-  const sp = cfg().scalePct / 100;
-  const cp = cfg().cutPct / 100;
-  let ba = '', bTo = lastSpend, bDir = 'hold', ra = '', rTo = tROAS, rDir = 'hold';
-  if (['SCALE (FULL)', 'SCALE (LIMITED)', 'MICRO-SCALE'].includes(fd)) {
-    bTo = lastSpend * (1 + sp); bDir = 'up';
-    ba = 'Increase spend by ' + cfg().scalePct + '%';
-    ra = 'Hold target ROAS at ' + tROAS.toFixed(2) + '×';
-  } else if (fd === 'INVESTIGATE' || fd === 'HOLD') {
-    ba = fd === 'INVESTIGATE' ? 'Hold spend — identify driver first' : 'Maintain current spend';
-    ra = 'Hold target ROAS at ' + tROAS.toFixed(2) + '×';
-  } else if (fd === 'REDUCE') {
-    bTo = lastSpend * (1 - cp / 2); bDir = 'down';
-    rTo = tROAS + step; rDir = 'up';
-    ba = 'Reduce spend by ' + (cfg().cutPct / 2).toFixed(0) + '%';
-    ra = 'Raise target ROAS by ' + step + '×';
-  } else if (fd === 'CUT') {
-    bTo = lastSpend * (1 - cp); bDir = 'down';
-    rTo = tROAS + step; rDir = 'up';
-    ba = 'Cut spend by ' + cfg().cutPct + '%';
-    ra = 'Raise target ROAS by ' + step + '×';
-  }
-  return { budgetAction: ba, budgetFrom: lastSpend, budgetTo: bTo, budgetDir: bDir, roasAction: ra, roasFrom: tROAS, roasTo: rTo, roasDir: rDir };
-}
-
-function decCls(d) {
-  if (['SCALE (FULL)', 'SCALE (LIMITED)', 'MICRO-SCALE'].includes(d)) return 'g';
-  if (['HOLD', 'INVESTIGATE'].includes(d)) return 'y';
-  return 'r';
-}
-function fmt$(n) { return '$' + Math.round(n).toLocaleString(); }
-function fmtR(n) { return (+n).toFixed(2) + '×'; }
-
-function getDecWindow(campId, endDate) {
+function sliceFor(campId, weeks) {
   const all = db.entries.filter(e => e.campId === campId);
-  if (!endDate || !all.length) return all.slice(-4);
-  const idx = all.findIndex(e => e.date === endDate);
-  if (idx < 0) return all.slice(-4);
-  const start = Math.max(0, idx - 3);
-  return all.slice(start, idx + 1);
-}
-
-function populateDecWindow() {
-  const campId = document.getElementById('dec-camp').value;
-  const entries = db.entries.filter(e => e.campId === campId);
-  const sel = document.getElementById('dec-end');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Most recent 4 weeks</option>' +
-    entries.map(e => `<option value="${e.date}">${e.date}</option>`).join('');
-  if (cur && entries.find(e => e.date === cur)) sel.value = cur;
-  renderDecision();
+  return (!weeks || weeks <= 0) ? all : all.slice(-weeks);
 }
 
 // ============================================================================
@@ -1146,1069 +844,739 @@ function populateDecWindow() {
 // ============================================================================
 function populateSelects() {
   ['w-camp', 'win-camp', 'dec-camp', 'hist-camp'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
+    const el = document.getElementById(id); if (!el) return;
     const cur = el.value;
-    el.innerHTML = db.campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    el.innerHTML = db.campaigns.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join('');
     if (cur && db.campaigns.find(c => c.id === cur)) el.value = cur;
   });
 }
-
 function showTab(t) {
-  ['weekly', 'window', 'decision', 'history', 'audit', 'settings'].forEach(x => {
-    const el = document.getElementById('tab-' + x);
-    if (el) el.style.display = x === t ? 'block' : 'none';
+  ['weekly', 'trend', 'decision', 'history', 'audit', 'settings'].forEach(x => {
+    const el = document.getElementById('tab-' + x); if (el) el.style.display = x === t ? 'block' : 'none';
   });
-  document.querySelectorAll('.tab').forEach((b, i) => {
-    b.classList.toggle('active', ['weekly', 'window', 'decision', 'history', 'audit', 'settings'][i] === t);
-  });
+  document.querySelectorAll('.tab').forEach((b, i) => b.classList.toggle('active', ['weekly', 'trend', 'decision', 'history', 'audit', 'settings'][i] === t));
   populateSelects();
-  if (t === 'window') renderWindow();
-  if (t === 'decision') { populateDecWindow(); }
+  if (t === 'trend') renderTrend();
+  if (t === 'decision') populateDecWindow();
   if (t === 'history') renderHistory();
   if (t === 'audit') { populateAuditClientSwitcher(); updateCostPreview(); }
   if (t === 'settings') { renderSettings(); updateLastBackupInfo(); loadAiSettingsToUi(); updateAiSpendInfo(); loadCloudSettingsToUi(); }
 }
-
 function onCampChange() {
-  const c = getCamp(document.getElementById('w-camp').value);
-  if (!c) return;
+  const c = getCamp(document.getElementById('w-camp').value); if (!c) return;
   document.getElementById('w-troas').value = c.targetROAS;
-  document.getElementById('w-camp-info').innerHTML = `<div class="hint">Gross margin: <strong>${(c.gm * 100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${campPRT(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${campEffTarget(c).toFixed(2)}×</strong> &nbsp;·&nbsp; Default target ROAS: <strong>${c.targetROAS}×</strong></div>`;
+  document.getElementById('w-camp-info').innerHTML = '<div class="hint">Gross margin <strong>' + (c.gm * 100).toFixed(1) + '%</strong> &nbsp;·&nbsp; Overall ROAS break-even <strong>' + fmtR(breakEven(c)) + '</strong> (1 / gross margin) &nbsp;·&nbsp; PPC ROAS target <strong>' + fmtR(c.targetROAS) + '</strong></div>';
   calcWeekly();
 }
-
-function toggleNewCamp() {
-  const b = document.getElementById('new-camp-box');
-  b.style.display = b.style.display === 'none' ? 'block' : 'none';
-}
-
+function toggleNewCamp() { const b = document.getElementById('new-camp-box'); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
 function addCamp() {
   const name = document.getElementById('nc-name').value.trim();
   const roas = parseFloat(document.getElementById('nc-roas').value) || 3.25;
   const gm = parseFloat(document.getElementById('nc-gm').value) / 100 || 0.235;
   if (!name) { toast('Campaign name required', 'error'); return; }
   db.campaigns.push({ id: 'c' + Date.now(), name, targetROAS: roas, gm });
-  save();
-  populateSelects();
-  toggleNewCamp();
-  document.getElementById('nc-name').value = '';
-  document.getElementById('nc-roas').value = '';
-  document.getElementById('nc-gm').value = '';
+  save(); populateSelects(); toggleNewCamp();
+  ['nc-name', 'nc-roas', 'nc-gm'].forEach(id => document.getElementById(id).value = '');
   toast('Campaign added', 'success');
 }
 
+// Live preview on the entry screen. Runs the real engine against real history.
 function calcWeekly() {
-  const tROAS = parseFloat(document.getElementById('w-troas').value);
-  const ppcR = parseFloat(document.getElementById('w-ppcr').value);
-  const ovrR = parseFloat(document.getElementById('w-ovr').value);
-  if (!ovrR || !tROAS) { document.getElementById('week-zone-row').style.display = 'none'; return; }
-  const z = getZone(ovrR, tROAS);
-  document.getElementById('wz-zone').innerHTML = `<span class="badge ${z.cls}">${z.zone}</span>`;
-  document.getElementById('wz-rank').textContent = (ovrR / tROAS).toFixed(2) + '×';
-  document.getElementById('wz-action').textContent = z.action;
-  document.getElementById('wz-ppc').innerHTML = ppcR ? `<span class="badge ${ppcR >= tROAS ? 'bg' : 'br'}">${ppcR >= tROAS ? 'Above' : 'Below'} Target</span>` : '—';
-  document.getElementById('week-zone-row').style.display = 'block';
+  const campId = document.getElementById('w-camp').value, camp = getCamp(campId);
+  const box = document.getElementById('week-live');
+  const date = document.getElementById('w-date').value;
+  const spend = parseFloat(document.getElementById('w-spend').value) || 0;
+  const ppcRev = parseFloat(document.getElementById('w-ppcrev').value) || 0;
+  const totRev = parseFloat(document.getElementById('w-totrev').value) || 0;
+  const pt = parseFloat(document.getElementById('w-troas').value) || camp.targetROAS;
+  if (!camp || !spend || !date) { box.style.display = 'none'; return; }
+  const draft = { id: 'draft', campId, date, tROAS: pt, spend, ppcRev, totRev };
+  const prior = db.entries.filter(e => e.campId === campId && e.date < date);
+  const rows = analyzeSeries(prior.concat([draft]), camp);
+  const r = rows[rows.length - 1];
+  const be = breakEven(camp);
+  box.innerHTML = '<div class="g5">' +
+    card('PPC ROAS', fmtR(r.ppc), r.ppcOk ? 'sig-ok' : 'sig-bad', (r.ppcOk ? 'At or above' : 'Below') + ' target ' + fmtR(r.pt), r.ppcOk ? 'var(--green)' : 'var(--red)') +
+    card('Overall ROAS', fmtR(r.mer), r.merOk ? 'sig-ok' : 'sig-bad', (r.merOk ? 'Above' : 'Below') + ' break-even ' + fmtR(be), r.merOk ? 'var(--green)' : 'var(--red)') +
+    card('PPC Direction', dirArrow(r.dp) + ' ' + r.dp, 'signal-card', prior.length ? 'vs prior week' : 'no prior week', 'var(--text)') +
+    card('Overall Direction', dirArrow(r.dm) + ' ' + r.dm, 'signal-card', prior.length ? 'vs prior week' : 'no prior week', 'var(--text)') +
+    card('This Week Says', STATES[r.st.code].label + (r.st.code === 'WATCH' ? ' ' + r.watch + '/' + WATCH_LIMIT : ''), 'sig-' + (r.st.tone === 'g' ? 'ok' : r.st.tone === 'r' ? 'bad' : r.st.tone === 'b' ? 'watch' : 'warn'), '', 'var(--text)') +
+    '</div>';
+  box.style.display = 'block';
+}
+function card(label, val, cls, sub, color) {
+  return '<div class="signal-card ' + cls + '"><div class="signal-label">' + label + '</div><div class="signal-val" style="color:' + color + ';font-size:16px">' + val + '</div>' + (sub ? '<div style="font-size:10px;color:var(--text3);font-family:\'IBM Plex Mono\',monospace">' + sub + '</div>' : '') + '</div>';
 }
 
 function saveWeek() {
   const campId = document.getElementById('w-camp').value;
   const date = document.getElementById('w-date').value;
   const tROAS = parseFloat(document.getElementById('w-troas').value) || getCamp(campId).targetROAS;
-  const ppcR = parseFloat(document.getElementById('w-ppcr').value) || 0;
-  const ovrR = parseFloat(document.getElementById('w-ovr').value) || 0;
   const spend = parseFloat(document.getElementById('w-spend').value) || 0;
   const ppcRev = parseFloat(document.getElementById('w-ppcrev').value) || 0;
   const totRev = parseFloat(document.getElementById('w-totrev').value) || 0;
   const msg = document.getElementById('w-msg');
-  if (!date || !spend) { msg.className = 'err'; msg.textContent = 'Date and spend required.'; return; }
-  db.entries.push({ id: 'e' + Date.now(), campId, date, tROAS, ppcR, ovrR, spend, ppcRev, totRev });
+  if (!date || !spend) { msg.className = 'err'; msg.textContent = 'Week and spend are required.'; return; }
+  if (totRev && ppcRev > totRev) { msg.className = 'err'; msg.textContent = 'PPC revenue cannot exceed total revenue.'; return; }
+  const existing = db.entries.find(e => e.campId === campId && e.date === date);
+  if (existing) {
+    customConfirm('A week of ' + date + ' already exists for this campaign. Overwrite it?', () => {
+      Object.assign(existing, { tROAS, spend, ppcRev, totRev });
+      save(); afterSave(msg, 'Week updated.');
+    }, { title: 'Overwrite Week', yesLabel: 'Overwrite' });
+    return;
+  }
+  db.entries.push({ id: 'e' + Date.now(), campId, date, tROAS, spend, ppcRev, totRev });
   db.entries.sort((a, b) => a.date.localeCompare(b.date));
-  save();
-  msg.className = 'msg';
-  msg.textContent = 'Saved.';
+  save(); afterSave(msg, 'Saved.');
+}
+function afterSave(msg, text) {
+  msg.className = 'msg'; msg.textContent = text;
   setTimeout(() => msg.textContent = '', 2500);
-  ['w-ppcr', 'w-ovr', 'w-spend', 'w-ppcrev', 'w-totrev'].forEach(id => document.getElementById(id).value = '');
+  ['w-spend', 'w-ppcrev', 'w-totrev'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('week-live').style.display = 'none';
   updateBackupBanner();
 }
 
-function renderWindow() {
-  const campId = document.getElementById('win-camp').value;
-  const entries = db.entries.filter(e => e.campId === campId).slice(-4);
-  if (!entries.length) {
-    document.getElementById('win-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No data yet. Add entries on the Weekly Entry tab.</p>';
-    return;
-  }
-  const marg = getMargROAS(entries);
-  let cumS = 0, cumP = 0, cumT = 0;
-  const rows = entries.map((e, i) => {
-    cumS += e.spend; cumP += e.ppcRev; cumT += e.totRev;
-    const pR = cumS > 0 ? cumP / cumS : 0;
-    const tR = cumS > 0 ? cumT / cumS : 0;
-    const m = marg[i];
-    const mz = margZoneFromVal(m);
-    return `<tr><td>${i + 1}W</td><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmt$(e.spend)}</td><td>${fmt$(cumS)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(cumP)}</td><td>${fmt$(e.totRev)}</td><td>${fmt$(cumT)}</td><td>${fmtR(pR)}</td><td>${fmtR(tR)}</td><td>${m !== null ? fmtR(m) : '—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><span class="badge ${mz.cls}">${mz.label}</span></td></tr>`;
+// ============================================================================
+// RENDERERS
+// ============================================================================
+function renderTrend() {
+  const campId = document.getElementById('win-camp').value, camp = getCamp(campId);
+  const weeks = parseInt(document.getElementById('win-weeks').value, 10);
+  const all = db.entries.filter(e => e.campId === campId);
+  if (!all.length) { document.getElementById('win-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No data yet. Add weeks on the Weekly Entry tab.</p>'; return; }
+  const rowsAll = analyzeSeries(all, camp);
+  const rows = (!weeks || weeks <= 0) ? rowsAll : rowsAll.slice(-weeks);
+  const be = breakEven(camp);
+  const tSpend = rows.reduce((a, r) => a + r.e.spend, 0);
+  const tPpc = rows.reduce((a, r) => a + r.e.ppcRev, 0);
+  const tTot = rows.reduce((a, r) => a + r.e.totRev, 0);
+  const body = rows.map(r => {
+    const s = STATES[r.st.code];
+    return '<tr><td>' + r.e.date + '</td><td>' + fmt$(r.e.spend) + '</td><td>' + fmt$(r.e.ppcRev) + '</td>' +
+      '<td style="color:' + (r.ppcOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(r.ppc) + '</td>' +
+      '<td>' + fmtR(r.pt) + '</td><td class="' + dirCls(r.dp) + '">' + dirArrow(r.dp) + '</td>' +
+      '<td>' + fmt$(r.e.totRev) + '</td>' +
+      '<td style="color:' + (r.merOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(r.mer) + '</td>' +
+      '<td>' + fmtR(be) + '</td><td class="' + dirCls(r.dm) + '">' + dirArrow(r.dm) + '</td>' +
+      '<td><span class="badge ' + s.cls + '">' + s.label + (r.st.code === 'WATCH' ? ' ' + r.watch + '/' + WATCH_LIMIT : '') + '</span></td></tr>';
   }).join('');
-  document.getElementById('win-content').innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Win</th><th>Date</th><th>Tgt ROAS</th><th>Wk Spend</th><th>Cum Spend</th><th>Wk PPC Rev</th><th>Cum PPC Rev</th><th>Wk Tot Rev</th><th>Cum Tot Rev</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Marg ROAS</th><th>mROAS Status</th><th>mROAS Action</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('win-content').innerHTML =
+    '<div class="hint">Every row is <strong>that week only</strong>. Nothing on this table is cumulative. The totals row at the bottom is the blended period figure and is labelled as such.</div>' +
+    '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Week Of</th><th>Spend</th><th>PPC Rev</th><th>PPC ROAS</th><th>PPC Target</th><th>Dir</th><th>Total Rev</th><th>Overall ROAS</th><th>Break-even</th><th>Dir</th><th>State</th></tr></thead>' +
+    '<tbody>' + body + '</tbody>' +
+    '<tfoot><tr><td>PERIOD TOTAL (blended)</td><td>' + fmt$(tSpend) + '</td><td>' + fmt$(tPpc) + '</td><td>' + fmtR(tSpend > 0 ? tPpc / tSpend : 0) + '</td><td>-</td><td>-</td><td>' + fmt$(tTot) + '</td><td>' + fmtR(tSpend > 0 ? tTot / tSpend : 0) + '</td><td>' + fmtR(be) + '</td><td>-</td><td>' + rows.length + ' weeks</td></tr></tfoot></table></div>';
 }
 
+function getDecRow(campId, endDate) {
+  const camp = getCamp(campId);
+  const all = db.entries.filter(e => e.campId === campId);
+  if (!all.length) return null;
+  const rows = analyzeSeries(all, camp);
+  if (!endDate) return { row: rows[rows.length - 1], rows, camp };
+  const idx = rows.findIndex(r => r.e.date === endDate);
+  return idx < 0 ? { row: rows[rows.length - 1], rows, camp } : { row: rows[idx], rows: rows.slice(0, idx + 1), camp };
+}
+function populateDecWindow() {
+  const campId = document.getElementById('dec-camp').value;
+  const entries = db.entries.filter(e => e.campId === campId);
+  const sel = document.getElementById('dec-end'), cur = sel.value;
+  sel.innerHTML = '<option value="">Most recent week</option>' + entries.slice().reverse().map(e => '<option value="' + e.date + '">' + e.date + '</option>').join('');
+  if (cur && entries.find(e => e.date === cur)) sel.value = cur;
+  renderDecision();
+}
 function renderDecision() {
   const campId = document.getElementById('dec-camp').value;
-  const camp = getCamp(campId);
   const endDate = document.getElementById('dec-end') ? document.getElementById('dec-end').value : '';
-  const entries = getDecWindow(campId, endDate);
-  if (entries.length < 2) {
-    document.getElementById('dec-content').innerHTML = '<div class="card"><p style="color:var(--text3);font-size:13px">Need at least 2 weeks of data.</p></div>';
-    return;
-  }
-  const base = calcBaseDecision(entries, camp);
-  const marg = getMargROAS(entries);
-  const lastMarg = marg[marg.length - 1];
-  const mz = margZoneFromVal(lastMarg);
-  const drivers = getSignalDrivers(base, mz);
-  const { finalDec, hasConflict, baseDec, mOverride } = getFinalDecision(base, mz);
-  const acts = getBudgetRoasAction(finalDec, base.tROAS, entries[entries.length - 1].spend);
-  const cl = decCls(finalDec);
-  const bDir = acts.budgetDir === 'up' ? '↑' : acts.budgetDir === 'down' ? '↓' : '→';
-  const rDir = acts.roasDir === 'up' ? '↑' : acts.roasDir === 'down' ? '↓' : '→';
-  const bCol = acts.budgetDir === 'up' ? 'var(--green)' : acts.budgetDir === 'down' ? 'var(--red)' : 'var(--text3)';
-  const rCol = acts.roasDir === 'up' ? 'var(--red)' : acts.roasDir === 'down' ? 'var(--green)' : 'var(--text3)';
-  const signalCards = `<div class="signal-grid">
-    <div class="signal-card ${mz.override ? 'sig-override' : mz.status === 'N/A' ? 'sig-neutral' : 'sig-ok'}"><div class="signal-label">Marginal ROAS ${mz.override ? '<span class="driver-tag">OVERRIDE</span>' : ''}</div><div class="signal-val" style="color:${mz.override ? 'var(--red)' : mz.status === 'Optimal' ? 'var(--green)' : 'var(--amber)'}">${lastMarg !== null ? fmtR(lastMarg) : 'N/A'}</div><div><span class="badge ${mz.cls}">${mz.status}</span></div></div>
-    <div class="signal-card ${base.trendSt === 'DECLINING' ? 'sig-warning' : base.trendSt === 'IMPROVING' ? 'sig-ok' : 'sig-neutral'}"><div class="signal-label">Trend W4 vs W1 ${base.trendSt === 'DECLINING' ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${parseFloat(base.trend) >= 0 ? 'var(--green)' : 'var(--red)'}">${base.trend}%</div><div><span class="badge ${base.trendSt === 'IMPROVING' ? 'bg' : base.trendSt === 'DECLINING' ? 'br' : 'bb'}">${base.trendSt}</span></div></div>
-    <div class="signal-card ${base.stability === 'UNSTABLE' ? 'sig-override' : base.stability === 'VOLATILE' ? 'sig-warning' : 'sig-ok'}"><div class="signal-label">Stability ${base.stability !== 'STABLE' ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${base.stability === 'STABLE' ? 'var(--green)' : base.stability === 'VOLATILE' ? 'var(--amber)' : 'var(--red)'};font-size:15px">${base.std}</div><div><span class="badge ${base.stability === 'STABLE' ? 'bg' : base.stability === 'VOLATILE' ? 'by' : 'br'}">${base.stability}</span></div></div>
-    <div class="signal-card ${base.levelSt === 'FAIL' ? 'sig-override' : base.levelSt === 'WEAK' ? 'sig-warning' : base.levelSt === 'STRONG' ? 'sig-ok' : 'sig-neutral'}"><div class="signal-label">Level Status ${['FAIL', 'WEAK'].includes(base.levelSt) ? '<span class="driver-tag">DRIVER</span>' : ''}</div><div class="signal-val" style="color:${base.levelSt === 'STRONG' ? 'var(--green)' : base.levelSt === 'ACCEPTABLE' ? 'var(--blue)' : base.levelSt === 'WEAK' ? 'var(--amber)' : 'var(--red)'}">${base.blended.toFixed(2)}×</div><div><span class="badge ${base.levelSt === 'STRONG' ? 'bg' : base.levelSt === 'ACCEPTABLE' ? 'bb' : base.levelSt === 'WEAK' ? 'by' : 'br'}">${base.levelSt}</span></div></div>
-  </div>`;
-  const conflictHtml = hasConflict ? `<div class="conflict-box"><div class="conflict-title">Signal Conflict — mROAS Override Active</div><div class="conflict-row"><span class="badge bb" style="white-space:nowrap;flex-shrink:0">4W Blended says</span>&nbsp;${baseDec} — ${RAT[baseDec] || ''}</div><div class="conflict-row" style="margin-top:6px"><span class="badge br" style="white-space:nowrap;flex-shrink:0">mROAS Override says</span>&nbsp;${mOverride} — Marginal spend is ${mz.status.toLowerCase()}. Blended ROAS is masking current destruction. mROAS wins.</div></div>` : '';
-  const driversHtml = drivers.length ? `<div style="margin-bottom:14px"><div class="card-title">Active Signal Drivers</div>${drivers.map(d => `<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span class="badge ${d.severity === 'override' ? 'br' : 'by'}" style="min-width:70px;text-align:center;flex-shrink:0">${d.signal}</span><span style="font-weight:500;color:var(--text);min-width:100px;font-family:'IBM Plex Mono',monospace">${d.value}</span><span style="color:var(--text3);line-height:1.5">${d.reason}</span></div>`).join('')}</div>` : '';
-  document.getElementById('dec-content').innerHTML = `
-    <div class="hint">Campaign: <strong>${camp.name}</strong> &nbsp;·&nbsp; Gross margin: <strong>${(camp.gm * 100).toFixed(1)}%</strong> &nbsp;·&nbsp; Profit threshold: <strong>${base.prt.toFixed(2)}×</strong> &nbsp;·&nbsp; Effective target: <strong>${base.et.toFixed(2)}×</strong> &nbsp;·&nbsp; This week target: <strong>${fmtR(base.tROAS)}</strong></div>
-    <div class="card"><div class="card-title">Signal Dashboard</div>
-      ${signalCards}${conflictHtml}${driversHtml}
-      <div class="rec rec-${cl}"><div class="rec-t rec-t${cl}">${finalDec}${hasConflict ? ' (mROAS Override)' : ''}</div><div class="rec-b rec-b${cl}">${RAT[finalDec] || ''}</div></div>
-      <div class="action-box">
-        <div class="action-row"><span class="action-label">Budget Recommendation</span><span class="action-val">${acts.budgetAction} &nbsp;<span style="color:${bCol}">${bDir} ${fmt$(acts.budgetFrom)} → ${fmt$(acts.budgetTo)}</span></span></div>
-        <div class="action-row"><span class="action-label">Target ROAS Recommendation</span><span class="action-val">${acts.roasAction} &nbsp;<span style="color:${rCol}">${rDir} ${fmtR(acts.roasFrom)} → ${fmtR(acts.roasTo)}</span></span></div>
-        <div class="action-row"><span class="action-label">Marginal ROAS Signal</span><span class="action-val">${lastMarg !== null ? fmtR(lastMarg) + ' &nbsp;' : '— &nbsp;'}<span class="badge ${mz.cls}">${mz.status} — ${mz.label}</span></span></div>
-      </div>
-    </div>
-    <div class="card"><div class="card-title">Decision Legend</div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Level</th><th>Trend</th><th>Stability</th><th>Base Decision</th><th>mROAS Override</th><th>Explanation</th></tr></thead><tbody>
-        <tr><td>STRONG</td><td>IMPROVING</td><td>STABLE</td><td><span class="badge bg">SCALE (FULL)</span></td><td>Only if mROAS Optimal</td><td>Profitable, improving, stable.</td></tr>
-        <tr><td>STRONG</td><td>IMPROVING</td><td>VOLATILE</td><td><span class="badge bg">SCALE (LIMITED)</span></td><td>Only if mROAS Optimal</td><td>Improving but noisy. Cap the increase.</td></tr>
-        <tr><td>STRONG</td><td>FLAT</td><td>ANY</td><td><span class="badge by">HOLD</span></td><td>No</td><td>Profitable but not improving.</td></tr>
-        <tr><td>STRONG</td><td>DECLINING</td><td>STABLE</td><td><span class="badge by">INVESTIGATE</span></td><td>No</td><td>Still profitable. Find the driver.</td></tr>
-        <tr><td>ACCEPTABLE</td><td>DECLINING</td><td>ANY</td><td><span class="badge br">REDUCE</span></td><td>No</td><td>Near threshold and worsening.</td></tr>
-        <tr><td>WEAK / FAIL</td><td>ANY</td><td>ANY</td><td><span class="badge br">REDUCE / CUT</span></td><td>No</td><td>Below effective target.</td></tr>
-        <tr><td>ANY</td><td>ANY</td><td>ANY</td><td>—</td><td><span class="badge br">Dangerous → REDUCE</span></td><td>mROAS 1×–2.5×: override to REDUCE.</td></tr>
-        <tr><td>ANY</td><td>ANY</td><td>ANY</td><td>—</td><td><span class="badge br">Toxic → CUT</span></td><td>mROAS below 1×: override to CUT.</td></tr>
-      </tbody></table></div>
-    </div>`;
+  const got = getDecRow(campId, endDate);
+  if (!got) { document.getElementById('dec-content').innerHTML = '<div class="card"><p style="color:var(--text3);font-size:13px">No data for this campaign yet.</p></div>'; return; }
+  const { row: r, rows, camp } = got;
+  const be = r.be, s = STATES[r.st.code], acts = actionsFor(r);
+  const bArrow = acts.bDir === 'up' ? '↑' : acts.bDir === 'down' ? '↓' : '→';
+  const tArrow = acts.tDir === 'up' ? '↑' : acts.tDir === 'down' ? '↓' : '→';
+  const bCol = acts.bDir === 'up' ? 'var(--green)' : acts.bDir === 'down' ? 'var(--red)' : 'var(--text3)';
+  const tCol = acts.tDir === 'up' ? 'var(--red)' : 'var(--text3)';
+  const last8 = rows.slice(-8);
+  const spark = last8.map(x => '<tr><td>' + x.e.date + '</td><td style="color:' + (x.ppcOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(x.ppc) + '</td><td class="' + dirCls(x.dp) + '">' + dirArrow(x.dp) + '</td><td style="color:' + (x.merOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(x.mer) + '</td><td class="' + dirCls(x.dm) + '">' + dirArrow(x.dm) + '</td><td><span class="badge ' + STATES[x.st.code].cls + '">' + STATES[x.st.code].label + (x.st.code === 'WATCH' ? ' ' + x.watch + '/' + WATCH_LIMIT : '') + '</span></td></tr>').join('');
+  const preview = previewNext(r).map(p => '<tr><td style="white-space:normal;color:var(--text2)">' + p.cond + '</td><td><span class="badge ' + STATES[p.st.code].cls + '">' + STATES[p.st.code].label + (p.st.code === 'WATCH' ? ' ' + p.watch + '/' + WATCH_LIMIT : '') + '</span></td></tr>').join('');
+  const watchLine = r.st.code === 'WATCH'
+    ? '<div class="hint" style="border-color:var(--blue-border);color:var(--blue)">Watch counter: <strong style="color:var(--blue)">week ' + r.watch + ' of ' + WATCH_LIMIT + '</strong>. At week ' + WATCH_LIMIT + ', if overall ROAS is still holding you get CLEARED and the PPC target gets questioned. If overall has turned down by then, you get REDUCE. Overall dropping below break-even at any point escalates immediately.</div>' : '';
+  document.getElementById('dec-content').innerHTML =
+    '<div class="hint">Campaign <strong>' + escapeHtml(camp.name) + '</strong> &nbsp;·&nbsp; Week of <strong>' + r.e.date + '</strong> &nbsp;·&nbsp; Gross margin <strong>' + (camp.gm * 100).toFixed(1) + '%</strong> &nbsp;·&nbsp; PPC target <strong>' + fmtR(r.pt) + '</strong> &nbsp;·&nbsp; Overall break-even <strong>' + fmtR(be) + '</strong></div>' +
+    '<div class="card"><div class="card-title">This Week</div><div class="g4" style="margin-bottom:14px">' +
+      card('PPC ROAS', fmtR(r.ppc), r.ppcOk ? 'sig-ok' : 'sig-bad', (r.ppcOk ? 'at or above' : 'below') + ' target ' + fmtR(r.pt), r.ppcOk ? 'var(--green)' : 'var(--red)') +
+      card('Overall ROAS', fmtR(r.mer), r.merOk ? 'sig-ok' : 'sig-bad', (r.merOk ? 'above' : 'below') + ' break-even ' + fmtR(be), r.merOk ? 'var(--green)' : 'var(--red)') +
+      card('PPC Trend', dirArrow(r.dp) + ' ' + r.dp, r.dp === 'DOWN' ? 'sig-warn' : r.dp === 'UP' ? 'sig-ok' : 'signal-card', 'vs prior week', 'var(--text)') +
+      card('Overall Trend', dirArrow(r.dm) + ' ' + r.dm, r.dm === 'DOWN' ? 'sig-warn' : r.dm === 'UP' ? 'sig-ok' : 'signal-card', r.upStreak >= 1 ? 'both up ' + r.upStreak + ' wk streak' : r.merDownStreak >= 1 ? 'down ' + r.merDownStreak + ' wk streak' : 'vs prior week', 'var(--text)') +
+    '</div>' + watchLine +
+    '<div class="rec rec-' + s.tone + '"><div class="rec-t rec-t' + s.tone + '">' + s.label + (r.st.code === 'WATCH' ? ' (WEEK ' + r.watch + ' OF ' + WATCH_LIMIT + ')' : '') + '</div><div class="rec-bd">' + r.st.note + '</div></div>' +
+    '<div class="action-box">' +
+      '<div class="action-row"><span class="action-label">Budget</span><span class="action-val">' + acts.bTxt + ' &nbsp;<span style="color:' + bCol + '">' + bArrow + ' ' + fmt$(acts.bFrom) + ' → ' + fmt$(acts.bTo) + '</span></span></div>' +
+      '<div class="action-row"><span class="action-label">PPC ROAS Target</span><span class="action-val">' + acts.tTxt + ' &nbsp;<span style="color:' + tCol + '">' + tArrow + ' ' + fmtR(acts.tFrom) + ' → ' + fmtR(acts.tTo) + '</span></span></div>' +
+    '</div></div>' +
+    '<div class="card"><div class="card-title">What The Tool Will Say Next Week</div><div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:60%">If next week comes in like this</th><th>You get</th></tr></thead><tbody>' + preview + '</tbody></table></div></div>' +
+    '<div class="card"><div class="card-title">Last 8 Weeks</div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Week Of</th><th>PPC ROAS</th><th>Dir</th><th>Overall ROAS</th><th>Dir</th><th>State</th></tr></thead><tbody>' + spark + '</tbody></table></div></div>' +
+    '<div class="card"><div class="card-title">How States Are Decided</div>' + stateLegendHtml() + '</div>';
+}
+
+function stateLegendHtml() {
+  const rows = [
+    ['Below break-even', 'Below target', 'any', 'CUT', 'br', 'Neither measure works. Stop the bleeding.'],
+    ['Below break-even', 'At or above target', 'any', 'DEMAND PROBLEM', 'br', 'Paid is fine. Non-paid revenue collapsed. Do not cut ads.'],
+    ['Above break-even', 'Below target', 'week 1 to ' + (WATCH_LIMIT - 1), 'WATCH', 'bb', 'The cushion is holding. Hold spend, count the weeks.'],
+    ['Above break-even', 'Below target', 'week ' + WATCH_LIMIT + ', overall steady or up', 'CLEARED', 'bg', 'PPC is under-credited. Fix attribution or reset the target.'],
+    ['Above break-even', 'Below target', 'week ' + WATCH_LIMIT + ', overall turning down', 'REDUCE', 'br', 'Patience is spent.'],
+    ['Above break-even', 'Below target', 'overall down 2 weeks running', 'REDUCE', 'br', 'Escalates early. Does not wait for week ' + WATCH_LIMIT + '.'],
+    ['Above break-even', 'At or above target', 'both up 2+ weeks', 'SCALE', 'bg', 'The trend you scale into.'],
+    ['Above break-even', 'At or above target', 'both up 1 week', 'SCALE (TEST)', 'bg', 'Half-size increase, confirm next week.'],
+    ['Above break-even', 'At or above target', 'either sliding', 'HOLD + INVESTIGATE', 'by', 'Still fine, but find the driver.'],
+    ['Above break-even', 'At or above target', 'flat', 'HOLD', 'by', 'No signal to add risk.']
+  ];
+  return '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Overall ROAS</th><th>PPC ROAS</th><th>Direction / Counter</th><th>State</th><th>Meaning</th></tr></thead><tbody>' +
+    rows.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td><span class="badge ' + r[4] + '">' + r[3] + '</span></td><td style="white-space:normal;color:var(--text3)">' + r[5] + '</td></tr>').join('') +
+    '</tbody></table></div>';
 }
 
 function renderHistory() {
-  const campId = document.getElementById('hist-camp').value;
+  const campId = document.getElementById('hist-camp').value, camp = getCamp(campId);
   const period = document.getElementById('hist-period').value;
-  let entries = db.entries.filter(e => e.campId === campId);
+  const all = db.entries.filter(e => e.campId === campId);
+  if (!all.length) { document.getElementById('hist-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No entries.</p>'; return; }
+  let rows = analyzeSeries(all, camp);
   const now = new Date();
-  if (period === '4w') {
-    const s = new Date(now); s.setDate(s.getDate() - 28);
-    entries = entries.filter(e => new Date(e.date) >= s);
-  }
-  if (period === 'month') {
-    const s = new Date(now.getFullYear(), now.getMonth(), 1);
-    entries = entries.filter(e => new Date(e.date) >= s);
-  }
-  if (period === 'quarter') {
-    const q = Math.floor(now.getMonth() / 3);
-    const s = new Date(now.getFullYear(), q * 3, 1);
-    entries = entries.filter(e => new Date(e.date) >= s);
-  }
-  if (!entries.length) {
-    document.getElementById('hist-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No entries for this period.</p>';
-    return;
-  }
-  const marg = getMargROAS(entries);
-  const rows = entries.slice().reverse().map((e, ri) => {
-    const i = entries.length - 1 - ri;
-    const z = getZone(e.ovrR, e.tROAS);
-    const m = marg[i];
-    const mz = margZoneFromVal(m);
-    return `<tr><td>${e.date}</td><td>${fmtR(e.tROAS)}</td><td>${fmtR(e.ppcR)}</td><td>${fmtR(e.ovrR)}</td><td><span class="badge ${z.cls}">${z.zone}</span></td><td>${fmt$(e.spend)}</td><td>${fmt$(e.ppcRev)}</td><td>${fmt$(e.totRev)}</td><td>${m !== null ? fmtR(m) : '—'}</td><td><span class="badge ${mz.cls}">${mz.status}</span></td><td><button class="btn btn-del" onclick="delEntry('${e.id}')">Del</button></td></tr>`;
+  let cutoff = null;
+  if (period === '4w') { const s = new Date(now); s.setDate(s.getDate() - 28); cutoff = s; }
+  if (period === 'month') cutoff = new Date(now.getFullYear(), now.getMonth(), 1);
+  if (period === 'quarter') cutoff = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+  if (cutoff) rows = rows.filter(r => new Date(r.e.date) >= cutoff);
+  if (!rows.length) { document.getElementById('hist-content').innerHTML = '<p style="color:var(--text3);font-size:13px">No entries for this period.</p>'; return; }
+  const body = rows.slice().reverse().map(r => {
+    const s = STATES[r.st.code];
+    return '<tr><td>' + r.e.date + '</td><td>' + fmtR(r.pt) + '</td>' +
+      '<td style="color:' + (r.ppcOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(r.ppc) + '</td><td class="' + dirCls(r.dp) + '">' + dirArrow(r.dp) + '</td>' +
+      '<td style="color:' + (r.merOk ? 'var(--green)' : 'var(--red)') + '">' + fmtR(r.mer) + '</td><td class="' + dirCls(r.dm) + '">' + dirArrow(r.dm) + '</td>' +
+      '<td>' + fmt$(r.e.spend) + '</td><td>' + fmt$(r.e.ppcRev) + '</td><td>' + fmt$(r.e.totRev) + '</td>' +
+      '<td><span class="badge ' + s.cls + '">' + s.label + '</span></td>' +
+      '<td><button class="btn btn-del" onclick="delEntry(\'' + r.e.id + '\')">Del</button></td></tr>';
   }).join('');
-  document.getElementById('hist-content').innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th>Tgt ROAS</th><th>PPC ROAS</th><th>Overall ROAS</th><th>Zone</th><th>Spend</th><th>PPC Rev</th><th>Total Rev</th><th>Marg ROAS</th><th>mROAS</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  document.getElementById('hist-content').innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Week Of</th><th>PPC Target</th><th>PPC ROAS</th><th>Dir</th><th>Overall ROAS</th><th>Dir</th><th>Spend</th><th>PPC Rev</th><th>Total Rev</th><th>State</th><th></th></tr></thead><tbody>' + body + '</tbody></table></div>';
 }
-
 function delEntry(id) {
-  customConfirm('Delete this entry?', () => {
+  customConfirm('Delete this week?', () => {
     db.entries = db.entries.filter(e => e.id !== id);
-    save();
-    renderHistory();
-    toast('Entry deleted', 'success');
+    save(); renderHistory(); toast('Entry deleted', 'success');
   }, { title: 'Delete Entry', yesLabel: 'Delete' });
 }
-
 function exportCSV() {
-  const campId = document.getElementById('hist-camp').value;
-  const camp = getCamp(campId);
-  const entries = db.entries.filter(e => e.campId === campId);
-  if (!entries.length) { toast('No entries to export', 'error'); return; }
-  const marg = getMargROAS(entries);
-  const hdr = 'Date,Target ROAS,PPC ROAS,Overall ROAS,Zone,Spend,PPC Revenue,Total Revenue,Marginal ROAS,mROAS Status';
-  const rows = entries.map((e, i) => {
-    const z = getZone(e.ovrR, e.tROAS);
-    const m = marg[i];
-    const mz = margZoneFromVal(m);
-    return `${e.date},${e.tROAS},${e.ppcR},${e.ovrR},${z.zone},${e.spend},${e.ppcRev},${e.totRev},${m !== null ? m.toFixed(2) : ''},${mz.status}`;
-  });
+  const campId = document.getElementById('hist-camp').value, camp = getCamp(campId);
+  const all = db.entries.filter(e => e.campId === campId);
+  if (!all.length) { toast('No entries to export', 'error'); return; }
+  const rows = analyzeSeries(all, camp);
+  const hdr = 'Week Of,PPC Target,PPC ROAS,PPC Dir,Overall ROAS,Break-even,Overall Dir,Spend,PPC Revenue,Total Revenue,Watch Week,State';
+  const lines = rows.map(r => [r.e.date, r.pt, r.ppc.toFixed(2), r.dp, r.mer.toFixed(2), r.be.toFixed(2), r.dm, r.e.spend, r.e.ppcRev, r.e.totRev, r.watch || '', STATES[r.st.code].label].join(','));
   const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([hdr, ...rows].join('\n'));
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([hdr].concat(lines).join('\n'));
   a.download = camp.name.replace(/\s+/g, '_') + '_roas.csv';
   a.click();
   toast('CSV exported', 'success');
 }
 
 function renderSettings() {
-  const activeNameEl = document.getElementById('active-client-name');
-  if (activeNameEl) activeNameEl.textContent = activeClient().name;
-  const countEl = document.getElementById('client-count-info');
-  if (countEl) countEl.textContent = db.clients.length === 1 ? '1 client total' : db.clients.length + ' clients total';
-  document.getElementById('s-preparer').value = db.preparedBy || 'Ahmed — Modonix';
+  const n = document.getElementById('active-client-name'); if (n) n.textContent = activeClient().name;
+  const cnt = document.getElementById('client-count-info');
+  if (cnt) cnt.textContent = db.clients.length === 1 ? '1 client total' : db.clients.length + ' clients total';
+  document.getElementById('s-preparer').value = db.preparedBy || 'Ahmed | Modonix';
   document.getElementById('s-roasstep').value = cfg().roasStep;
   document.getElementById('s-scale-pct').value = cfg().scalePct;
   document.getElementById('s-cut-pct').value = cfg().cutPct;
-  document.getElementById('s-marg-thresh').value = cfg().margThresh;
-  document.getElementById('s-marg-min-pct').value = cfg().margMinPct;
-  const th = cfg().margThresh;
-  document.getElementById('marg-zones').innerHTML = `<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;
-  document.getElementById('camp-list').innerHTML = activeClient().campaigns.map(c => `<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">${escapeHtml(c.name)}</div><div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace">Default target: ${c.targetROAS}× &nbsp;·&nbsp; Gross margin: ${(c.gm * 100).toFixed(1)}% &nbsp;·&nbsp; Profit threshold: ${campPRT(c).toFixed(2)}× &nbsp;·&nbsp; Effective target: ${campEffTarget(c).toFixed(2)}×</div></div><button class="btn btn-edit" onclick="editCamp('${c.id}')">Edit</button>${activeClient().campaigns.length > 1 ? `<button class="btn btn-del" onclick="delCamp('${c.id}')">Remove</button>` : '<span style="font-size:11px;color:var(--text3)">Last</span>'}</div><div id="edit-${c.id}" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px"><div><label>Name</label><input id="en-${c.id}" value="${escapeHtml(c.name)}"></div><div><label>Default Target ROAS</label><input id="er-${c.id}" type="number" step="0.01" value="${c.targetROAS}"></div><div><label>Gross Margin %</label><input id="eg-${c.id}" type="number" step="0.1" value="${(c.gm * 100).toFixed(1)}"></div></div><div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit('${c.id}')">Save</button><button class="btn btn-sec" onclick="editCamp('${c.id}')">Cancel</button></div></div>`).join('');
+  document.getElementById('s-dir-thresh').value = cfg().dirThresh;
+  document.getElementById('state-legend').innerHTML = stateLegendHtml();
+  document.getElementById('camp-list').innerHTML = activeClient().campaigns.map(c =>
+    '<div class="camp-row"><div style="flex:1"><div style="font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text)">' + escapeHtml(c.name) + '</div>' +
+    '<div style="font-size:11px;color:var(--text3);font-family:\'IBM Plex Mono\',monospace">PPC ROAS target: ' + fmtR(c.targetROAS) + ' &nbsp;·&nbsp; Gross margin: ' + (c.gm * 100).toFixed(1) + '% &nbsp;·&nbsp; Overall ROAS break-even: ' + fmtR(breakEven(c)) + '</div></div>' +
+    '<button class="btn btn-edit" onclick="editCamp(\'' + c.id + '\')">Edit</button>' +
+    (activeClient().campaigns.length > 1 ? '<button class="btn btn-del" onclick="delCamp(\'' + c.id + '\')">Remove</button>' : '<span style="font-size:11px;color:var(--text3)">Last</span>') + '</div>' +
+    '<div id="edit-' + c.id + '" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px"><div class="g3" style="margin-bottom:10px">' +
+    '<div><label>Name</label><input id="en-' + c.id + '" value="' + escapeHtml(c.name) + '"></div>' +
+    '<div><label>PPC ROAS Target</label><input id="er-' + c.id + '" type="number" step="0.01" value="' + c.targetROAS + '"></div>' +
+    '<div><label>Gross Margin %</label><input id="eg-' + c.id + '" type="number" step="0.1" value="' + (c.gm * 100).toFixed(1) + '"></div></div>' +
+    '<div style="display:flex;gap:8px"><button class="btn btn-pri" onclick="saveCampEdit(\'' + c.id + '\')">Save</button><button class="btn btn-sec" onclick="editCamp(\'' + c.id + '\')">Cancel</button></div></div>'
+  ).join('');
 }
-
-function updatePreparedBy() {
-  db.preparedBy = document.getElementById('s-preparer').value.trim() || 'Ahmed — Modonix';
-  save();
-}
-
-function editCamp(id) {
-  const b = document.getElementById('edit-' + id);
-  b.style.display = b.style.display === 'none' ? 'block' : 'none';
-}
-
+function updatePreparedBy() { db.preparedBy = document.getElementById('s-preparer').value.trim() || 'Ahmed | Modonix'; save(); }
+function editCamp(id) { const b = document.getElementById('edit-' + id); b.style.display = b.style.display === 'none' ? 'block' : 'none'; }
 function saveCampEdit(id) {
-  const c = db.campaigns.find(x => x.id === id);
-  if (!c) return;
+  const c = db.campaigns.find(x => x.id === id); if (!c) return;
   c.name = document.getElementById('en-' + id).value.trim() || c.name;
   c.targetROAS = parseFloat(document.getElementById('er-' + id).value) || c.targetROAS;
   c.gm = parseFloat(document.getElementById('eg-' + id).value) / 100 || c.gm;
-  save();
-  populateSelects();
-  renderSettings();
-  onCampChange();
-  toast('Campaign updated', 'success');
+  save(); populateSelects(); renderSettings(); onCampChange(); toast('Campaign updated', 'success');
 }
-
 function delCamp(id) {
   if (db.campaigns.length <= 1) { toast('Cannot remove the last campaign', 'error'); return; }
-  customConfirm(
-    'Remove this campaign and ALL its weekly entries? This cannot be undone unless you have a backup.',
-    () => {
-      db.campaigns = db.campaigns.filter(c => c.id !== id);
-      db.entries = db.entries.filter(e => e.campId !== id);
-      save();
-      populateSelects();
-      renderSettings();
-      toast('Campaign removed', 'success');
-    },
-    { title: 'Remove Campaign', yesLabel: 'Remove' }
-  );
+  customConfirm('Remove this campaign and ALL its weekly entries?', () => {
+    db.campaigns = db.campaigns.filter(c => c.id !== id);
+    db.entries = db.entries.filter(e => e.campId !== id);
+    save(); populateSelects(); renderSettings(); toast('Campaign removed', 'success');
+  }, { title: 'Remove Campaign', yesLabel: 'Remove' });
 }
-
 function updateSettings() {
   cfg().roasStep = parseFloat(document.getElementById('s-roasstep').value) || 0.5;
   cfg().scalePct = parseFloat(document.getElementById('s-scale-pct').value) || 10;
   cfg().cutPct = parseFloat(document.getElementById('s-cut-pct').value) || 20;
-  cfg().margThresh = parseFloat(document.getElementById('s-marg-thresh').value) || 4.25;
-  cfg().margMinPct = parseFloat(document.getElementById('s-marg-min-pct').value) || 5;
+  const dt = parseFloat(document.getElementById('s-dir-thresh').value);
+  cfg().dirThresh = (isNaN(dt) || dt < 0) ? 3 : dt;
   save();
-  // Re-render the marg-zones table only (don't blow away inputs while typing)
-  const th = cfg().margThresh;
-  document.getElementById('marg-zones').innerHTML = `<div class="tbl-wrap" style="margin-bottom:16px"><table class="tbl"><thead><tr><th>mROAS Range</th><th>Status</th><th>Action</th><th>Rationale</th><th>Overrides Decision?</th></tr></thead><tbody><tr><td>Above ${th}×</td><td><span class="badge bg">Optimal</span></td><td><span class="badge bg">Scale +${cfg().scalePct}%</span></td><td>New spend is profitable on its own</td><td>No</td></tr><tr><td>2.5× to ${th}×</td><td><span class="badge by">Diminishing</span></td><td><span class="badge by">HOLD</span></td><td>Growing revenue, losing net profit</td><td>No</td></tr><tr><td>1.0× to 2.5×</td><td><span class="badge by">Dangerous</span></td><td><span class="badge by">REDUCE</span></td><td>Trading dollars — Google profits, not you</td><td>Yes → REDUCE</td></tr><tr><td>Below 1.0×</td><td><span class="badge br">Toxic</span></td><td><span class="badge br">CUT -${cfg().cutPct}%</span></td><td>Value destruction — actively losing money</td><td>Yes → CUT</td></tr></tbody></table></div>`;
 }
 
 // ============================================================================
-// PDF EXPORT (single clean version, was duplicated 5× in v5)
+// PDF EXPORT: decision report
 // ============================================================================
 function exportDecisionPDF() {
   const campId = document.getElementById('dec-camp').value;
   const endDate = document.getElementById('dec-end').value;
-  const camp = getCamp(campId);
-  const entries = getDecWindow(campId, endDate);
-  if (entries.length < 2) { toast('Need at least 2 weeks of data in this window', 'error'); return; }
-  if (!window.jspdf) { toast('PDF library still loading — try again in a moment', 'error'); return; }
-  const base = calcBaseDecision(entries, camp);
-  const marg = getMargROAS(entries);
-  const lastMarg = marg[marg.length - 1];
-  const mz = margZoneFromVal(lastMarg);
-  const drivers = getSignalDrivers(base, mz);
-  const { finalDec, hasConflict, baseDec, mOverride } = getFinalDecision(base, mz);
-  const acts = getBudgetRoasAction(finalDec, base.tROAS, entries[entries.length - 1].spend);
+  const got = getDecRow(campId, endDate);
+  if (!got) { toast('No data for this campaign', 'error'); return; }
+  if (!window.jspdf) { toast('PDF library still loading, try again in a moment', 'error'); return; }
+  const { row: r, rows, camp } = got;
+  const acts = actionsFor(r), s = STATES[r.st.code], be = r.be;
+  const last8 = rows.slice(-8);
   const client = activeClient().name || 'Client';
-  const preparer = db.preparedBy || 'Ahmed — Modonix';
+  const preparer = db.preparedBy || 'Ahmed | Modonix';
   const today = new Date().toISOString().slice(0, 10);
-  const dateRange = entries[0].date + ' to ' + entries[entries.length - 1].date;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
   const W = 215.9, H = 279.4, ml = 15, mr = 15, usableW = W - ml - mr;
   let y = 0;
+  const GREEN = [34, 197, 94], RED = [239, 68, 68], AMBER = [245, 158, 11], BLUE = [59, 130, 246], GREY = [113, 128, 144], INK = [45, 55, 72];
+  const toneCol = t => t === 'g' ? GREEN : t === 'r' ? RED : t === 'b' ? BLUE : AMBER;
+  const toneBg = t => t === 'g' ? [240, 255, 244] : t === 'r' ? [255, 245, 245] : t === 'b' ? [239, 246, 255] : [255, 251, 235];
 
-  // Header
   doc.setFillColor(13, 15, 17); doc.rect(0, 0, W, 22, 'F');
   doc.setFillColor(99, 102, 241); doc.rect(0, 22, W, 1, 'F');
   doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
   doc.text('MODONIX  ·  PREPARED FOR: ' + client.toUpperCase(), ml, 14);
   doc.setFont('helvetica', 'normal'); doc.setTextColor(139, 143, 154);
-  doc.text('ROAS CONTROLLER  ·  4-WEEK DECISION REPORT', W - mr, 14, { align: 'right' });
+  doc.text('ROAS CONTROL  ·  WEEKLY DECISION REPORT', W - mr, 14, { align: 'right' });
   y = 32;
 
-  // Title block
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
   doc.text('PREPARED BY', ml, y); doc.text('PREPARED FOR', W / 2 + 2, y); y += 5;
   doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(13, 15, 17);
   doc.text(preparer, ml, y); doc.text(client, W / 2 + 2, y); y += 5;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...GREY);
   doc.text('E-Commerce & Digital Commerce Consulting', ml, y); doc.text(today, W / 2 + 2, y); y += 8;
   doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 6;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
-  doc.text('Campaign: ' + camp.name + '  ·  Period: ' + dateRange, ml, y); y += 5;
+  doc.setFontSize(9); doc.setTextColor(...GREY);
+  doc.text('Campaign: ' + camp.name + '  ·  Week of: ' + r.e.date, ml, y); y += 5;
   doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(13, 15, 17);
-  doc.text('4-Week Decision Report', ml, y); y += 7;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
-  doc.text('ROAS Controller — Campaign Efficiency & Scaling Analysis', ml, y); y += 10;
-  doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 8;
+  doc.text('Weekly Decision Report', ml, y); y += 7;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
+  doc.text('PPC ROAS vs target and Overall ROAS vs break-even, judged week by week', ml, y); y += 10;
+  doc.line(ml, y, W - mr, y); y += 8;
 
-  // Campaign info bar
-  doc.setFillColor(248, 249, 250); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3);
+  doc.setFillColor(248, 249, 250); doc.setDrawColor(220, 226, 234);
   doc.roundedRect(ml, y, usableW, 10, 2, 2, 'FD');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(113, 128, 144);
-  doc.text('GROSS MARGIN', ml + 3, y + 4); doc.text('PROFIT THRESHOLD', ml + 40, y + 4);
-  doc.text('EFFECTIVE TARGET', ml + 82, y + 4); doc.text('THIS WEEK TARGET', ml + 124, y + 4);
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(13, 15, 17);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...GREY);
+  doc.text('GROSS MARGIN', ml + 3, y + 4); doc.text('OVERALL BREAK-EVEN', ml + 45, y + 4);
+  doc.text('PPC TARGET THIS WEEK', ml + 95, y + 4); doc.text('WEEK SPEND', ml + 145, y + 4);
+  doc.setFontSize(8); doc.setTextColor(13, 15, 17);
   doc.text((camp.gm * 100).toFixed(1) + '%', ml + 3, y + 9);
-  doc.text(base.prt.toFixed(2) + '×', ml + 40, y + 9);
-  doc.text(base.et.toFixed(2) + '×', ml + 82, y + 9);
-  doc.text(fmtR(base.tROAS), ml + 124, y + 9);
+  doc.text(fmtR(be), ml + 45, y + 9);
+  doc.text(fmtR(r.pt), ml + 95, y + 9);
+  doc.text(fmt$(r.e.spend), ml + 145, y + 9);
   y += 14;
 
-  // Decision banner
-  const decColor = finalDec.startsWith('SCALE') ? [34, 197, 94] : ['HOLD', 'INVESTIGATE'].some(x => finalDec.startsWith(x)) ? [245, 158, 11] : [239, 68, 68];
-  const decBg = finalDec.startsWith('SCALE') ? [240, 255, 244] : ['HOLD', 'INVESTIGATE'].some(x => finalDec.startsWith(x)) ? [255, 251, 235] : [255, 245, 245];
-  doc.setFillColor(...decBg); doc.setDrawColor(...decColor); doc.setLineWidth(0.5);
-  doc.roundedRect(ml, y, usableW, 18, 2, 2, 'FD');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(...decColor);
-  doc.text(finalDec + (hasConflict ? ' (mROAS Override)' : ''), ml + 5, y + 8);
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(45, 55, 72);
-  const ratLines = doc.splitTextToSize(RAT[finalDec] || '', usableW - 10);
-  doc.text(ratLines, ml + 5, y + 13);
-  y += 22;
+  const dc = toneCol(s.tone);
+  doc.setFillColor(...toneBg(s.tone)); doc.setDrawColor(...dc); doc.setLineWidth(0.5);
+  doc.roundedRect(ml, y, usableW, 20, 2, 2, 'FD');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(...dc);
+  doc.text(s.label + (r.st.code === 'WATCH' ? '  (week ' + r.watch + ' of ' + WATCH_LIMIT + ')' : ''), ml + 5, y + 8);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...INK);
+  doc.text(doc.splitTextToSize(r.st.note, usableW - 10), ml + 5, y + 13);
+  y += 24;
 
-  // Signal cards
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
-  doc.text('SIGNAL DASHBOARD', ml, y); y += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
+  doc.text('THIS WEEK', ml, y); y += 5;
   const cardW = (usableW - 9) / 4;
   const cards = [
-    { label: 'MARGINAL ROAS', val: lastMarg !== null ? fmtR(lastMarg) : 'N/A', sub: mz.status, subColor: mz.override ? [239, 68, 68] : mz.status === 'Optimal' ? [34, 197, 94] : [245, 158, 11], flag: mz.override ? 'OVERRIDE' : '' },
-    { label: 'TREND W4 VS W1', val: base.trend + '%', sub: base.trendSt, subColor: base.trendSt === 'IMPROVING' ? [34, 197, 94] : base.trendSt === 'DECLINING' ? [239, 68, 68] : [113, 128, 144], flag: base.trendSt === 'DECLINING' ? 'DRIVER' : '' },
-    { label: 'STABILITY', val: base.std, sub: base.stability, subColor: base.stability === 'STABLE' ? [34, 197, 94] : base.stability === 'VOLATILE' ? [245, 158, 11] : [239, 68, 68], flag: base.stability !== 'STABLE' ? 'DRIVER' : '' },
-    { label: 'LEVEL STATUS', val: (+base.blended).toFixed(2) + '×', sub: base.levelSt, subColor: base.levelSt === 'STRONG' ? [34, 197, 94] : base.levelSt === 'ACCEPTABLE' ? [59, 130, 246] : base.levelSt === 'WEAK' ? [245, 158, 11] : [239, 68, 68], flag: ['FAIL', 'WEAK'].includes(base.levelSt) ? 'DRIVER' : '' },
+    { l: 'PPC ROAS', v: fmtR(r.ppc), s: (r.ppcOk ? 'AT/ABOVE' : 'BELOW') + ' TARGET ' + fmtR(r.pt), c: r.ppcOk ? GREEN : RED },
+    { l: 'OVERALL ROAS', v: fmtR(r.mer), s: (r.merOk ? 'ABOVE' : 'BELOW') + ' BREAK-EVEN ' + fmtR(be), c: r.merOk ? GREEN : RED },
+    { l: 'PPC DIRECTION', v: r.dp, s: r.upStreak >= 1 ? 'BOTH UP ' + r.upStreak + ' WK' : 'VS PRIOR WEEK', c: r.dp === 'UP' ? GREEN : r.dp === 'DOWN' ? RED : GREY },
+    { l: 'OVERALL DIRECTION', v: r.dm, s: r.merDownStreak >= 1 ? 'DOWN ' + r.merDownStreak + ' WK' : 'VS PRIOR WEEK', c: r.dm === 'UP' ? GREEN : r.dm === 'DOWN' ? RED : GREY }
   ];
   cards.forEach((c, i) => {
     const cx = ml + i * (cardW + 3);
-    const hasflag = c.flag !== '';
-    doc.setFillColor(hasflag ? 255 : 248, hasflag ? 245 : 249, hasflag ? 245 : 250);
-    doc.setDrawColor(...(hasflag ? c.subColor : [220, 226, 234]));
-    doc.setLineWidth(hasflag ? 0.6 : 0.3);
+    doc.setFillColor(248, 249, 250); doc.setDrawColor(...c.c); doc.setLineWidth(0.4);
     doc.roundedRect(cx, y, cardW, 22, 2, 2, 'FD');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
-    doc.text(c.label, cx + 3, y + 5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...GREY);
+    doc.text(c.l, cx + 3, y + 5);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(13, 15, 17);
-    doc.text(String(c.val), cx + 3, y + 12);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...c.subColor);
-    doc.text(c.sub + (c.flag ? ' · ' + c.flag : ''), cx + 3, y + 19);
+    doc.text(String(c.v), cx + 3, y + 12);
+    doc.setFontSize(6.5); doc.setTextColor(...c.c);
+    doc.text(c.s, cx + 3, y + 19);
   });
   y += 27;
 
-  // Conflict notice
-  if (hasConflict) {
-    doc.setFillColor(255, 245, 245); doc.setDrawColor(239, 68, 68); doc.setLineWidth(0.5);
-    doc.roundedRect(ml, y, usableW, 12, 2, 2, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(239, 68, 68);
-    doc.text('SIGNAL CONFLICT — mROAS OVERRIDE ACTIVE', ml + 4, y + 5);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(45, 55, 72);
-    doc.text('4W Blended: ' + baseDec + '  →  mROAS Override: ' + mOverride + ' — Marginal spend is ' + mz.status.toLowerCase() + '. mROAS wins.', ml + 4, y + 10);
-    y += 16;
-  }
-
-  // Active drivers
-  if (drivers.length) {
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
-    doc.text('ACTIVE SIGNAL DRIVERS', ml, y); y += 5;
-    drivers.forEach(dr => {
-      const bgC = dr.severity === 'override' ? [255, 245, 245] : [255, 251, 235];
-      const bdC = dr.severity === 'override' ? [239, 68, 68] : [245, 158, 11];
-      doc.setFillColor(...bgC); doc.setDrawColor(...bdC); doc.setLineWidth(0.4);
-      doc.roundedRect(ml, y, usableW, 10, 1, 1, 'FD');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...bdC);
-      doc.text(dr.signal.toUpperCase(), ml + 3, y + 4);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(13, 15, 17);
-      doc.text(dr.value, ml + 38, y + 4);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(45, 55, 72);
-      const rl = doc.splitTextToSize(dr.reason, usableW - 85);
-      doc.text(rl[0], ml + 75, y + 4); y += 12;
-    });
-  }
-
-  // Recommendations
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
   doc.text('RECOMMENDATIONS', ml, y); y += 5;
-  const bDir = acts.budgetDir === 'up' ? '↑' : acts.budgetDir === 'down' ? '↓' : '→';
-  const rDir = acts.roasDir === 'up' ? '↑' : acts.roasDir === 'down' ? '↓' : '→';
-  const bCol = acts.budgetDir === 'up' ? [34, 197, 94] : acts.budgetDir === 'down' ? [239, 68, 68] : [136, 135, 128];
-  const rCol = acts.roasDir === 'up' ? [239, 68, 68] : acts.roasDir === 'down' ? [34, 197, 94] : [136, 135, 128];
-  const recs = [
-    ['Budget', acts.budgetAction + ' ' + bDir + ' ' + fmt$(acts.budgetFrom) + ' → ' + fmt$(acts.budgetTo), bCol],
-    ['Target ROAS', acts.roasAction + ' ' + rDir + ' ' + fmtR(acts.roasFrom) + ' → ' + fmtR(acts.roasTo), rCol],
-    ['Marginal ROAS', lastMarg !== null ? fmtR(lastMarg) + ' — ' + mz.status + ' — ' + mz.label : 'N/A', [113, 128, 144]],
-  ];
-  recs.forEach((r, i) => {
-    const bg = i % 2 === 0 ? [255, 255, 255] : [248, 249, 250];
-    doc.setFillColor(...bg); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2);
-    doc.rect(ml, y, usableW, 8, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
-    doc.text(r[0].toUpperCase(), ml + 3, y + 5.5);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...r[2]);
-    doc.text(r[1], W - mr - 3, y + 5.5, { align: 'right' });
+  const bCol = acts.bDir === 'up' ? GREEN : acts.bDir === 'down' ? RED : GREY;
+  const tCol = acts.tDir === 'up' ? RED : GREY;
+  [['Budget', acts.bTxt + '  ' + fmt$(acts.bFrom) + ' to ' + fmt$(acts.bTo), bCol],
+   ['PPC ROAS Target', acts.tTxt + '  ' + fmtR(acts.tFrom) + ' to ' + fmtR(acts.tTo), tCol]].forEach((rw, i) => {
+    doc.setFillColor(...(i % 2 === 0 ? [255, 255, 255] : [248, 249, 250]));
+    doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2); doc.rect(ml, y, usableW, 8, 'FD');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
+    doc.text(rw[0].toUpperCase(), ml + 3, y + 5.5);
+    doc.setTextColor(...rw[2]);
+    doc.text(rw[1], W - mr - 3, y + 5.5, { align: 'right' });
     y += 8;
   });
   y += 6;
 
-  // 4-week trend table
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
-  doc.text('4-WEEK TREND', ml, y); y += 5;
-  const cols = ['DATE', 'TGT ROAS', 'PPC ROAS', 'OVR ROAS', 'ZONE', 'SPEND', 'PPC REV', 'TOT REV', 'MARG ROAS'];
-  const colW = [24, 20, 20, 20, 20, 22, 22, 22, 16];
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
+  doc.text('WEEK BY WEEK (no cumulative figures)', ml, y); y += 5;
+  const cols = ['WEEK OF', 'SPEND', 'PPC REV', 'PPC ROAS', 'DIR', 'TOTAL REV', 'OVERALL', 'DIR', 'STATE'];
+  const colW = [22, 20, 22, 20, 10, 24, 18, 10, 40];
   doc.setFillColor(13, 15, 17); doc.rect(ml, y, usableW, 7, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(255, 255, 255);
-  let cx = ml;
-  cols.forEach((c, i) => { doc.text(c, cx + 2, y + 5); cx += colW[i]; });
+  doc.setFontSize(6.5); doc.setTextColor(255, 255, 255);
+  let cx = ml; cols.forEach((c, i) => { doc.text(c, cx + 2, y + 5); cx += colW[i]; });
   y += 7;
-  entries.forEach((e, ri) => {
-    const bg = ri % 2 === 0 ? [255, 255, 255] : [248, 249, 250];
-    const m = marg[ri];
-    const mzr = margZoneFromVal(m);
-    const z = getZone(e.ovrR, e.tROAS);
-    doc.setFillColor(...bg); doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2);
-    doc.rect(ml, y, usableW, 7, 'FD');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(45, 55, 72);
-    const row = [e.date, fmtR(e.tROAS), fmtR(e.ppcR), fmtR(e.ovrR), z.zone, fmt$(e.spend), fmt$(e.ppcRev || 0), fmt$(e.totRev || 0), m !== null ? fmtR(m) : '—'];
+  last8.forEach((x, ri) => {
+    if (y > H - 25) { doc.addPage(); y = 20; }
+    doc.setFillColor(...(ri % 2 === 0 ? [255, 255, 255] : [248, 249, 250]));
+    doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2); doc.rect(ml, y, usableW, 7, 'FD');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.8);
+    const vals = [x.e.date, fmt$(x.e.spend), fmt$(x.e.ppcRev), fmtR(x.ppc), x.dp === 'UP' ? 'UP' : x.dp === 'DOWN' ? 'DN' : x.dp === 'FLAT' ? 'FL' : '-', fmt$(x.e.totRev), fmtR(x.mer), x.dm === 'UP' ? 'UP' : x.dm === 'DOWN' ? 'DN' : x.dm === 'FLAT' ? 'FL' : '-', STATES[x.st.code].label + (x.st.code === 'WATCH' ? ' ' + x.watch + '/' + WATCH_LIMIT : '')];
     cx = ml;
-    row.forEach((v, i) => {
-      let tc = [45, 55, 72];
-      if (i === 4) tc = z.cls === 'bg' ? [34, 197, 94] : z.cls === 'by' ? [245, 158, 11] : [239, 68, 68];
-      if (i === 8 && m !== null) tc = mzr.cls === 'bg' ? [34, 197, 94] : mzr.cls === 'by' ? [245, 158, 11] : [239, 68, 68];
+    vals.forEach((v, i) => {
+      let tc = INK;
+      if (i === 3) tc = x.ppcOk ? GREEN : RED;
+      if (i === 6) tc = x.merOk ? GREEN : RED;
+      if (i === 4) tc = x.dp === 'UP' ? GREEN : x.dp === 'DOWN' ? RED : GREY;
+      if (i === 7) tc = x.dm === 'UP' ? GREEN : x.dm === 'DOWN' ? RED : GREY;
+      if (i === 8) tc = toneCol(STATES[x.st.code].tone);
       doc.setTextColor(...tc);
       doc.text(String(v), cx + 2, y + 5); cx += colW[i];
     });
     y += 7;
   });
+  y += 6;
 
-  // Footer
+  if (y > H - 60) { doc.addPage(); y = 20; }
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...GREY);
+  doc.text('WHAT NEXT WEEK WILL TRIGGER', ml, y); y += 5;
+  previewNext(r).forEach((p, i) => {
+    if (y > H - 25) { doc.addPage(); y = 20; }
+    doc.setFillColor(...(i % 2 === 0 ? [255, 255, 255] : [248, 249, 250]));
+    doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.2); doc.rect(ml, y, usableW, 7, 'FD');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...INK);
+    doc.text(p.cond, ml + 3, y + 5);
+    doc.setFont('helvetica', 'bold'); doc.setTextColor(...toneCol(STATES[p.st.code].tone));
+    doc.text(STATES[p.st.code].label + (p.st.code === 'WATCH' ? ' ' + p.watch + '/' + WATCH_LIMIT : ''), W - mr - 3, y + 5, { align: 'right' });
+    y += 7;
+  });
+
   doc.setFillColor(240, 242, 245); doc.rect(0, H - 15, W, 15, 'F');
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
-  doc.text('Confidential — Prepared by ' + preparer + ' for ' + client, ml, H - 7);
-  doc.text('ROAS Controller · 4-Week Decision Report', W / 2, H - 7, { align: 'center' });
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...GREY);
+  doc.text('Confidential. Prepared by ' + preparer + ' for ' + client, ml, H - 7);
+  doc.text('ROAS Control · Weekly Decision Report', W / 2, H - 7, { align: 'center' });
   doc.text(today, W - mr, H - 7, { align: 'right' });
-
-  doc.save('ROAS_Decision_' + camp.name.replace(/\s+/g, '_') + '_' + dateRange.replace(/ /g, '_') + '.pdf');
+  doc.save('ROAS_Decision_' + camp.name.replace(/\s+/g, '_') + '_' + r.e.date + '.pdf');
   toast('PDF exported', 'success');
 }
 
 // ============================================================================
-// AI AUDITOR (v8)
+// AI AUDITOR
 // ============================================================================
-// Model is hardcoded to Sonnet — best balance of quality and cost for this use case.
-// To use a different model later (e.g. when Sonnet 4.5 gets deprecated), update this constant.
 const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
-
-// Substring-based pricing — robust to model name changes (claude-sonnet-4-5 / 4-7 / 5-0 all match "sonnet")
-// Approximate USD per million tokens. May drift if Anthropic changes rates — verify in console.anthropic.com
-function pricingFor(modelId) {
-  const id = (modelId || '').toLowerCase();
+function pricingFor(id) {
+  id = (id || '').toLowerCase();
   if (id.includes('opus')) return { in: 15, out: 75, label: 'Opus (approx)' };
   if (id.includes('sonnet')) return { in: 3, out: 15, label: 'Sonnet (approx)' };
   if (id.includes('haiku')) return { in: 0.8, out: 4, label: 'Haiku (approx)' };
   return { in: null, out: null, label: 'Unknown model' };
 }
-
-function calcCost(modelId, inputTokens, outputTokens) {
-  const p = pricingFor(modelId);
-  if (p.in === null) return null;
-  return (inputTokens * p.in / 1e6) + (outputTokens * p.out / 1e6);
-}
-
+function calcCost(id, i, o) { const p = pricingFor(id); return p.in === null ? null : (i * p.in / 1e6) + (o * p.out / 1e6); }
 let aiSettings = { apiKey: '', model: DEFAULT_MODEL };
-try {
-  const raw = localStorage.getItem(AI_KEY);
-  if (raw) aiSettings = { ...aiSettings, ...JSON.parse(raw) };
-} catch (e) {}
-// Always coerce to default if model is missing/empty (handles legacy saved settings)
+try { const raw = localStorage.getItem(AI_KEY); if (raw) aiSettings = { ...aiSettings, ...JSON.parse(raw) }; } catch (e) {}
 if (!aiSettings.model) aiSettings.model = DEFAULT_MODEL;
-
 function saveAiSettings() { localStorage.setItem(AI_KEY, JSON.stringify(aiSettings)); }
 function saveApiKey() { aiSettings.apiKey = document.getElementById('s-api-key').value.trim(); saveAiSettings(); }
-function loadAiSettingsToUi() {
-  const k = document.getElementById('s-api-key');
-  if (k) k.value = aiSettings.apiKey || '';
-}
+function loadAiSettingsToUi() { const k = document.getElementById('s-api-key'); if (k) k.value = aiSettings.apiKey || ''; }
+let lastAuditResult = null;
 
-let lastAuditResult = null;  // holds the most recent run for save/copy/PDF
-
-// --- UI population ---
 function populateAuditClientSwitcher() {
-  const sel = document.getElementById('aud-client');
-  if (!sel) return;
+  const sel = document.getElementById('aud-client'); if (!sel) return;
   const cur = sel.value || db.activeClientId;
-  sel.innerHTML = db.clients.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  sel.innerHTML = db.clients.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join('');
   sel.value = cur;
-  populateAuditCampaignSwitcher();
-  renderAuditHistoryList();
-  updateCostPreview();
+  populateAuditCampaignSwitcher(); renderAuditHistoryList(); updateCostPreview();
 }
-
 function populateAuditCampaignSwitcher() {
-  const clientId = document.getElementById('aud-client').value;
-  const client = db.clients.find(c => c.id === clientId) || activeClient();
-  const sel = document.getElementById('aud-campaign');
-  if (!sel) return;
+  const client = db.clients.find(c => c.id === document.getElementById('aud-client').value) || activeClient();
+  const sel = document.getElementById('aud-campaign'); if (!sel) return;
   const cur = sel.value;
-  sel.innerHTML = client.campaigns.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+  sel.innerHTML = client.campaigns.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>').join('');
   if (cur && client.campaigns.find(c => c.id === cur)) sel.value = cur;
 }
-
-function onAuditClientChange() {
-  populateAuditCampaignSwitcher();
-  renderAuditHistoryList();
-  updateCostPreview();
-}
-
-function onAuditScopeChange() {
-  const scope = document.getElementById('aud-scope').value;
-  document.getElementById('aud-campaign-wrap').style.display = scope === 'all' ? 'none' : 'block';
-  updateCostPreview();
-}
-
+function onAuditClientChange() { populateAuditCampaignSwitcher(); renderAuditHistoryList(); updateCostPreview(); }
+function onAuditScopeChange() { document.getElementById('aud-campaign-wrap').style.display = document.getElementById('aud-scope').value === 'all' ? 'none' : 'block'; updateCostPreview(); }
 function onAuditPeriodChange() {
-  const period = document.getElementById('aud-period').value;
-  const isCustom = period === 'custom';
-  document.getElementById('aud-custom-start-wrap').style.display = isCustom ? 'block' : 'none';
-  document.getElementById('aud-custom-end-wrap').style.display = isCustom ? 'block' : 'none';
+  const c = document.getElementById('aud-period').value === 'custom';
+  document.getElementById('aud-custom-start-wrap').style.display = c ? 'block' : 'none';
+  document.getElementById('aud-custom-end-wrap').style.display = c ? 'block' : 'none';
   updateCostPreview();
 }
-
 function onAuditCompareChange() {
-  const cmp = document.getElementById('aud-compare').value;
-  const isCustom = cmp === 'custom';
-  document.getElementById('aud-comp-start-wrap').style.display = isCustom ? 'block' : 'none';
-  document.getElementById('aud-comp-end-wrap').style.display = isCustom ? 'block' : 'none';
+  const c = document.getElementById('aud-compare').value === 'custom';
+  document.getElementById('aud-comp-start-wrap').style.display = c ? 'block' : 'none';
+  document.getElementById('aud-comp-end-wrap').style.display = c ? 'block' : 'none';
   updateCostPreview();
 }
-
-// --- Period selection ---
-function getAuditEntries(client, scope, campaignId, period, customStart, customEnd) {
-  // Get all entries for the chosen scope
-  let pool = client.entries.slice();
-  if (scope === 'single' && campaignId) {
-    pool = pool.filter(e => e.campId === campaignId);
-  }
-  pool.sort((a, b) => a.date.localeCompare(b.date));
-  if (!pool.length) return { entries: [], rangeLabel: 'no data' };
-
-  if (period === 'custom') {
-    if (!customStart || !customEnd) return { entries: [], rangeLabel: 'custom range incomplete' };
-    const filtered = pool.filter(e => e.date >= customStart && e.date <= customEnd);
-    return { entries: filtered, rangeLabel: customStart + ' to ' + customEnd };
-  }
-
-  const wks = period === '4w' ? 4 : period === '8w' ? 8 : period === '12w' ? 12 : 4;
-  const recent = pool.slice(-wks);
-  const label = recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no entries';
-  return { entries: recent, rangeLabel: label };
-}
-
-function getComparisonEntries(client, scope, campaignId, primaryEntries, compareMode, customStart, customEnd) {
-  if (compareMode === 'none' || !primaryEntries.length) return { entries: [], rangeLabel: '' };
+function getAuditEntries(client, scope, campaignId, period, cs, ce) {
   let pool = client.entries.slice();
   if (scope === 'single' && campaignId) pool = pool.filter(e => e.campId === campaignId);
   pool.sort((a, b) => a.date.localeCompare(b.date));
-
-  if (compareMode === 'custom') {
-    if (!customStart || !customEnd) return { entries: [], rangeLabel: 'custom range incomplete' };
-    const filtered = pool.filter(e => e.date >= customStart && e.date <= customEnd);
-    return { entries: filtered, rangeLabel: customStart + ' to ' + customEnd };
+  if (!pool.length) return { entries: [], rangeLabel: 'no data' };
+  if (period === 'custom') {
+    if (!cs || !ce) return { entries: [], rangeLabel: 'custom range incomplete' };
+    const f = pool.filter(e => e.date >= cs && e.date <= ce);
+    return { entries: f, rangeLabel: cs + ' to ' + ce };
   }
-  // 'prev' — same length as primary, immediately before primary's start date
-  const primaryStart = primaryEntries[0].date;
-  const before = pool.filter(e => e.date < primaryStart);
-  const recent = before.slice(-primaryEntries.length);
-  const label = recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no prior data';
-  return { entries: recent, rangeLabel: label };
+  const wks = period === '8w' ? 8 : period === '12w' ? 12 : 4;
+  const recent = pool.slice(-wks);
+  return { entries: recent, rangeLabel: recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no entries' };
 }
-
-// --- Cost estimation ---
+function getComparisonEntries(client, scope, campaignId, primary, mode, cs, ce) {
+  if (mode === 'none' || !primary.length) return { entries: [], rangeLabel: '' };
+  let pool = client.entries.slice();
+  if (scope === 'single' && campaignId) pool = pool.filter(e => e.campId === campaignId);
+  pool.sort((a, b) => a.date.localeCompare(b.date));
+  if (mode === 'custom') {
+    if (!cs || !ce) return { entries: [], rangeLabel: 'custom range incomplete' };
+    return { entries: pool.filter(e => e.date >= cs && e.date <= ce), rangeLabel: cs + ' to ' + ce };
+  }
+  const before = pool.filter(e => e.date < primary[0].date);
+  const recent = before.slice(-primary.length);
+  return { entries: recent, rangeLabel: recent.length ? recent[0].date + ' to ' + recent[recent.length - 1].date : 'no prior data' };
+}
 function updateCostPreview() {
-  const el = document.getElementById('aud-cost-preview');
-  if (!el) return;
+  const el = document.getElementById('aud-cost-preview'); if (!el) return;
   const p = pricingFor(aiSettings.model);
-  // Rough estimate: 4-week single-campaign audit ≈ 3500 input + 1500 output
-  const scope = document.getElementById('aud-scope').value;
-  const period = document.getElementById('aud-period').value;
-  const compare = document.getElementById('aud-compare').value;
   let mult = 1;
-  if (scope === 'all') mult *= 2;
-  if (period === '8w') mult *= 1.5;
-  if (period === '12w') mult *= 2;
-  if (compare !== 'none') mult *= 1.4;
-  const inTok = 3500 * mult;
-  const outTok = 1500;
-  if (p.in === null) {
-    el.textContent = 'Cost preview unavailable — check actual cost after run';
-    return;
-  }
-  const cost = (inTok * p.in / 1e6) + (outTok * p.out / 1e6);
-  el.textContent = '~$' + cost.toFixed(3) + ' estimated · ' + p.label;
+  if (document.getElementById('aud-scope').value === 'all') mult *= 2;
+  const per = document.getElementById('aud-period').value;
+  if (per === '8w') mult *= 1.5; if (per === '12w') mult *= 2;
+  if (document.getElementById('aud-compare').value !== 'none') mult *= 1.4;
+  if (p.in === null) { el.textContent = 'Cost preview unavailable'; return; }
+  el.textContent = '~$' + ((3500 * mult * p.in / 1e6) + (1500 * p.out / 1e6)).toFixed(3) + ' estimated · ' + p.label;
 }
-
-// --- Build prompt ---
-function buildAuditPrompt({ client, campaigns, primaryEntries, primaryRange, compareEntries, compareRange, question, scope }) {
-  const scopeLabel = scope === 'all' ? `All ${campaigns.length} campaigns` : campaigns[0].name;
-  const gm = scope === 'all' ? '(varies by campaign — see below)' : (campaigns[0].gm * 100).toFixed(1) + '%';
-  const prt = scope === 'all' ? '(varies)' : campPRT(campaigns[0]).toFixed(2) + '×';
-  const et = scope === 'all' ? '(varies)' : campEffTarget(campaigns[0]).toFixed(2) + '×';
-
-  const formatEntry = (e, marg) => {
-    const camp = client.campaigns.find(c => c.id === e.campId);
-    const campName = camp ? camp.name : 'Unknown';
-    const campStr = scope === 'all' ? ` [${campName}]` : '';
-    return `${e.date}${campStr} | tgtROAS=${e.tROAS}× | spend=$${e.spend.toFixed(2)} | totRev=$${e.totRev.toFixed(2)} | overallROAS=${e.ovrR}× | mROAS=${marg !== null ? marg.toFixed(2) + '×' : 'n/a'}`;
+function buildAuditPrompt(o) {
+  const { client, campaigns, primaryEntries, primaryRange, compareEntries, compareRange, question, scope } = o;
+  const single = scope !== 'all';
+  const camp = campaigns[0];
+  const fmtRows = (list) => {
+    if (single) {
+      return analyzeSeries(list, camp).map(r =>
+        '  ' + r.e.date + ' | spend $' + r.e.spend.toFixed(2) + ' | ppcRev $' + r.e.ppcRev.toFixed(2) + ' | totRev $' + r.e.totRev.toFixed(2) +
+        ' | ppcROAS ' + r.ppc.toFixed(2) + '× (target ' + r.pt.toFixed(2) + '×, ' + (r.ppcOk ? 'MET' : 'MISS') + ', ' + r.dp + ')' +
+        ' | overallROAS ' + r.mer.toFixed(2) + '× (break-even ' + r.be.toFixed(2) + '×, ' + (r.merOk ? 'OK' : 'BELOW') + ', ' + r.dm + ')' +
+        ' | state ' + STATES[r.st.code].label + (r.st.code === 'WATCH' ? ' ' + r.watch + '/' + WATCH_LIMIT : '')).join('\n');
+    }
+    return list.map(e => {
+      const c = client.campaigns.find(x => x.id === e.campId) || { name: '?', gm: 0.235, targetROAS: 0 };
+      return '  ' + e.date + ' [' + c.name + '] | spend $' + e.spend.toFixed(2) + ' | ppcRev $' + e.ppcRev.toFixed(2) + ' | totRev $' + e.totRev.toFixed(2) +
+        ' | ppcROAS ' + ppcRoasOf(e).toFixed(2) + '× | overallROAS ' + merOf(e).toFixed(2) + '×';
+    }).join('\n');
   };
-
-  const primaryMarg = getMargROAS(primaryEntries);
-  const primaryRows = primaryEntries.map((e, i) => '  ' + formatEntry(e, primaryMarg[i])).join('\n');
-
-  // Run rules engine on the primary period for the AI's reference
-  let rulesVerdict = 'N/A (need 2+ weeks)';
-  if (primaryEntries.length >= 2 && scope !== 'all') {
-    const base = calcBaseDecision(primaryEntries, campaigns[0]);
-    const lastM = primaryMarg[primaryMarg.length - 1];
-    const mz = margZoneFromVal(lastM);
-    const { finalDec, hasConflict } = getFinalDecision(base, mz);
-    rulesVerdict = `${finalDec}${hasConflict ? ' (mROAS Override)' : ''} | Level=${base.levelSt} | Trend=${base.trendSt} (${base.trend}%) | Stability=${base.stability} | Blended=${base.blended.toFixed(2)}× | mROAS=${lastM !== null ? lastM.toFixed(2) + '× (' + mz.status + ')' : 'n/a'}`;
-  } else if (scope === 'all') {
-    rulesVerdict = '(multi-campaign — calculate per campaign as needed; rules engine runs per-campaign in this tool)';
-  }
-
-  const campCtx = scope === 'all'
-    ? client.campaigns.map(c => `  - ${c.name}: gm=${(c.gm * 100).toFixed(1)}%, defaultTgtROAS=${c.targetROAS}×, prt=${campPRT(c).toFixed(2)}×, effTarget=${campEffTarget(c).toFixed(2)}×`).join('\n')
-    : `  ${campaigns[0].name}: gm=${gm}, prt=${prt}, effTarget=${et}, defaultTgtROAS=${campaigns[0].targetROAS}×`;
-
-  let comparisonBlock = '';
-  if (compareEntries && compareEntries.length) {
-    const compMarg = getMargROAS(compareEntries);
-    const compRows = compareEntries.map((e, i) => '  ' + formatEntry(e, compMarg[i])).join('\n');
-    comparisonBlock = `\n== COMPARISON PERIOD (${compareRange}) ==\n${compRows}\n`;
-  }
-
-  const questionBlock = question.trim() ? `\n== OPERATOR'S SPECIFIC QUESTION ==\n${question.trim()}\n\nAnswer this directly and concretely first, then continue with the structure below.\n` : '';
-
-  return `You are a senior digital marketing auditor reviewing a Google Ads campaign for an e-commerce operator. Your job: read the data, see what the rules engine missed, tell the operator what's actually going on and what to investigate before they act. Operator-to-operator voice. Specific. No marketing speak.
-
-== METHODOLOGY (the operator's framework) ==
-- Profit Threshold (PRT) = 1 / gross margin. Below this, ads lose money on contribution basis.
-- Effective Target = max(operator's target ROAS, PRT)
-- Marginal ROAS (mROAS) = (Δrevenue / Δspend) week-over-week.
-  Optimal >${cfg().margThresh}×, Diminishing 2.5–${cfg().margThresh}×, Dangerous 1.0–2.5× (REDUCE override), Toxic <1.0× (CUT override)
-- 4-week rules: Level (vs effTarget) × Trend (W4 vs W1) × Stability (std dev / mean) → SCALE/HOLD/CUT/INVESTIGATE/REDUCE
-- mROAS overrides the 4-week verdict when in Dangerous or Toxic zone
-
-== CLIENT ==
-${client.name}
-
-== SCOPE ==
-${scopeLabel}
-
-== CAMPAIGN CONTEXT ==
-${campCtx}
-
-== PRIMARY PERIOD (${primaryRange}) ==
-${primaryRows}
-
-== RULES ENGINE VERDICT ==
-${rulesVerdict}
-${comparisonBlock}${questionBlock}
-== YOUR JOB — write the audit in this structure ==
-
-1. THE PATTERN (2-3 sentences max)
-What's actually happening across the period that a single-week or single-window view misses. Trajectory, not snapshot.
-
-2. WHAT THE RULES MISSED OR UNDER-WEIGHTED
-The rules concluded ${rulesVerdict.split('|')[0].trim()}. That's mechanical. What does the data show that the rules don't surface?
-- Trend acceleration vs flat
-- Persistence (3 borderline weeks ≠ 1 bad week)
-- Magnitude reasoning (not just "REDUCE" — by how much)
-- Cross-week or cross-campaign patterns
-${compareEntries && compareEntries.length ? '- HOW DOES THE PRIMARY PERIOD COMPARE TO THE COMPARISON PERIOD? This is critical context.' : ''}
-
-3. INVESTIGATION CHECKLIST (3-5 specific items)
-What to check BEFORE acting. Concrete only:
-- Specific Google Ads reports (Insights tab, Search Categories, Asset Group Performance, Placement breakdown)
-- Specific time windows ("look at week 3 specifically because...")
-- Specific external sources (Merchant Center change history, competitor pricing on Grainger/Amazon, supplier stock-outs)
-Each check should have a one-line WHY.
-
-4. ACTION RECOMMENDATION
-Either confirm the rules verdict with new context, OR argue for a different action. Be specific about MAGNITUDE (15% reduce vs 50% reduce). If holding, say what pre-conditions would change your mind.
-
-5. WHAT TO WATCH NEXT WEEK
-ONE concrete signal to monitor. Specific.
-
-== HARD RULES ==
-- Reference real data points and weeks. No invented numbers.
-- If you can't tell something from this data, SAY SO and direct the operator where to find it.
-- 400-600 words total. Tight. Scannable. No padding.
-- No "ROAS optimization", "leverage synergies", or other marketing words. Talk like an operator briefing another operator.`;
+  const campCtx = single
+    ? '  ' + camp.name + ': gross margin ' + (camp.gm * 100).toFixed(1) + '%, overall break-even ' + breakEven(camp).toFixed(2) + '×, PPC target ' + camp.targetROAS.toFixed(2) + '×'
+    : client.campaigns.map(c => '  - ' + c.name + ': gross margin ' + (c.gm * 100).toFixed(1) + '%, overall break-even ' + breakEven(c).toFixed(2) + '×, PPC target ' + c.targetROAS.toFixed(2) + '×').join('\n');
+  const rowsP = fmtRows(primaryEntries);
+  const lastRow = single && primaryEntries.length ? analyzeSeries(primaryEntries, camp).slice(-1)[0] : null;
+  const verdict = lastRow ? STATES[lastRow.st.code].label + (lastRow.st.code === 'WATCH' ? ' (week ' + lastRow.watch + ' of ' + WATCH_LIMIT + ')' : '') + '. ' + lastRow.st.note : '(multi-campaign view, the engine runs per campaign)';
+  const cmpBlock = (compareEntries && compareEntries.length) ? '\n== COMPARISON PERIOD (' + compareRange + ') ==\n' + fmtRows(compareEntries) + '\n' : '';
+  const qBlock = question.trim() ? '\n== OPERATOR QUESTION ==\n' + question.trim() + '\n\nAnswer this directly and concretely first, then continue with the structure below.\n' : '';
+  return 'You are a senior digital marketing auditor reviewing a Google Ads campaign for an e-commerce operator. Read the data, see what the rules engine missed, tell the operator what is actually going on and what to check before acting. Operator to operator. Specific. No marketing speak. Do not use em dashes.\n\n' +
+'== THE OPERATOR FRAMEWORK (two tracks, judged week by week, never cumulative) ==\n' +
+'- PPC ROAS = PPC revenue / ad spend. Judged against the PPC ROAS target for that week. This is the diagnostic metric.\n' +
+'- Overall ROAS = TOTAL revenue / ad spend (blended MER). Judged against break-even = 1 / gross margin. This is the truth metric: below it, the business is not covering ad spend out of gross profit.\n' +
+'- Direction: a week counts as UP or DOWN only if it moved at least ' + cfg().dirThresh + '% versus the prior week, otherwise FLAT.\n' +
+'- States: both above target and both UP two weeks running = SCALE. Both up one week = SCALE (TEST). Both fine but one sliding = HOLD + INVESTIGATE. Both fine and flat = HOLD.\n' +
+'- WATCH: overall above break-even while PPC is under target. The operator deliberately does not panic here, because last-click attribution under-credits paid. It runs up to ' + WATCH_LIMIT + ' weeks. At week ' + WATCH_LIMIT + ', if overall still holds it becomes CLEARED (the PPC target or the attribution is wrong, not the spend). If overall is turning down by then, it becomes REDUCE. Overall falling two weeks running escalates to REDUCE early.\n' +
+'- DEMAND PROBLEM: PPC on target but overall below break-even. Paid is working and non-paid revenue collapsed. Cutting ads makes it worse.\n' +
+'- CUT: both below their bar.\n' +
+'- There is no marginal ROAS in this framework. It was removed because dividing a change in TOTAL revenue by a small change in spend amplifies ordinary organic noise into false CUT and SCALE signals. Do not reintroduce it or reason from it.\n\n' +
+'== CLIENT ==\n' + client.name + '\n\n== SCOPE ==\n' + (single ? camp.name : 'All ' + client.campaigns.length + ' campaigns') + '\n\n== CAMPAIGN CONTEXT ==\n' + campCtx + '\n\n' +
+'== PRIMARY PERIOD (' + primaryRange + ') ==\n' + rowsP + '\n\n== RULES ENGINE VERDICT (latest week) ==\n' + verdict + '\n' + cmpBlock + qBlock + '\n' +
+'== YOUR JOB: write the audit in this structure ==\n\n' +
+'1. THE PATTERN (2 to 3 sentences)\nWhat is happening across the period that a single week misses. Trajectory, not snapshot. Say explicitly whether PPC and overall are moving together or apart, because that divergence is the whole point of the framework.\n\n' +
+'2. WHAT THE RULES MISSED OR UNDER-WEIGHTED\nThe engine said ' + (lastRow ? STATES[lastRow.st.code].label : 'see above') + '. That is mechanical. What does the data show that the state machine does not surface? Consider: whether the PPC target itself is set at a defensible number, whether the gap between PPC ROAS and overall ROAS is widening (attribution leakage) or narrowing, persistence versus a one-week blip, and magnitude rather than direction.\n' +
+(compareEntries && compareEntries.length ? '- Compare the primary period against the comparison period explicitly. This is critical context.\n' : '') + '\n' +
+'3. INVESTIGATION CHECKLIST (3 to 5 items)\nWhat to check BEFORE acting. Concrete only: named Google Ads reports (Insights, Search Categories, Asset Group Performance, Placements), specific weeks and why, specific external sources (Merchant Center change history, competitor pricing, supplier stock-outs, GA4 channel mix for the organic and direct side). One line of WHY each.\n\n' +
+'4. ACTION RECOMMENDATION\nConfirm the state or argue for a different one. Be specific about magnitude. If the recommendation is to hold, say what would change your mind.\n\n' +
+'5. WHAT TO WATCH NEXT WEEK\nONE concrete signal.\n\n' +
+'== HARD RULES ==\n- Reference real dates and real numbers from the data above. Invent nothing.\n- If the data cannot answer something, say so and say where to look.\n- 400 to 600 words. Tight. No padding. No em dashes.';
 }
-
-// --- Run audit ---
 async function runAudit() {
-  if (!aiSettings.apiKey) {
-    toast('No API key set — open Settings and add your Anthropic key', 'error');
-    return;
-  }
-  const clientId = document.getElementById('aud-client').value;
-  const client = db.clients.find(c => c.id === clientId);
+  if (!aiSettings.apiKey) { toast('No API key set, add it in Settings', 'error'); return; }
+  const client = db.clients.find(c => c.id === document.getElementById('aud-client').value);
   if (!client) { toast('Pick a client', 'error'); return; }
-
   const scope = document.getElementById('aud-scope').value;
   const campaignId = document.getElementById('aud-campaign').value;
   const period = document.getElementById('aud-period').value;
-  const customStart = document.getElementById('aud-custom-start').value;
-  const customEnd = document.getElementById('aud-custom-end').value;
-  const compareMode = document.getElementById('aud-compare').value;
-  const compStart = document.getElementById('aud-comp-start').value;
-  const compEnd = document.getElementById('aud-comp-end').value;
   const question = document.getElementById('aud-question').value || '';
-
-  const { entries: primaryEntries, rangeLabel: primaryRange } = getAuditEntries(client, scope, campaignId, period, customStart, customEnd);
-  if (primaryEntries.length < 2) {
-    toast('Need at least 2 weeks of data in the primary period', 'error');
-    return;
-  }
-  const { entries: compareEntries, rangeLabel: compareRange } = getComparisonEntries(client, scope, campaignId, primaryEntries, compareMode, compStart, compEnd);
-
-  const campaigns = scope === 'all'
-    ? client.campaigns
-    : [client.campaigns.find(c => c.id === campaignId) || client.campaigns[0]];
-
+  const { entries: primaryEntries, rangeLabel: primaryRange } = getAuditEntries(client, scope, campaignId, period, document.getElementById('aud-custom-start').value, document.getElementById('aud-custom-end').value);
+  if (primaryEntries.length < 2) { toast('Need at least 2 weeks in the primary period', 'error'); return; }
+  const { entries: compareEntries, rangeLabel: compareRange } = getComparisonEntries(client, scope, campaignId, primaryEntries, document.getElementById('aud-compare').value, document.getElementById('aud-comp-start').value, document.getElementById('aud-comp-end').value);
+  const campaigns = scope === 'all' ? client.campaigns : [client.campaigns.find(c => c.id === campaignId) || client.campaigns[0]];
   const prompt = buildAuditPrompt({ client, campaigns, primaryEntries, primaryRange, compareEntries, compareRange, question, scope });
-
-  const btn = document.getElementById('aud-run-btn');
-  const status = document.getElementById('aud-status');
-  btn.disabled = true; btn.textContent = '⏳ Running...';
-  status.textContent = 'Sending to Claude...';
+  const btn = document.getElementById('aud-run-btn'), status = document.getElementById('aud-status');
+  btn.disabled = true; btn.textContent = '⏳ Running...'; status.textContent = 'Sending to Claude...';
   document.getElementById('aud-output-card').style.display = 'block';
   document.getElementById('aud-output').textContent = 'Running audit...';
-
   try {
     const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': aiSettings.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: aiSettings.model,
-        max_tokens: 2500,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      headers: { 'Content-Type': 'application/json', 'x-api-key': aiSettings.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: aiSettings.model, max_tokens: 2500, messages: [{ role: 'user', content: prompt }] })
     });
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`API error ${resp.status}: ${errText.slice(0, 300)}`);
-    }
-
+    if (!resp.ok) throw new Error('API error ' + resp.status + ': ' + (await resp.text()).slice(0, 300));
     const data = await resp.json();
     const text = data.content.filter(c => c.type === 'text').map(c => c.text).join('\n');
     const usage = data.usage || {};
-
-    // Compute actual cost
     const cost = calcCost(aiSettings.model, usage.input_tokens || 0, usage.output_tokens || 0);
-    const costStr = cost === null ? 'unknown (price not in lookup)' : '$' + cost.toFixed(4);
-
     document.getElementById('aud-output').textContent = text;
-    document.getElementById('aud-usage-info').textContent =
-      `Tokens: ${usage.input_tokens || 0} in / ${usage.output_tokens || 0} out · Actual cost: ${costStr} · Model: ${aiSettings.model}`;
-
+    document.getElementById('aud-usage-info').textContent = 'Tokens: ' + (usage.input_tokens || 0) + ' in / ' + (usage.output_tokens || 0) + ' out · Actual cost: ' + (cost === null ? 'unknown' : '$' + cost.toFixed(4)) + ' · Model: ' + aiSettings.model;
     lastAuditResult = {
-      id: 'aud_' + Date.now(),
-      timestamp: new Date().toISOString(),
-      clientId,
-      clientName: client.name,
-      scope: {
-        type: scope,
-        campaignId: scope === 'single' ? campaignId : null,
-        campaignName: scope === 'single' ? (campaigns[0] ? campaigns[0].name : '') : 'All Campaigns',
-        primaryRange,
-        compareRange: compareRange || null,
-        question
-      },
+      id: 'aud_' + Date.now(), timestamp: new Date().toISOString(), clientId: client.id, clientName: client.name,
+      scope: { type: scope, campaignId: scope === 'single' ? campaignId : null, campaignName: scope === 'single' ? (campaigns[0] ? campaigns[0].name : '') : 'All Campaigns', primaryRange, compareRange: compareRange || null, question },
       response: text,
-      usage: {
-        input_tokens: usage.input_tokens || 0,
-        output_tokens: usage.output_tokens || 0,
-        cost: cost === null ? 0 : cost,
-        model: aiSettings.model
-      }
+      usage: { input_tokens: usage.input_tokens || 0, output_tokens: usage.output_tokens || 0, cost: cost === null ? 0 : cost, model: aiSettings.model }
     };
-    status.textContent = 'Done — review output below';
-    toast('Audit complete', 'success');
-    updateAiSpendInfo();
+    status.textContent = 'Done'; toast('Audit complete', 'success'); updateAiSpendInfo();
   } catch (err) {
     document.getElementById('aud-output').textContent = 'Error: ' + err.message + '\n\nCheck your API key, model availability, and account credits.';
-    status.textContent = '';
-    toast('Audit failed — see output', 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = '▶ Run Audit';
-  }
+    status.textContent = ''; toast('Audit failed, see output', 'error');
+  } finally { btn.disabled = false; btn.textContent = '▶ Run Audit'; }
 }
-
-// --- Save / copy / history ---
 function saveAudit() {
   if (!lastAuditResult) { toast('No audit to save', 'error'); return; }
   const client = db.clients.find(c => c.id === lastAuditResult.clientId);
   if (!client) { toast('Client not found', 'error'); return; }
   if (!client.audits) client.audits = [];
-  // Avoid duplicate save
-  if (client.audits.find(a => a.id === lastAuditResult.id)) {
-    toast('Already saved', 'error');
-    return;
-  }
+  if (client.audits.find(a => a.id === lastAuditResult.id)) { toast('Already saved', 'error'); return; }
   client.audits.unshift(JSON.parse(JSON.stringify(lastAuditResult)));
-  save();
-  renderAuditHistoryList();
-  toast('Audit saved to history', 'success');
+  save(); renderAuditHistoryList(); toast('Audit saved to history', 'success');
 }
-
 function copyAuditOutput() {
-  const text = document.getElementById('aud-output').textContent;
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(
-    () => toast('Copied to clipboard', 'success'),
-    () => toast('Copy failed — select and copy manually', 'error')
-  );
+  const t = document.getElementById('aud-output').textContent; if (!t) return;
+  navigator.clipboard.writeText(t).then(() => toast('Copied', 'success'), () => toast('Copy failed', 'error'));
 }
-
 function renderAuditHistoryList() {
-  const clientId = document.getElementById('aud-client') ? document.getElementById('aud-client').value : null;
-  const client = clientId ? db.clients.find(c => c.id === clientId) : activeClient();
-  const list = document.getElementById('aud-history-list');
-  if (!list) return;
+  const el = document.getElementById('aud-client');
+  const client = el ? db.clients.find(c => c.id === el.value) : activeClient();
+  const list = document.getElementById('aud-history-list'); if (!list) return;
   const audits = (client && client.audits) ? client.audits : [];
-  if (!audits.length) {
-    list.innerHTML = '<p style="color:var(--text3);font-size:12px;font-family:\'IBM Plex Mono\',monospace">No saved audits for this client yet.</p>';
-    return;
-  }
+  if (!audits.length) { list.innerHTML = '<p style="color:var(--text3);font-size:12px;font-family:\'IBM Plex Mono\',monospace">No saved audits for this client yet.</p>'; return; }
   list.innerHTML = audits.map(a => {
-    const d = new Date(a.timestamp).toLocaleString();
-    const q = a.scope.question ? ' · "' + escapeHtml(a.scope.question.slice(0, 60)) + (a.scope.question.length > 60 ? '..."' : '"') : '';
-    return `
-      <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;color:var(--text);font-family:'IBM Plex Mono',monospace">${escapeHtml(a.scope.campaignName)} · ${escapeHtml(a.scope.primaryRange)}${q}</div>
-          <div style="font-size:11px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:3px">${d} · $${a.usage.cost.toFixed(4)}</div>
-        </div>
-        <button class="btn btn-edit" onclick="loadAudit('${a.id}')">View</button>
-        <button class="btn btn-del" onclick="deleteAudit('${a.id}')">Del</button>
-      </div>`;
+    const q = a.scope.question ? ' · "' + escapeHtml(a.scope.question.slice(0, 60)) + '"' : '';
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+      '<div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--text);font-family:\'IBM Plex Mono\',monospace">' + escapeHtml(a.scope.campaignName) + ' · ' + escapeHtml(a.scope.primaryRange) + q + '</div>' +
+      '<div style="font-size:11px;color:var(--text3);font-family:\'IBM Plex Mono\',monospace;margin-top:3px">' + new Date(a.timestamp).toLocaleString() + ' · $' + a.usage.cost.toFixed(4) + '</div></div>' +
+      '<button class="btn btn-edit" onclick="loadAudit(\'' + a.id + '\')">View</button>' +
+      '<button class="btn btn-del" onclick="deleteAudit(\'' + a.id + '\')">Del</button></div>';
   }).join('');
 }
-
-function loadAudit(auditId) {
+function loadAudit(id) {
   const client = db.clients.find(c => c.id === document.getElementById('aud-client').value);
   if (!client || !client.audits) return;
-  const a = client.audits.find(x => x.id === auditId);
-  if (!a) return;
+  const a = client.audits.find(x => x.id === id); if (!a) return;
   lastAuditResult = JSON.parse(JSON.stringify(a));
   document.getElementById('aud-output-card').style.display = 'block';
   document.getElementById('aud-output').textContent = a.response;
-  document.getElementById('aud-usage-info').textContent =
-    `Tokens: ${a.usage.input_tokens} in / ${a.usage.output_tokens} out · Cost: $${a.usage.cost.toFixed(4)} · Model: ${a.usage.model} · Saved: ${new Date(a.timestamp).toLocaleString()}`;
+  document.getElementById('aud-usage-info').textContent = 'Tokens: ' + a.usage.input_tokens + ' in / ' + a.usage.output_tokens + ' out · Cost: $' + a.usage.cost.toFixed(4) + ' · Saved: ' + new Date(a.timestamp).toLocaleString();
   document.getElementById('aud-status').textContent = 'Loaded saved audit';
   document.getElementById('aud-output-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-function deleteAudit(auditId) {
+function deleteAudit(id) {
   const client = db.clients.find(c => c.id === document.getElementById('aud-client').value);
   if (!client || !client.audits) return;
-  const a = client.audits.find(x => x.id === auditId);
-  if (!a) return;
-  customConfirm(
-    `Delete this saved audit? (${a.scope.primaryRange})`,
-    () => {
-      client.audits = client.audits.filter(x => x.id !== auditId);
-      save();
-      renderAuditHistoryList();
-      toast('Audit deleted', 'success');
-    },
-    { title: 'Delete Saved Audit', yesLabel: 'Delete' }
-  );
+  const a = client.audits.find(x => x.id === id); if (!a) return;
+  customConfirm('Delete this saved audit? (' + a.scope.primaryRange + ')', () => {
+    client.audits = client.audits.filter(x => x.id !== id);
+    save(); renderAuditHistoryList(); toast('Audit deleted', 'success');
+  }, { title: 'Delete Saved Audit', yesLabel: 'Delete' });
 }
-
 function updateAiSpendInfo() {
-  const el = document.getElementById('ai-spend-info');
-  if (!el) return;
-  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const el = document.getElementById('ai-spend-info'); if (!el) return;
+  const cutoff = Date.now() - 30 * 86400000;
   let total = 0, count = 0;
-  db.clients.forEach(c => {
-    (c.audits || []).forEach(a => {
-      if (new Date(a.timestamp).getTime() > cutoff) { total += a.usage.cost || 0; count++; }
-    });
-  });
-  el.textContent = count ? `Last 30 days: ${count} audit${count === 1 ? '' : 's'} · $${total.toFixed(4)} total spend (saved audits only)` : 'No saved audits in the last 30 days.';
+  db.clients.forEach(c => (c.audits || []).forEach(a => { if (new Date(a.timestamp).getTime() > cutoff) { total += a.usage.cost || 0; count++; } }));
+  el.textContent = count ? 'Last 30 days: ' + count + ' audit' + (count === 1 ? '' : 's') + ' · $' + total.toFixed(4) + ' total (saved audits only)' : 'No saved audits in the last 30 days.';
 }
 
-// --- PDF export ---
-function exportAuditPDF() {
-  if (!lastAuditResult) { toast('No audit to export', 'error'); return; }
-  if (!window.jspdf) { toast('PDF library still loading — try again', 'error'); return; }
-  const a = lastAuditResult;
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
-  const W = 215.9, H = 279.4, ml = 15, mr = 15, usableW = W - ml - mr;
-  let y = 0;
-  const preparer = db.preparedBy || 'Ahmed — Modonix';
-  const today = new Date().toISOString().slice(0, 10);
-
-  // Header bar
-  doc.setFillColor(13, 15, 17); doc.rect(0, 0, W, 22, 'F');
-  doc.setFillColor(99, 102, 241); doc.rect(0, 22, W, 1, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
-  doc.text('MODONIX  ·  ' + a.clientName.toUpperCase(), ml, 14);
-  doc.setFont('helvetica', 'normal'); doc.setTextColor(139, 143, 154);
-  doc.text('AI AUDITOR  ·  EXPERT REVIEW', W - mr, 14, { align: 'right' });
-  y = 32;
-
-  // Title block
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
-  doc.text('PREPARED BY', ml, y); doc.text('PREPARED FOR', W / 2 + 2, y); y += 5;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.setTextColor(13, 15, 17);
-  doc.text(preparer, ml, y); doc.text(a.clientName, W / 2 + 2, y); y += 5;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(113, 128, 144);
-  doc.text('E-Commerce & Digital Commerce Consulting', ml, y); doc.text(today, W / 2 + 2, y); y += 8;
-  doc.setDrawColor(220, 226, 234); doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 6;
-
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
-  doc.text('Scope: ' + a.scope.campaignName + '  ·  Period: ' + a.scope.primaryRange, ml, y); y += 5;
-  if (a.scope.compareRange) { doc.text('Comparison: ' + a.scope.compareRange, ml, y); y += 5; }
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(13, 15, 17);
-  doc.text('Expert Auditor Review', ml, y); y += 7;
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(113, 128, 144);
-  doc.text('AI-generated analysis · Model: ' + a.usage.model, ml, y); y += 10;
-  doc.setLineWidth(0.3); doc.line(ml, y, W - mr, y); y += 8;
-
-  if (a.scope.question) {
-    doc.setFillColor(245, 247, 250); doc.setDrawColor(99, 102, 241); doc.setLineWidth(0.4);
-    doc.roundedRect(ml, y, usableW, 12, 2, 2, 'FD');
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(99, 102, 241);
-    doc.text('OPERATOR QUESTION', ml + 4, y + 5);
-    doc.setFont('helvetica', 'italic'); doc.setFontSize(8); doc.setTextColor(45, 55, 72);
-    const qLines = doc.splitTextToSize(a.scope.question, usableW - 8);
-    doc.text(qLines[0] || '', ml + 4, y + 10);
-    y += 16;
-  }
-
-  // Body
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(13, 15, 17);
-  const lines = doc.splitTextToSize(a.response, usableW);
-  const lineH = 4.5;
-  lines.forEach(line => {
-    if (y > H - 25) { doc.addPage(); y = 20; }
-    // Bold lines that look like section headers (start with number+period or all-caps short line)
-    if (/^\d+\.\s+[A-Z]/.test(line) || (line.length < 60 && line === line.toUpperCase() && /[A-Z]/.test(line))) {
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(99, 102, 241);
-    } else {
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(45, 55, 72);
-    }
-    doc.text(line, ml, y); y += lineH;
-  });
-
-  // Footer on last page
-  doc.setFillColor(240, 242, 245); doc.rect(0, H - 15, W, 15, 'F');
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(113, 128, 144);
-  doc.text('Confidential — Prepared by ' + preparer + ' for ' + a.clientName, ml, H - 7);
-  doc.text('AI Auditor Review · Modonix', W / 2, H - 7, { align: 'center' });
-  doc.text(today, W - mr, H - 7, { align: 'right' });
-
-  const safeName = a.clientName.replace(/[^a-z0-9]+/gi, '_');
-  doc.save('AI_Audit_' + safeName + '_' + today + '.pdf');
-  toast('Audit PDF exported', 'success');
-}
-
-
-// ===== REFRESH FROM SHEET (engine) =====
+// ============================================================================
+// REFRESH FROM SHEET
+// ============================================================================
 const SHEET_URL_KEY = 'roas_sheeturl';
-function saveSheetUrl(){ var e=document.getElementById('s-sheet-url'); if(e) localStorage.setItem(SHEET_URL_KEY, e.value.trim()); }
-function loadSheetUrlToUi(){ var e=document.getElementById('s-sheet-url'); if(e) e.value = localStorage.getItem(SHEET_URL_KEY) || ''; }
-function parseCSV(t){ var R=[],r=[],c='',q=false; for(var i=0;i<t.length;i++){ var ch=t[i],nx=t[i+1]; if(q){ if(ch=='"'&&nx=='"'){c+='"';i++;} else if(ch=='"'){q=false;} else c+=ch; } else { if(ch=='"')q=true; else if(ch==','){r.push(c);c='';} else if(ch=='\n'){r.push(c);R.push(r);r=[];c='';} else if(ch=='\r'){} else c+=ch; } } if(c.length||r.length){r.push(c);R.push(r);} return R.filter(function(x){return x.some(function(v){return v.trim()!='';});}); }
-function shNum(v){ var n=parseFloat(String(v).replace(/[^0-9.\-]/g,'')); return isNaN(n)?0:n; }
-async function refreshFromSheet(){
-  var url = localStorage.getItem(SHEET_URL_KEY);
-  if(!url){ toast('Add your sheet link in Settings first',''); return; }
-  toast('Reading sheet...','');
-  var text;
-  try{ var resp = await fetch(url + (url.indexOf('?')>-1?'&':'?') + '_ts=' + Date.now(), { cache: 'no-store' }); if(!resp.ok) throw 0; text = await resp.text(); }
-  catch(e){ toast('Could not read sheet — check the published link',''); return; }
-  var rows = parseCSV(text);
-  if(rows.length < 2){ toast('Sheet looks empty',''); return; }
-  var head = rows[0].map(function(h){return h.trim().toLowerCase();});
-  function col(names){ for(var k=0;k<names.length;k++){ var i=head.indexOf(names[k]); if(i>-1) return i; } return -1; }
-  var ci = { name:col(['app campaign','campaign','app category']), date:col(['week of','scanning day','date']), spend:col(['spend','cost']), ppc:col(['ppc revenue','revenue']), tot:col(['total revenue']), tr:col(['target roas','target']) };
-  if(ci.name<0 || ci.date<0){ toast('Sheet missing App Campaign or Week Of column',''); return; }
-  var client = activeClient();
-  var byName = {}; client.campaigns.forEach(function(c){ byName[c.name.trim().toLowerCase()] = c; });
-  var added=0, updated=0, unmatched=[];
-  rows.slice(1).forEach(function(r){
-    var nm=(r[ci.name]||'').trim(); if(!nm) return;
-    var camp=byName[nm.toLowerCase()]; if(!camp){ unmatched.push(nm); return; }
-    var date=(r[ci.date]||'').trim(); if(!date) return;
-    var spend=shNum(r[ci.spend]), ppcRev=shNum(r[ci.ppc]), totRev=shNum(r[ci.tot]);
-    var tROAS=(ci.tr>-1 && r[ci.tr])?shNum(r[ci.tr]):camp.targetROAS;
-    var ppcR=spend>0?+(ppcRev/spend).toFixed(2):0, ovrR=spend>0?+(totRev/spend).toFixed(2):0;
-    var ex=client.entries.find(function(e){ return e.campId==camp.id && e.date==date; });
-    if(ex){ ex.tROAS=tROAS; ex.ppcR=ppcR; ex.ovrR=ovrR; ex.spend=spend; ex.ppcRev=ppcRev; ex.totRev=totRev; updated++; }
-    else{ client.entries.push({ id:'e'+Date.now()+Math.floor(Math.random()*1000), campId:camp.id, date:date, tROAS:tROAS, ppcR:ppcR, ovrR:ovrR, spend:spend, ppcRev:ppcRev, totRev:totRev }); added++; }
-  });
-  client.entries.sort(function(a,b){ return a.date.localeCompare(b.date); });
-  save(); populateSelects();
-  var msg = 'Refreshed: '+added+' added, '+updated+' updated';
-  if(unmatched.length) msg += ' · '+unmatched.length+' unmatched ('+Array.from(new Set(unmatched)).slice(0,3).join(', ')+')';
-  toast(msg, unmatched.length?'':'success');
+function saveSheetUrl() { const e = document.getElementById('s-sheet-url'); if (e) localStorage.setItem(SHEET_URL_KEY, e.value.trim()); }
+function loadSheetUrlToUi() { const e = document.getElementById('s-sheet-url'); if (e) e.value = localStorage.getItem(SHEET_URL_KEY) || ''; }
+function parseCSV(t) {
+  var R = [], r = [], c = '', q = false;
+  for (var i = 0; i < t.length; i++) {
+    var ch = t[i], nx = t[i + 1];
+    if (q) { if (ch == '"' && nx == '"') { c += '"'; i++; } else if (ch == '"') q = false; else c += ch; }
+    else { if (ch == '"') q = true; else if (ch == ',') { r.push(c); c = ''; } else if (ch == '\n') { r.push(c); R.push(r); r = []; c = ''; } else if (ch != '\r') c += ch; }
+  }
+  if (c.length || r.length) { r.push(c); R.push(r); }
+  return R.filter(x => x.some(v => v.trim() != ''));
 }
-// ===== END REFRESH FROM SHEET =====
+function shNum(v) { var n = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isNaN(n) ? 0 : n; }
+async function refreshFromSheet() {
+  var url = localStorage.getItem(SHEET_URL_KEY);
+  if (!url) { toast('Add your sheet link in Settings first', 'error'); return; }
+  toast('Reading sheet...');
+  var text;
+  try {
+    var resp = await fetch(url + (url.indexOf('?') > -1 ? '&' : '?') + '_ts=' + Date.now(), { cache: 'no-store' });
+    if (!resp.ok) throw 0;
+    text = await resp.text();
+  } catch (e) { toast('Could not read sheet, check the published link', 'error'); return; }
+  var rows = parseCSV(text);
+  if (rows.length < 2) { toast('Sheet looks empty', 'error'); return; }
+  var head = rows[0].map(h => h.trim().toLowerCase());
+  function col(names) { for (var k = 0; k < names.length; k++) { var i = head.indexOf(names[k]); if (i > -1) return i; } return -1; }
+  var ci = { name: col(['app campaign', 'campaign', 'app category']), date: col(['week of', 'scanning day', 'date']), spend: col(['spend', 'cost']), ppc: col(['ppc revenue', 'revenue']), tot: col(['total revenue']), tr: col(['ppc roas target', 'target roas', 'target']) };
+  if (ci.name < 0 || ci.date < 0) { toast('Sheet missing campaign or week column', 'error'); return; }
+  var client = activeClient(), byName = {};
+  client.campaigns.forEach(c => byName[c.name.trim().toLowerCase()] = c);
+  var added = 0, updated = 0, unmatched = [], badRows = 0;
+  rows.slice(1).forEach(function (r) {
+    var nm = (r[ci.name] || '').trim(); if (!nm) return;
+    var camp = byName[nm.toLowerCase()]; if (!camp) { unmatched.push(nm); return; }
+    var date = (r[ci.date] || '').trim(); if (!date) return;
+    var spend = shNum(r[ci.spend]), ppcRev = shNum(r[ci.ppc]), totRev = shNum(r[ci.tot]);
+    if (spend <= 0) { badRows++; return; }
+    var tROAS = (ci.tr > -1 && r[ci.tr]) ? shNum(r[ci.tr]) : camp.targetROAS;
+    var ex = client.entries.find(e => e.campId == camp.id && e.date == date);
+    if (ex) { Object.assign(ex, { tROAS, spend, ppcRev, totRev }); updated++; }
+    else { client.entries.push({ id: 'e' + Date.now() + Math.floor(Math.random() * 1000), campId: camp.id, date, tROAS, spend, ppcRev, totRev }); added++; }
+  });
+  client.entries.sort((a, b) => a.date.localeCompare(b.date));
+  save(); populateSelects();
+  var msg = 'Refreshed: ' + added + ' added, ' + updated + ' updated';
+  if (badRows) msg += ' · ' + badRows + ' skipped (no spend)';
+  if (unmatched.length) msg += ' · ' + unmatched.length + ' unmatched (' + Array.from(new Set(unmatched)).slice(0, 3).join(', ') + ')';
+  toast(msg, unmatched.length ? 'error' : 'success');
+}
 
+// ============================================================================
+// INIT
+// ============================================================================
+if (!loadFailed) save();
 populateClientSwitcher();
 populateSelects();
 document.getElementById('w-date').value = new Date().toISOString().slice(0, 10);
@@ -2218,6 +1586,15 @@ updateBackupBanner();
 updateLastBackupInfo();
 loadSheetUrlToUi();
 loadCloudSettingsToUi();
+if (loadFailed) {
+  const b = document.getElementById('backup-banner'), t = document.getElementById('banner-text');
+  if (b && t) {
+    t.textContent = 'Stored data could not be read and has NOT been overwritten. A raw copy was kept under a roas_recovery_ key in this browser. Import your last backup JSON to carry on.';
+    b.classList.remove('hidden');
+  }
+} else if (normalizeReport.backfilled || normalizeReport.deduped) {
+  setTimeout(() => toast('Upgraded to v9: ' + normalizeReport.backfilled + ' revenue value(s) rebuilt from stored ROAS, ' + normalizeReport.deduped + ' duplicate week(s) collapsed', 'success'), 800);
+}
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
