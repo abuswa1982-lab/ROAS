@@ -7,11 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0e0f11;--surface:#16181c;--surface2:#1e2026;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#e8eaed;--text2:#8b8f9a;--text3:#555a66;--green:#22c55e;--green-bg:rgba(34,197,94,0.1);--green-border:rgba(34,197,94,0.25);--amber:#f59e0b;--amber-bg:rgba(245,158,11,0.1);--amber-border:rgba(245,158,11,0.25);--red:#ef4444;--red-bg:rgba(239,68,68,0.1);--red-border:rgba(239,68,68,0.25);--blue:#3b82f6;--blue-bg:rgba(59,130,246,0.1);--blue-border:rgba(59,130,246,0.25);--accent:#6366f1;--radius:6px;--radius-lg:10px}
+:root{--bg:#f5f6f8;--surface:#ffffff;--surface2:#f8f9fb;--border:#e3e6eb;--border2:#cfd4dc;--text:#111827;--text2:#4b5563;--text3:#6b7280;--green:#15803d;--green-bg:#f0fdf4;--green-border:#bbf7d0;--amber:#b45309;--amber-bg:#fffbeb;--amber-border:#fde68a;--red:#b91c1c;--red-bg:#fef2f2;--red-border:#fecaca;--blue:#1d4ed8;--blue-bg:#eff6ff;--blue-border:#bfdbfe;--accent:#4f46e5;--radius:6px;--radius-lg:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 html{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.5}
 body{min-height:100vh;padding:0 0 60px}
-.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:100;flex-wrap:wrap;gap:12px}
+.header{border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:100;flex-wrap:wrap;gap:12px}
 .header-logo{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--text2);letter-spacing:.1em;text-transform:uppercase}
 .header-logo span{color:var(--accent)}
 .header-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text3);border:1px solid var(--border);padding:3px 8px;border-radius:4px}
@@ -24,14 +24,14 @@ body{min-height:100vh;padding:0 0 60px}
 .backup-banner{background:var(--amber-bg);border-bottom:1px solid var(--amber-border);padding:10px 24px;font-size:12px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace}
 .backup-banner.hidden{display:none}
 .backup-banner-text{flex:1;min-width:200px}
-.backup-banner button{background:var(--amber);color:#0e0f11;border:none;padding:5px 12px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+.backup-banner button{background:var(--amber);color:#fff;border:none;padding:5px 12px;border-radius:4px;font-size:11px;font-family:'IBM Plex Mono',monospace;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
 .backup-banner .dismiss{background:transparent;color:var(--amber);border:1px solid var(--amber-border)}
 .container{max-width:1150px;margin:0 auto;padding:24px 24px 0}
 .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;overflow-x:auto}
 .tab{padding:10px 18px;font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;transition:color .15s}
 .tab:hover{color:var(--text2)}
 .tab.active{color:var(--text);border-bottom:2px solid var(--accent)}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(17,24,39,0.04)}
 .card-title{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -47,7 +47,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--border2)}
 input[readonly]{background:var(--bg);color:var(--text2);cursor:default}
 select option{background:var(--surface2)}
 .btn{padding:8px 16px;border-radius:var(--radius);font-size:12px;font-family:'IBM Plex Mono',monospace;font-weight:500;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.05em}
-.btn-pri{background:var(--accent);color:#fff;border:none}.btn-pri:hover{background:#5558e8}
+.btn-pri{background:var(--accent);color:#fff;border:none}.btn-pri:hover{background:#4338ca}
 .btn-sec{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-sec:hover{color:var(--text);background:var(--surface2)}
 .btn-del{background:transparent;color:var(--red);border:1px solid var(--red-border);padding:4px 10px;font-size:11px}.btn-del:hover{background:var(--red-bg)}
 .btn-edit{background:transparent;color:var(--blue);border:1px solid var(--blue-border);padding:4px 10px;font-size:11px}.btn-edit:hover{background:var(--blue-bg)}
@@ -97,19 +97,19 @@ select option{background:var(--surface2)}
 .msg{font-size:12px;color:var(--green);font-family:'IBM Plex Mono',monospace}
 .err{font-size:12px;color:var(--red);font-family:'IBM Plex Mono',monospace}
 .window-selector{display:flex;gap:10px;align-items:flex-end;margin-bottom:16px;flex-wrap:wrap}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(17,24,39,0.45);display:none;align-items:center;justify-content:center;z-index:1000}
 .modal-overlay.show{display:flex}
 .modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;min-width:380px;max-width:90vw}
 .modal h2{font-size:14px;font-family:'IBM Plex Mono',monospace;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em}
 .modal p{color:var(--text);font-size:13px;line-height:1.6;margin-bottom:14px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:12px 18px;border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Mono',monospace;box-shadow:0 4px 20px rgba(0,0,0,0.5);opacity:0;transform:translateY(20px);transition:all .25s;z-index:2000;max-width:400px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--accent);padding:12px 18px;border-radius:var(--radius);font-size:13px;font-family:'IBM Plex Mono',monospace;box-shadow:0 4px 20px rgba(0,0,0,0.12);opacity:0;transform:translateY(20px);transition:all .25s;z-index:2000;max-width:400px}
 .toast.show{opacity:1;transform:translateY(0)}
 .toast.error{border-left-color:var(--red);color:var(--red)}
 .toast.success{border-left-color:var(--green);color:var(--green)}
 .dir-up{color:var(--green)}.dir-down{color:var(--red)}.dir-flat{color:var(--text3)}
 .score-bar{position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 15%,var(--amber) 40%,var(--amber) 60%,var(--green) 85%,var(--green) 100%);opacity:.85;margin:10px 0 4px}
-.score-dot{position:absolute;top:-5px;width:4px;height:18px;background:#fff;border-radius:2px;transform:translateX(-50%);box-shadow:0 0 0 2px var(--bg)}
+.score-dot{position:absolute;top:-5px;width:4px;height:18px;background:var(--text);border-radius:2px;transform:translateX(-50%);box-shadow:0 0 0 2px var(--bg)}
 .score-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
 .why-list{list-style:none;margin:0;padding:0}
 .why-list li{font-size:12px;color:var(--text2);padding:6px 0;border-bottom:1px solid var(--border);line-height:1.6}
@@ -128,7 +128,7 @@ details.card[open]>summary .card-title{margin-bottom:16px}
   <div class="header-right">
     <select id="client-switcher" onchange="switchClient(this.value)" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2);padding:6px 10px;border-radius:var(--radius);font-family:'IBM Plex Mono',monospace;font-size:11px;min-width:140px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer"></select>
     <button class="btn-header" onclick="quickAddClient()" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">+ Client</button>
-    <span class="header-tag">v10.0 · 4-Week Decision</span>
+    <span class="header-tag">v10.3 · Decision + Google</span>
     <button class="btn-header export" onclick="exportBackup()" title="Download all clients' data as JSON">⬇ Export Backup</button>
     <button class="btn-header import" onclick="document.getElementById('backup-import').click()" title="Restore from a backup JSON file">⬆ Import Backup</button>
     <button class="btn-header" onclick="refreshFromSheet()" title="Pull the latest weeks from your Google Sheet" style="background:transparent;color:var(--accent);border:1px solid rgba(99,102,241,0.3)">⟳ Refresh from Sheet</button>
@@ -144,34 +144,21 @@ details.card[open]>summary .card-title{margin-bottom:16px}
 
 <div class="container">
 <div class="tabs">
-  <button class="tab active" onclick="showTab('weekly')">Weekly Entry</button>
-  <button class="tab" onclick="showTab('trend')">Weekly Trend</button>
+  <button class="tab" onclick="showTab('weekly')" style="display:none">Weekly Entry</button>
+  <button class="tab active" onclick="showTab('trend')">Weekly Trend</button>
   <button class="tab" onclick="showTab('decision')">Decision Layer</button>
   <button class="tab" onclick="showTab('history')">History</button>
   <button class="tab" onclick="showTab('audit')">AI Audit</button>
   <button class="tab" onclick="showTab('settings')">Settings</button>
 </div>
 
-<div id="tab-weekly">
+<div id="tab-weekly" style="display:none">
   <div class="card">
     <div class="card-title">Campaign</div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <select id="w-camp" style="width:220px" onchange="onCampChange()"></select>
-      <button class="btn btn-sec" onclick="toggleNewCamp()">+ New Campaign</button>
-    </div>
+          </div>
     <div id="w-camp-info"></div>
-    <div id="new-camp-box" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px">
-      <div class="card-title">New Campaign</div>
-      <div class="g4" style="margin-bottom:12px">
-        <div><label>Name</label><input id="nc-name" placeholder="e.g. Hand Tools"></div>
-        <div><label>PPC ROAS Target</label><input id="nc-roas" type="number" step="0.01" placeholder="3.25"></div>
-        <div><label>Gross Margin %</label><input id="nc-gm" type="number" step="0.1" placeholder="23.5"></div>
-        <div style="display:flex;align-items:flex-end;gap:8px">
-          <button class="btn btn-pri" onclick="addCamp()">Add</button>
-          <button class="btn btn-sec" onclick="toggleNewCamp()">Cancel</button>
-        </div>
-      </div>
-    </div>
     <hr class="sep">
     <div class="card-title">Enter the week</div>
     <div class="hint">Enter <strong>dollars only</strong>. Both ROAS numbers are calculated, never typed. PPC ROAS = PPC revenue / spend. Overall ROAS = total revenue / spend.</div>
@@ -190,7 +177,7 @@ details.card[open]>summary .card-title{margin-bottom:16px}
   </div>
 </div>
 
-<div id="tab-trend" style="display:none">
+<div id="tab-trend">
   <div class="window-selector">
     <div><label style="margin-bottom:4px">Campaign</label><select id="win-camp" style="width:210px" onchange="renderTrend()"></select></div>
     <div><label style="margin-bottom:4px">Weeks Shown</label>
@@ -208,7 +195,14 @@ details.card[open]>summary .card-title{margin-bottom:16px}
 <div id="tab-decision" style="display:none">
   <div class="window-selector">
     <div><label style="margin-bottom:4px">Campaign</label><select id="dec-camp" style="width:210px" onchange="populateDecWindow()"></select></div>
-    <div><label style="margin-bottom:4px">4 Weeks Ending</label><select id="dec-end" style="width:180px" onchange="renderDecision()"><option value="">Most recent week</option></select></div>
+    <div><label style="margin-bottom:4px">Weeks Shown</label>
+      <select id="dec-weeks" style="width:150px" onchange="renderDecision()">
+        <option value="4">Last 4 weeks</option>
+        <option value="8">Last 8 weeks</option>
+        <option value="12">Last 12 weeks</option>
+        <option value="0">All weeks</option>
+      </select>
+    </div>
     <button class="btn-pdf" onclick="exportDecisionPDF()">Export PDF</button>
   </div>
   <div id="dec-content"></div>
@@ -358,7 +352,23 @@ details.card[open]>summary .card-title{margin-bottom:16px}
     <div class="card-title">Decision States</div>
     <div id="state-legend"></div>
     <hr class="sep">
-    <div class="card-title">Campaigns (this client only)</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">Campaigns (this client only)</div>
+      <button class="btn btn-sec" onclick="toggleNewCamp()">+ New Campaign</button>
+    </div>
+    <div class="hint">Campaign names must match the campaign names in your Google Sheet exactly, or Refresh from Sheet will skip them.</div>
+    <div id="new-camp-box" style="display:none;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px">
+      <div class="card-title">New Campaign</div>
+      <div class="g4" style="margin-bottom:12px">
+        <div><label>Name</label><input id="nc-name" placeholder="e.g. Hand Tools"></div>
+        <div><label>PPC ROAS Target</label><input id="nc-roas" type="number" step="0.01" placeholder="3.25"></div>
+        <div><label>Gross Margin %</label><input id="nc-gm" type="number" step="0.1" placeholder="23.5"></div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn btn-pri" onclick="addCamp()">Add</button>
+          <button class="btn btn-sec" onclick="toggleNewCamp()">Cancel</button>
+        </div>
+      </div>
+    </div>
     <div id="camp-list"></div>
     <hr class="sep">
     <div class="card-title" style="color:var(--red)">Danger Zone</div>
@@ -862,7 +872,8 @@ function sliceFor(campId, weeks) {
 //   Hard rules can't be outvoted: no increase below break-even, and an increase
 //   can never be bigger than the room above break-even.
 // ============================================================================
-const DEC_WEEKS = 4;
+function decWeeks() { const el = document.getElementById('dec-weeks'); const v = el ? parseInt(el.value, 10) : 4; return isNaN(v) ? 4 : v; }
+function decWin(rows) { const n = decWeeks(); return n > 0 ? rows.slice(-n) : rows; }
 const GOOGLE_SIGNALS = {
   STABLE:      { label: 'Stable (no signal)', score: 0 },
   LIMITED:     { label: 'Limited by budget', score: 100 },
@@ -881,6 +892,7 @@ function summarize4(win, camp) {
   const ppc = spend > 0 ? ppcRev / spend : 0, mer = spend > 0 ? totRev / spend : 0;
   const be = breakEven(camp), pt = win[n - 1].pt;
   const cushion = camp.gm > 0 ? mer * camp.gm - 1 : 0;   // profit per $1 of ads = % above break-even
+  const grossProfit = totRev * camp.gm, leftAfterAds = grossProfit - spend;   // gross profit minus ad spend
   const ppcGap = pt > 0 ? ppc / pt - 1 : 0;
   const halo = ppcRev > 0 ? totRev / ppcRev : 0;          // total revenue per $1 of PPC revenue
   const ppcBE = halo > 0 ? be / halo : 0;                 // PPC ROAS that keeps overall at break-even
@@ -890,7 +902,8 @@ function summarize4(win, camp) {
     const ma = blend(win.slice(0, h)), mb = blend(win.slice(h));
     if (ma > 0) { trend = mb / ma - 1; trendOk = true; }
   }
-  return { n, spend, ppcRev, totRev, ppc, mer, be, pt, cushion, ppcGap, halo, ppcBE, trend, trendOk, avgSpend: n ? spend / n : 0, first: win[0].e.date, last: win[n - 1].e.date };
+  const hh = Math.floor(n / 2), trendLbl = 'last ' + (n - hh) + ' week' + (n - hh === 1 ? '' : 's') + ' vs first ' + hh;
+  return { n, spend, ppcRev, totRev, ppc, mer, be, pt, cushion, ppcGap, halo, ppcBE, trend, trendOk, trendLbl, grossProfit, leftAfterAds, avgSpend: n ? spend / n : 0, first: win[0].e.date, last: win[n - 1].e.date };
 }
 
 function decide4(sum, g) {
@@ -900,19 +913,19 @@ function decide4(sum, g) {
   const st = sum.trendOk ? clamp(sum.trend / 0.10 * 100) : 0; // 10% improvement = full marks
   const data = Math.round(0.5 * sc + 0.3 * sp + 0.2 * st);
   const sig = g && GOOGLE_SIGNALS[g.signal] ? g.signal : 'STABLE';
-  const gw = Math.min(4, Math.max(1, +(g && g.weeks) || 1));
+  const gw = Math.min(sum.n, Math.max(1, +(g && g.weeks) || 1));
   const hasG = sig !== 'STABLE';
-  const gScore = hasG ? Math.round(GOOGLE_SIGNALS[sig].score * gw / 4) : 0;
+  const gScore = hasG ? Math.round(GOOGLE_SIGNALS[sig].score * gw / sum.n) : 0;
   const final = hasG ? Math.round(0.8 * data + 0.2 * gScore) : data;
 
   const reasons = [], rules = [];
   const aboveBE = Math.abs(sum.cushion * 100).toFixed(0) + '%';
   reasons.push('Overall ROAS ' + fmtR(sum.mer) + ' vs break-even ' + fmtR(sum.be) + ': ' + (sum.cushion >= 0
-    ? aboveBE + ' above. Each $1 of ads leaves about $' + sum.cushion.toFixed(2) + ' of gross profit.'
-    : aboveBE + ' below. Each $1 of ads loses about $' + Math.abs(sum.cushion).toFixed(2) + '.'));
+    ? aboveBE + ' above. Gross profit ' + fmt$(sum.grossProfit) + ' minus ad spend ' + fmt$(sum.spend) + ' leaves ' + fmt$(sum.leftAfterAds) + ' ($' + sum.cushion.toFixed(2) + ' per $1 of ads).'
+    : aboveBE + ' below. Gross profit ' + fmt$(sum.grossProfit) + ' does not cover ad spend ' + fmt$(sum.spend) + '. Short by ' + fmt$(Math.abs(sum.leftAfterAds)) + ' ($' + Math.abs(sum.cushion).toFixed(2) + ' per $1 of ads).'));
   reasons.push('PPC ROAS ' + fmtR(sum.ppc) + ' vs target ' + fmtR(sum.pt) + ': ' + pct(sum.ppcGap * 100) + '.');
-  reasons.push(sum.trendOk ? 'Overall ROAS, last 2 weeks vs first 2 weeks: ' + pct(sum.trend * 100) + '.' : 'Not enough weeks to read a trend.');
-  reasons.push(hasG ? 'Google: ' + GOOGLE_SIGNALS[sig].label + ', ' + gw + ' of 4 weeks. Counts for 20%.' : 'Google: stable. Decision uses our numbers only.');
+  reasons.push(sum.trendOk ? 'Overall ROAS, ' + sum.trendLbl + ': ' + pct(sum.trend * 100) + '.' : 'Not enough weeks to read a trend.');
+  reasons.push(hasG ? 'Google: ' + GOOGLE_SIGNALS[sig].label + ', ' + gw + ' of ' + sum.n + ' weeks. Counts for 20%.' : 'Google: stable. Decision uses our numbers only.');
 
   let step;
   if (final >= 70) step = 15; else if (final >= 40) step = 10; else if (final >= 20) step = 5;
@@ -955,8 +968,8 @@ function decide4(sum, g) {
   return { final, data, gScore, hasG, sig, gw, step, lever, bFrom, bTo, tFrom: sum.pt, tTo, title, tone, summary, reasons, rules };
 }
 
-function decKey(campId, date) { return activeClient().id + '|' + campId + '|' + date; }
-function findDecision(campId, date) { return (activeClient().decisions || []).find(d => d.campId === campId && d.endDate === date); }
+function decKey(campId, date) { return activeClient().id + '|' + campId + '|' + date + '|' + decWeeks(); }
+function findDecision(campId, date) { const w = decWeeks(); return (activeClient().decisions || []).find(d => d.campId === campId && d.endDate === date && (d.window == null ? 4 : d.window) === w); }
 function googleFor(campId, date) {
   if (decDraft && decDraft.key === decKey(campId, date)) return decDraft;
   const s = findDecision(campId, date);
@@ -999,7 +1012,7 @@ function addCamp() {
   const gm = parseFloat(document.getElementById('nc-gm').value) / 100 || 0.235;
   if (!name) { toast('Campaign name required', 'error'); return; }
   db.campaigns.push({ id: 'c' + Date.now(), name, targetROAS: roas, gm });
-  save(); populateSelects(); toggleNewCamp();
+  save(); populateSelects(); renderSettings(); toggleNewCamp();
   ['nc-name', 'nc-roas', 'nc-gm'].forEach(id => document.getElementById(id).value = '');
   toast('Campaign added', 'success');
 }
@@ -1102,22 +1115,14 @@ function getDecRow(campId, endDate) {
   const idx = rows.findIndex(r => r.e.date === endDate);
   return idx < 0 ? { row: rows[rows.length - 1], rows, camp } : { row: rows[idx], rows: rows.slice(0, idx + 1), camp };
 }
-function populateDecWindow() {
-  const campId = document.getElementById('dec-camp').value;
-  const entries = db.entries.filter(e => e.campId === campId);
-  const sel = document.getElementById('dec-end'), cur = sel.value;
-  sel.innerHTML = '<option value="">Most recent week</option>' + entries.slice().reverse().map(e => '<option value="' + e.date + '">' + e.date + '</option>').join('');
-  if (cur && entries.find(e => e.date === cur)) sel.value = cur;
-  renderDecision();
-}
+function populateDecWindow() { renderDecision(); }
 
 function renderDecision() {
   const campId = document.getElementById('dec-camp').value;
-  const endDate = document.getElementById('dec-end') ? document.getElementById('dec-end').value : '';
-  const got = getDecRow(campId, endDate);
-  if (!got) { lastDecCtx = null; document.getElementById('dec-content').innerHTML = '<div class="card"><p style="color:var(--text3);font-size:13px">No data for this campaign yet.</p></div>'; return; }
+  const got = getDecRow(campId, '');
+  if (!got) { lastDecCtx = null; document.getElementById('dec-content').innerHTML = '<div class="card"><p style="color:var(--amber);font-size:13px;line-height:1.7">No weeks for this campaign in this browser yet, so there is nothing to decide on.<br>The 4-week numbers, the <strong>What Google Says</strong> box and the recommendation appear here once weeks exist.<br><br>Your data is saved per web address. If you opened this file somewhere new, use <strong>Import Backup</strong> (top right) or <strong>Refresh from Sheet</strong>, or open it at your usual GitHub link.</p></div>'; return; }
   const { row: r, rows, camp } = got;
-  const win = rows.slice(-DEC_WEEKS);
+  const win = decWin(rows);
   const sum = summarize4(win, camp);
   const key = decKey(campId, r.e.date);
   if (!decDraft || decDraft.key !== key) {
@@ -1127,9 +1132,9 @@ function renderDecision() {
   lastDecCtx = { sum, camp, r, rows, win };
   const cushOk = sum.cushion >= 0, ppcOk = sum.ppcGap >= 0;
   const trendCls = !sum.trendOk ? 'signal-card' : sum.trend >= 0.03 ? 'sig-ok' : sum.trend <= -0.03 ? 'sig-warn' : 'signal-card';
-  const short = sum.n < DEC_WEEKS ? '<div class="hint" style="color:var(--amber);border-color:var(--amber-border)">Only ' + sum.n + ' week(s) of data. The decision gets more reliable at 4.</div>' : '';
+  const short = sum.n < 4 ? '<div class="hint" style="color:var(--amber);border-color:var(--amber-border)">Only ' + sum.n + ' week(s) of data. The decision gets more reliable at 4 or more.</div>' : '';
   const gOpts = Object.keys(GOOGLE_SIGNALS).map(k => '<option value="' + k + '"' + (decDraft.signal === k ? ' selected' : '') + '>' + GOOGLE_SIGNALS[k].label + '</option>').join('');
-  const wOpts = [1, 2, 3, 4].map(n => '<option value="' + n + '"' + (+decDraft.weeks === n ? ' selected' : '') + '>' + n + ' of 4 weeks</option>').join('');
+  const wOpts = Array.from({ length: sum.n }, (_, i) => i + 1).map(n => '<option value="' + n + '"' + (+decDraft.weeks === n ? ' selected' : '') + '>' + n + ' of ' + sum.n + ' weeks</option>').join('');
 
   document.getElementById('dec-content').innerHTML =
     '<div class="hint">Campaign <strong>' + escapeHtml(camp.name) + '</strong> &nbsp;·&nbsp; Last ' + sum.n + ' weeks: <strong>' + sum.first + '</strong> to <strong>' + sum.last + '</strong> &nbsp;·&nbsp; Gross margin <strong>' + (camp.gm * 100).toFixed(1) + '%</strong> &nbsp;·&nbsp; Break-even <strong>' + fmtR(sum.be) + '</strong></div>' + short +
@@ -1138,15 +1143,15 @@ function renderDecision() {
         card('Spend', fmt$(sum.spend), 'signal-card', 'avg ' + fmt$(sum.avgSpend) + ' / week', 'var(--text)') +
         card('PPC Revenue', fmt$(sum.ppcRev), 'signal-card', '', 'var(--text)') +
         card('Total Revenue', fmt$(sum.totRev), 'signal-card', '', 'var(--text)') +
-        card('Profit per $1 of Ads', (cushOk ? '+$' : '-$') + Math.abs(sum.cushion).toFixed(2), cushOk ? 'sig-ok' : 'sig-bad', (cushOk ? 'above' : 'below') + ' break-even by ' + Math.abs(sum.cushion * 100).toFixed(0) + '%', cushOk ? 'var(--green)' : 'var(--red)') +
+        card('Left After Ads', (cushOk ? '' : '-') + fmt$(Math.abs(sum.leftAfterAds)), cushOk ? 'sig-ok' : 'sig-bad', 'gross profit ' + fmt$(sum.grossProfit) + ' minus spend<br>= $' + Math.abs(sum.cushion).toFixed(2) + ' per $1 of ads', cushOk ? 'var(--green)' : 'var(--red)') +
       '</div><div class="g3">' +
         card('PPC ROAS', fmtR(sum.ppc), ppcOk ? 'sig-ok' : 'sig-bad', 'target ' + fmtR(sum.pt) + ' (' + pct(sum.ppcGap * 100) + ')', ppcOk ? 'var(--green)' : 'var(--red)') +
         card('Overall ROAS', fmtR(sum.mer), cushOk ? 'sig-ok' : 'sig-bad', 'break-even ' + fmtR(sum.be), cushOk ? 'var(--green)' : 'var(--red)') +
-        card('Trend (Overall ROAS)', sum.trendOk ? pct(sum.trend * 100) : '-', trendCls, 'last 2 weeks vs first 2', 'var(--text)') +
+        card('Trend (Overall ROAS)', sum.trendOk ? pct(sum.trend * 100) : '-', trendCls, sum.trendLbl, 'var(--text)') +
       '</div>' +
       (sum.ppcBE > 0 ? '<div class="hint" style="margin-top:12px;margin-bottom:0">Total revenue is <strong>' + sum.halo.toFixed(2) + '×</strong> PPC revenue. At that ratio, PPC ROAS has to stay above <strong>' + fmtR(sum.ppcBE) + '</strong> to keep overall at break-even. Your target of ' + fmtR(sum.pt) + ' is ' + pct((sum.pt / sum.ppcBE - 1) * 100) + ' above that.</div>' : '') +
     '</div>' +
-    '<div class="card"><div class="card-title">What Google Says (these 4 weeks)</div>' +
+    '<div class="card"><div class="card-title">What Google Says (these ' + sum.n + ' weeks)</div>' +
       '<div class="g3" style="margin-bottom:12px">' +
         '<div><label>Google signal</label><select id="dec-g-signal" onchange="onDecGoogleChange()">' + gOpts + '</select></div>' +
         '<div id="dec-g-weeks-wrap" style="display:' + (decDraft.signal === 'STABLE' ? 'none' : 'block') + '"><label>Showed up in</label><select id="dec-g-weeks" onchange="onDecGoogleChange()">' + wOpts + '</select></div>' +
@@ -1204,9 +1209,9 @@ function saveDecision() {
   const { sum, r } = lastDecCtx;
   const d = decide4(sum, decDraft);
   const c = activeClient(); if (!c.decisions) c.decisions = [];
-  const rec = { id: 'dec_' + Date.now(), campId: r.e.campId, endDate: r.e.date, signal: decDraft.signal, weeks: decDraft.weeks, note: (decDraft.note || '').trim(),
+  const rec = { id: 'dec_' + Date.now(), campId: r.e.campId, endDate: r.e.date, window: decWeeks(), n: sum.n, signal: decDraft.signal, weeks: decDraft.weeks, note: (decDraft.note || '').trim(),
     savedAt: new Date().toISOString(), result: { title: d.title, step: d.step, lever: d.lever, final: d.final, bFrom: d.bFrom, bTo: d.bTo, tFrom: d.tFrom, tTo: d.tTo } };
-  const i = c.decisions.findIndex(x => x.campId === rec.campId && x.endDate === rec.endDate);
+  const i = c.decisions.findIndex(x => x.campId === rec.campId && x.endDate === rec.endDate && (x.window == null ? 4 : x.window) === rec.window);
   if (i > -1) c.decisions[i] = rec; else c.decisions.push(rec);
   save(); renderRec(); renderDecLog(); toast('Decision saved', 'success');
 }
@@ -1214,11 +1219,12 @@ function renderDecLog() {
   const el = document.getElementById('dec-log'); if (!el || !lastDecCtx) return;
   const list = (activeClient().decisions || []).filter(d => d.campId === lastDecCtx.r.e.campId).sort((a, b) => b.endDate.localeCompare(a.endDate));
   if (!list.length) { el.innerHTML = '<p style="color:var(--text3);font-size:12px;font-family:\'IBM Plex Mono\',monospace">No saved decisions yet.</p>'; return; }
-  el.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>4 Weeks Ending</th><th>Google</th><th>Decision</th><th>Score</th><th>Notes</th><th></th></tr></thead><tbody>' +
+  el.innerHTML = '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Ending Week</th><th>Window</th><th>Google</th><th>Decision</th><th>Score</th><th>Notes</th><th></th></tr></thead><tbody>' +
     list.map(d => {
       const tone = d.result.step > 0 ? 'bg' : d.result.step < 0 ? 'br' : 'by';
       const g = GOOGLE_SIGNALS[d.signal] ? GOOGLE_SIGNALS[d.signal].label : d.signal;
-      return '<tr><td>' + d.endDate + '</td><td>' + g + (d.signal !== 'STABLE' ? ' (' + d.weeks + '/4)' : '') + '</td><td><span class="badge ' + tone + '">' + escapeHtml(d.result.title) + '</span></td><td>' + (d.result.final > 0 ? '+' : '') + d.result.final + '</td>' +
+      const wl = d.window === 0 ? 'All (' + (d.n || '?') + ')' : (d.window == null ? 4 : d.window) + ' wks';
+      return '<tr><td>' + d.endDate + '</td><td>' + wl + '</td><td>' + g + (d.signal !== 'STABLE' ? ' (' + d.weeks + '/' + (d.n || (d.window == null ? 4 : d.window)) + ')' : '') + '</td><td><span class="badge ' + tone + '">' + escapeHtml(d.result.title) + '</span></td><td>' + (d.result.final > 0 ? '+' : '') + d.result.final + '</td>' +
         '<td style="white-space:normal;max-width:320px">' + escapeHtml(d.note || '') + '</td><td><button class="btn btn-del" onclick="deleteDecision(\'' + d.id + '\')">Del</button></td></tr>';
     }).join('') + '</tbody></table></div>';
 }
@@ -1374,13 +1380,12 @@ function updateSettings() {
 // ============================================================================
 function exportDecisionPDF() {
   const campId = document.getElementById('dec-camp').value;
-  const endDate = document.getElementById('dec-end').value;
-  const got = getDecRow(campId, endDate);
+  const got = getDecRow(campId, '');
   if (!got) { toast('No data for this campaign', 'error'); return; }
   if (!window.jspdf) { toast('PDF library still loading, try again in a moment', 'error'); return; }
   const { row: r, rows, camp } = got;
   const s = STATES[r.st.code], be = r.be;
-  const sum = summarize4(rows.slice(-DEC_WEEKS), camp);
+  const sum = summarize4(decWin(rows), camp);
   const g = googleFor(campId, r.e.date);
   const d = decide4(sum, g);
   const last8 = rows.slice(-8);
@@ -1401,7 +1406,7 @@ function exportDecisionPDF() {
   doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(255, 255, 255);
   doc.text('MODONIX  ·  PREPARED FOR: ' + client.toUpperCase(), ml, 14);
   doc.setFont('helvetica', 'normal'); doc.setTextColor(139, 143, 154);
-  doc.text('ROAS CONTROL  ·  4-WEEK DECISION REPORT', W - mr, 14, { align: 'right' });
+  doc.text('ROAS CONTROL  ·  DECISION REPORT', W - mr, 14, { align: 'right' });
   y = 32;
 
   doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
@@ -1414,7 +1419,7 @@ function exportDecisionPDF() {
   doc.setFontSize(9); doc.setTextColor(...GREY);
   doc.text('Campaign: ' + camp.name + '  ·  Last ' + sum.n + ' weeks: ' + sum.first + ' to ' + sum.last, ml, y); y += 5;
   doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(13, 15, 17);
-  doc.text('4-Week Decision Report', ml, y); y += 7;
+  doc.text(sum.n + '-Week Decision Report', ml, y); y += 7;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...GREY);
   doc.text('Blended last ' + sum.n + ' weeks, our numbers weighted 80%, Google 20%', ml, y); y += 10;
   doc.line(ml, y, W - mr, y); y += 8;
@@ -1423,7 +1428,7 @@ function exportDecisionPDF() {
   doc.setFillColor(248, 249, 250); doc.setDrawColor(220, 226, 234);
   doc.roundedRect(ml, y, usableW, 10, 2, 2, 'FD');
   doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...GREY);
-  const strip4 = [['SPEND', fmt$(sum.spend)], ['TOTAL REV', fmt$(sum.totRev)], ['PPC ROAS', strip(fmtR(sum.ppc)) + ' / ' + strip(fmtR(sum.pt))], ['OVERALL ROAS', strip(fmtR(sum.mer)) + ' / ' + strip(fmtR(sum.be))], ['PROFIT PER $1', (sum.cushion >= 0 ? '+$' : '-$') + Math.abs(sum.cushion).toFixed(2)]];
+  const strip4 = [['SPEND', fmt$(sum.spend)], ['TOTAL REV', fmt$(sum.totRev)], ['PPC ROAS', strip(fmtR(sum.ppc)) + ' / ' + strip(fmtR(sum.pt))], ['OVERALL ROAS', strip(fmtR(sum.mer)) + ' / ' + strip(fmtR(sum.be))], ['LEFT AFTER ADS', (sum.leftAfterAds >= 0 ? '' : '-') + fmt$(Math.abs(sum.leftAfterAds))]];
   const sw = usableW / strip4.length;
   strip4.forEach((c, i) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...GREY); doc.text(c[0], ml + 3 + i * sw, y + 4); doc.setFontSize(8); doc.setTextColor(13, 15, 17); doc.text(c[1], ml + 3 + i * sw, y + 9); });
   y += 14;
@@ -1448,7 +1453,7 @@ function exportDecisionPDF() {
   doc.text('ACTIONS', ml, y); y += 5;
   const bRow = d.lever === 'budget' && d.step !== 0 ? (d.step > 0 ? 'Increase ' : 'Decrease ') + Math.abs(d.step) + '%  ' + fmt$(d.bFrom) + ' to ' + fmt$(d.bTo) + ' / week' : 'No change, about ' + fmt$(d.bFrom) + ' / week';
   const tRow = d.lever === 'target' ? (d.tTo < d.tFrom ? 'Lower ' : 'Raise ') + strip(fmtR(d.tFrom)) + ' to ' + strip(fmtR(d.tTo)) : 'No change, ' + strip(fmtR(d.tFrom));
-  const gRow = GOOGLE_SIGNALS[g.signal] ? GOOGLE_SIGNALS[g.signal].label + (g.signal !== 'STABLE' ? ' (' + g.weeks + ' of 4 weeks)' : '') : 'Stable';
+  const gRow = GOOGLE_SIGNALS[g.signal] ? GOOGLE_SIGNALS[g.signal].label + (g.signal !== 'STABLE' ? ' (' + g.weeks + ' of ' + sum.n + ' weeks)' : '') : 'Stable';
   const actRows = [['Budget (weekly spend)', bRow, d.lever === 'budget' && d.step > 0 ? GREEN : d.lever === 'budget' && d.step < 0 ? RED : GREY],
    ['ROAS Target', tRow, d.lever === 'target' ? (d.tTo < d.tFrom ? GREEN : RED) : GREY],
    ['Google signal', gRow, GREY]];
@@ -1496,7 +1501,7 @@ function exportDecisionPDF() {
   doc.setFillColor(240, 242, 245); doc.rect(0, H - 15, W, 15, 'F');
   doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...GREY);
   doc.text('Confidential. Prepared by ' + preparer + ' for ' + client, ml, H - 7);
-  doc.text('ROAS Control · 4-Week Decision Report', W / 2, H - 7, { align: 'center' });
+  doc.text('ROAS Control · Decision Report', W / 2, H - 7, { align: 'center' });
   doc.text(today, W - mr, H - 7, { align: 'right' });
   doc.save('ROAS_Decision_' + camp.name.replace(/\s+/g, '_') + '_' + r.e.date + '.pdf');
   toast('PDF exported', 'success');
@@ -1801,6 +1806,7 @@ updateBackupBanner();
 updateLastBackupInfo();
 loadSheetUrlToUi();
 loadCloudSettingsToUi();
+showTab('trend');   // Weekly Entry is hidden (data comes from Refresh from Sheet); its code is kept intact
 if (loadFailed) {
   const b = document.getElementById('backup-banner'), t = document.getElementById('banner-text');
   if (b && t) {
